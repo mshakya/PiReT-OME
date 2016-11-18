@@ -21,7 +21,7 @@ cd PiReT
 
 
 ##Dependencies
-PiReT run require fowllowing dependencies.
+PiReT run require fowllowing dependencies and in your path.
 
 ### Unix commands
 - sed
@@ -36,12 +36,15 @@ PiReT run require fowllowing dependencies.
 - [R](https://www.r-project.org)
 - [HTseq](http://www-huber.embl.de/HTSeq/doc/overview.html)
 - [HiSat](https://ccb.jhu.edu/software/hisat/index.shtml)
+- [Python 2.5 or higher](https://www.python.org/download/releases/2.7/)
 
 ### R packages
 - [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 - [DEseq](http://bioconductor.org/packages/release/bioc/html/DESeq.html)
 
-
+### Python packages
+- [numpy](http://www.numpy.org)
+- [matplotlib](http://matplotlib.org)
 
 ## Citations:
 If you use PiReT please cite following papers:

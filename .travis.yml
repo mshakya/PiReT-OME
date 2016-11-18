@@ -1,8 +1,27 @@
 sudo: false
-language: perl
+language: r
 
-perl:
-  - 5.16.3
-
-script:
+r: bioc-release
   
+ # - 5.16.3
+
+cache:
+  apt: true
+  directories:
+    - $HOME/miniconda
+
+before_install:
+  # install miniconda for Python dependencies
+  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda -f
+  - export PATH=$HOME/miniconda/bin:$PATH
+  - conda update --yes conda
+  - conda info -a
+
+r_packages:
+  - phyloseq
+
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy
+  - conda install --yes -c bioconda python=$TRAVIS_PYTHON_VERSION htseq hisat2 samtools bwa conda install bowtie2
