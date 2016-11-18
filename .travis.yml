@@ -27,5 +27,5 @@ r_packages:
   - phyloseq
 
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy
-  - conda install --yes -c bioconda python=$TRAVIS_PYTHON_VERSION htseq hisat2 samtools bwa conda install bowtie2
+  - conda install --yes python=2.7.5 pip numpy scipy
+  - conda install --yes -c bioconda python=2.7.5 htseq hisat2 samtools bwa conda install bowtie2
