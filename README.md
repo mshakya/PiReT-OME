@@ -1,6 +1,9 @@
+
 #PiReT
 
 Pipeline for Reference based Transcriptomics.
+
+[![Build Status](https://travis-ci.com/mshakya/PiReT.svg?token=xwcWcg2wroskmENQQapz&branch=master)](https://travis-ci.com/mshakya/PiReT)
 
 ## Installing PiReT
 
