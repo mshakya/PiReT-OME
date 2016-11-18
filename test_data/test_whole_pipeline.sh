@@ -17,10 +17,10 @@ rm -r pipeline_test
 perl ../scripts/runPipeline_rRNA_noqsub_commandline.pl -test_kingdom prokaryote \
 -significant_pvalue 0.001 -exp test_experimental_design.txt \
 -d pipeline_test \
--prokaryote_fasta data/Bacillus_anthracis__Ames_Ancestor_uid58083.fa \
--eukarya_fasta data/cavPor3.fa -index_ref_bt2 test_index \
--gff_prokaryote data/Bacillus_anthracis__Ames_Ancestor_uid58083.gff \
--test_method EdgeR -gene_coverage_fasta data/Bacillus_anthracis__Ames_Ancestor_uid58083.fa
+-prokaryote_fasta data/test_prok.fa \
+-eukarya_fasta data/test_euk.fa -index_ref_bt2 test_index \
+-gff_prokaryote data/test_prok.gff \
+-test_method EdgeR -gene_coverage_fasta data/test_prok.fa
 
 
 
