@@ -25,7 +25,7 @@ before_install:
   - conda info -a
 
 r_packages:
-  - phyloseq
+  - edgeR
 
 install:
   - conda install --yes pip numpy scipy
