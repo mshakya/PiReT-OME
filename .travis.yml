@@ -30,4 +30,4 @@ r_packages:
 
 install:
   - conda install --yes pip numpy scipy
-  - conda install --yes -c bioconda htseq hisat2 samtools bwa conda install bowtie2
+  - conda install --yes -c bioconda htseq hisat2 samtools bwa conda bowtie2
