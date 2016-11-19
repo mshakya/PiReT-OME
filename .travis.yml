@@ -26,6 +26,7 @@ before_install:
 
 r_packages:
   - edgeR
+  - DESeq2
 
 install:
   - conda install --yes pip numpy scipy
