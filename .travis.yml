@@ -33,4 +33,4 @@ install:
   - conda install --yes -c bioconda htseq hisat2 samtools bwa bowtie2
 
 script:
-  cd test_data && sh test_whole_pipeline.sh
+  cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log && grep ">"
