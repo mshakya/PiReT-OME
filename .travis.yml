@@ -3,8 +3,9 @@ language: r
 
 r: bioc-release
 
-python: 
-  - 2.7.5
+python:
+  - 2.7.8
+  - 2.7.12
 
 perl:
  - 5.16.3
@@ -27,5 +28,5 @@ r_packages:
   - phyloseq
 
 install:
-  - conda install --yes python=2.7.5 pip numpy scipy
-  - conda install --yes -c bioconda python=2.7.5 htseq hisat2 samtools bwa conda install bowtie2
+  - conda install --yes pip numpy scipy
+  - conda install --yes -c bioconda htseq hisat2 samtools bwa conda install bowtie2
