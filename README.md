@@ -50,9 +50,7 @@ PiReT run require fowllowing dependencies and in your path.
 - [matplotlib](http://matplotlib.org)
 
 
-## pipeline options
-
-If you have
+## How to run the pipeline?
 
 
 ```
@@ -83,7 +81,7 @@ If you have
 
 `-significant_pvalue`: floating number cutoff to define significant differentially express genes, (default =0.001)
 
-`-exp`: tab delimited txt file descripting experiments that each row represents one sample.
+`-exp`: tab delimited text file descripting experiments that each row represents one sample.
 
 `-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
 
