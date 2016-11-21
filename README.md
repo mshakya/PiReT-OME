@@ -18,13 +18,37 @@ git clone https://github.com/mshakya/PiReT.git
 
 ```
 cd PiReT
+```
+
+There are two ways to install the required dependencies. We recommened using the `bioconda_INSTALL.sh`.
+
+### Manual installation of dependencies.
+
+```
 ./INSTALL.sh
 
 ```
 
+### Bioconda installation of dependecies
+
+```
+./bioconda_INSTALL.SH
+```
+
+
+
+
 
 ##Dependencies
 PiReT run require fowllowing dependencies and in your path.
+
+### Programming/Scritpting languages
+- [Python 2.7](https://www.python.org/downloads/release/python-2712/)
+    - The pipeline does not work in Python 3.0 or higher yet due
+- [Perl v5.16.3](https://www.perl.org/get.html)
+    - The pipeline has only been tested in v5.16.3
+- [R v3.3.1](https://www.r-project.org)
+
 
 ### Unix
 - sed
@@ -38,7 +62,7 @@ PiReT run require fowllowing dependencies and in your path.
 - [bwa](http://bio-bwa.sourceforge.net)
 - [R](https://www.r-project.org)
 - [HTseq](http://www-huber.embl.de/HTSeq/doc/overview.html)
-- [HiSat](https://ccb.jhu.edu/software/hisat/index.shtml)
+- [HiSat2](https://ccb.jhu.edu/software/hisat/index.shtml)
 - [Python 2.5 or higher](https://www.python.org/download/releases/2.7/)
 
 ### R packages
