@@ -287,8 +287,8 @@ if ($test eq 'both' || $test eq 'eukarya' )
      unless (-d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]") {mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777 or die "failed: can not make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";}
     &lprint ("perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n");
     `perl $Bin/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
-    &lprint ("python $Bin/hisat-0.1.5-beta/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n");
-    `python $Bin/hisat-0.1.5-beta/scratch/hisat-master/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
+    &lprint ("python $Bin/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n");
+    `python $Bin/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
      if (&file_check("$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt")>0) {
     &lprint ("cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n");
     `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`; 
