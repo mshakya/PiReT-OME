@@ -379,17 +379,20 @@ if ($pairfile)
          if ($eukarya_fasta && $prokaryote_fasta)
           { 
             &lprint (" $Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n");
-            `$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+            `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+            #`$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
          }
          elsif ($eukarya_fasta)
           {
             &lprint ("$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta  $index_bt2\n");
-             `$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
+             `hisat2-build --large-index $eukarya_fasta  $index_bt2`;
+             #`$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
           }
          elsif ($prokaryote_fasta) 
           {
-            &lprint ("$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta $index_bt2\n"); 
-            `$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta  $index_bt2`;
+            &lprint ("$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta $index_bt2\n");
+            `hisat2-build --large-index $prokaryote_fasta  $index_bt2`; 
+            # `$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta  $index_bt2`;
           }
          else {&lprint ("failed: no INDEX files\n");exit; }
    }
