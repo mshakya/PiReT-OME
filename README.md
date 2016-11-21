@@ -26,13 +26,13 @@ cd PiReT
 ##Dependencies
 PiReT run require fowllowing dependencies and in your path.
 
-### Unix commands
+### Unix
 - sed
 - awk
 - find
 
 
-### Third party softwares/packages
+### Third party softwares/packages must be installed and in the path
 - [samtools](http://www.htslib.org)
 - [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - [bwa](http://bio-bwa.sourceforge.net)
@@ -48,6 +48,22 @@ PiReT run require fowllowing dependencies and in your path.
 ### Python packages
 - [numpy](http://www.numpy.org)
 - [matplotlib](http://matplotlib.org)
+
+
+## pipeline options
+
+If you have
+
+
+```
+    perl runPipeline_rRNA_noqsub_commandline.pl [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
+```
+
+`-d`: string, working directory where all output files will be written, the user must have write permission
+
+
+
+
 
 ## Citations:
 If you use PiReT please cite following papers:
