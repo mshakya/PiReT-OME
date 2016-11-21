@@ -59,10 +59,33 @@ If you have
     perl runPipeline_rRNA_noqsub_commandline.pl [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
 ```
 
-`-d`: string, working directory where all output files will be written, the user must have write permission
+`-d`: working directory where all output files will be written, the user must have write permission.
 
+`-prokaryote_fasta`: comma-separated list of referecnce genome (prokarya) fasta files (for making bowtie2 mapping index file). [optional]
 
+`-gff_prokaryote`: comma-separated list of gff files for corresponding referecnce genome fasta files (contig names must match reference sequence header). [optional]
 
+`-eukarya_fasta` : comma-separated list of referecnce genome (eukarya) fasta files (for making bowtie2 mapping index file). [optional]
+
+`-gff_eukarya`: comma-separated list of gff files for corresponding referecnce genome fasta files (contig names must match reference sequence header). [optional]
+
+`-index_ref_bt2`: bowtie2 mapping index file,  if the file exists, pipeline skips this step. [optional]
+
+`-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence). [optional]
+
+`-test_kingdom`: desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default prokaryote));
+
+`-test_method`: dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default both)); must have have at least 3 duplicates if using Deseq2.
+
+`-cpu`: number of cpu to be used (default 1)
+
+`-BAM_ready`: if mapping file are provided for samples by users (`yes` or `no`). default: `no`
+
+`-significant_pvalue`: floating number cutoff to define significant differentially express genes, (default =0.001)
+
+`-exp`: tab delimited txt file descripting experiments that each row represents one sample.
+
+`-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
 
 
 ## Citations:
