@@ -63,7 +63,7 @@ PiReT run require fowllowing dependencies and in your path.
 - [R](https://www.r-project.org)
 - [HTseq](http://www-huber.embl.de/HTSeq/doc/overview.html)
 - [HiSat2](https://ccb.jhu.edu/software/hisat/index.shtml)
-- [Python 2.5 or higher](https://www.python.org/download/releases/2.7/)
+- [bedtools](http://bedtools.readthedocs.io/en/latest/index.html)
 
 ### R packages
 - [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
@@ -120,6 +120,7 @@ If you use PiReT please cite following papers:
 - McCarthy, J. D, Chen, Yunshun, Smyth and K. G (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research, 40(10), pp. -9. [PMID: 22287627]
 - Anders, S., Pyl, P. T., & Huber, W. (2014). HTSeq–a Python framework to work with high-throughput sequencing data. Bioinformatics. [PMID: 25260700]
 - Kim, D., Langmead, B., & Salzberg, S. L. (2015). HISAT: a fast spliced aligner with low memory requirements. Nature methods, 12(4), 357-360. [PMID: 25751142]
+- Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842. [PMID: 20110278]
 
 
 

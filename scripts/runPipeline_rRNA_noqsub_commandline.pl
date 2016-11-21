@@ -69,6 +69,7 @@ my $start_time_string=&getTmpNameByTime;
 
  $scriptDir=Cwd::abs_path("$scriptDir");
  $workdir=Cwd::abs_path("$workdir");
+ $descriptfile=Cwd::abs_path("$descriptfile");
 
 unless (-d "$workdir") {mkdir "$workdir", 0777 or die "failed: failed: can not make dir  $workdir $!";}
 
