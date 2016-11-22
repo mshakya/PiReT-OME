@@ -41,7 +41,7 @@ We have also provided a script `bioconda_INSTALL.sh` that checks if the required
 
 
 ##Dependencies
-PiReT run require fowllowing dependencies and in your path.
+PiReT run require fowllowing dependencies which should be in your path.
 
 ### Programming/Scritpting languages
 - [Python 2.7](https://www.python.org/downloads/release/python-2712/)
@@ -66,7 +66,6 @@ PiReT run require fowllowing dependencies and in your path.
 - [samtools](http://www.htslib.org)
 - [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - [bwa](http://bio-bwa.sourceforge.net)
-- [R](https://www.r-project.org)
 - [HTseq](http://www-huber.embl.de/HTSeq/doc/overview.html)
 - [HiSat2](https://ccb.jhu.edu/software/hisat/index.shtml)
 - [bedtools](http://bedtools.readthedocs.io/en/latest/index.html)
