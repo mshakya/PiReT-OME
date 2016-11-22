@@ -1,23 +1,72 @@
 #!/usr/bin/env bash
-set -e
-rootdir=$( cd $(dirname $0) ; pwd -P )
+
+set -e # Exit as soon as any line in the bash script fails
+
+ROOTDIR=$( cd $(dirname $0) ; pwd -P ) # path to main PiReT directory
+
+echo
 exec &> >(tee -a  install.log)
-exec 2>&1
+exec 2>&1 # copies stderr onto stdout
 
-cd $rootdir
+# create a directory where all dependencies will be installed
+cd $ROOTDIR
+mkdir -p thirdParty
+cd thirdParty
 
 
-
-
-utility_tools=(samtools bedtools)
-alignments_tools=( bowtie2 bwa )
+utility_tools=(samtools bedtools hisat2)
+alignments_tools=(bowtie2 bwa)
+perl_modules=( perl_parallel_forkmanager )
 all_tools=("${utility_tools[@]}" "${alignments_tools[@]}")
 
+
+install_hisat2()
+{
+echo "--------------------------------------------------------------------------
+                           installing hisat2
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda hisat2
+echo "
+------------------------------------------------------------------------------
+                           hisat2 installed
+------------------------------------------------------------------------------
+"
+}
+
+install_jellyfish()
+{
+echo "--------------------------------------------------------------------------
+                           installing jellyfish
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda jellyfish
+echo "
+------------------------------------------------------------------------------
+                           jellyfish installed
+------------------------------------------------------------------------------
+"
+}
+
+install_perl_parallel_forkmanager()
+{
+echo "------------------------------------------------------------------------------
+               Installing Perl Module Parallel-ForkManager
+------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda perl-parallel-forkmanager
+
+echo "
+------------------------------------------------------------------------------
+                        Parallel-ForkManager-1.03 Installed
+------------------------------------------------------------------------------
+"
+}
 
 install_bowtie2()
 {
 echo "--------------------------------------------------------------------------
-                           Compiling bowtie2
+                           installing bowtie2
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bowtie2
@@ -46,13 +95,13 @@ echo "
 install_samtools()
 {
 echo "--------------------------------------------------------------------------
-                           Compiling samtools 0.1.19
+                           Compiling samtools
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda samtools
 echo "
 --------------------------------------------------------------------------------
-                           samtools compiled
+                           samtools installed
 --------------------------------------------------------------------------------
 "
 }
@@ -78,10 +127,30 @@ echo "--------------------------------------------------------------------------
                            downloading miniconda
 --------------------------------------------------------------------------------
 "
-wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-chmod +x miniconda.sh
-./miniconda.sh -b -p $HOME/miniconda -f
-export PATH=$HOME/miniconda/bin:$PATH
+
+if [[ "$OSTYPE" == "darwin"* ]]
+then
+{
+
+  curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh
+  chmod +x miniconda.sh
+  ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
+  export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+
+}
+else
+{  
+
+  wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  chmod +x miniconda.sh
+  ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
+  export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+
+}
+fi
+
+
+
 
 echo "
 --------------------------------------------------------------------------------
@@ -104,10 +173,16 @@ checkSystemInstallation()
 checkLocalInstallation()
 {
     IFS=:
-    for d in $rootdir/bin; do
+    for d in $ROOTDIR/bin; do
       if test -x "$d/$1"; then return 0; fi
     done
     return 1
+}
+
+checkPerlModule()
+{
+   perl -e "use lib \"$rootdir/lib\"; use $1;"
+   return $?
 }
 
 
@@ -127,14 +202,14 @@ usage: $0 options
     list            show available tools for updates
     tools_name      install/update individual tool
     force           force to install all list tools locally
-
+    
     ex: To update bowtie2 only
         $0 bowtie2
     ex: To update bowtie2 and bwa
         $0 bowtie2 bwa
     ex: RE-install Phylogeny tools
         $0 Phylogeny
-
+        
 EOF
 
 }
@@ -251,6 +326,9 @@ fi
 echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R')
       biocLite('edgeR')}" | Rscript -
 
+#Deseq2
+echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R')
+      biocLite('DESeq2')}" | Rscript -
 
 
 if ( checkSystemInstallation conda )
@@ -259,6 +337,22 @@ then
 else
   echo "conda is not found"
   install_miniconda
+fi
+
+if ( checkSystemInstallation hisat2 )
+then
+  echo "hisat2 is found"
+else
+  echo "hisat2 is not found"
+  install_hisat2
+fi
+
+if ( checkSystemInstallation jellyfish )
+then
+  echo "jellyfish is found"
+else
+  echo "jellyfish is not found"
+  install_jellyfish
 fi
 
 if ( checkSystemInstallation bowtie2 )
@@ -285,49 +379,47 @@ else
   install_samtools
 fi
 
+if ( checkSystemInstallation bedtools )
+then
+  echo "bedtools is found"
+else
+  echo "bedtools is not found"
+  install_bedtools
+fi
 
+if ( checkPerlModule Parallel::ForkManager )
+then
+  echo "Perl Parallel::ForkManager is found"
+else
+  echo "Perl Parallel::ForkManager is not found"
+  install_perl_parallel_forkmanager
+fi
+
+################################################################################
+#                       Add path to bash
+################################################################################
 if [ -f $HOME/.bashrc ]
 then
 {
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
-  echo "export RNASeq_HOME=$rootdir" >> $HOME/.bashrc
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
+  source $HOME/.bashrc 
 }
 else
 {
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
-  echo "export RNASeq_HOME=$rootdir" >> $HOME/.bash_profile
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bash_profile
+  echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
+  source $HOME/.bash_profile 
 }
 fi
-
-# sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
-# sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
-
-# TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
-# if [ $TOLCPU -gt 0 ]
-# then
-# {
-#     sed -i.bak 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
-#     DEFAULT_CPU=`echo -n $((TOLCPU/3))`;
-#     if [ $DEFAULT_CPU -lt 1 ]
-#     then
-#     {
-#         sed -i.bak 's,%DEFAULT_CPU%,'"1"',g' $rootdir/edge_ui/index.html
-#     }
-#     else
-#     {
-#         sed -i.bak 's,%DEFAULT_CPU%,'"$DEFAULT_CPU"',g' $rootdir/edge_ui/index.html
-#     }
-#     fi
-# }
-# fi
 
 echo "
 All done! Please Restart the Terminal Session.
 Run
-./runPipeline
+./runPipeline_rRNA_noqsub_commandline.pl
 for usage.
 Read the README for more information!
 Thanks!
-"
+    "
