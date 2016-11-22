@@ -31,7 +31,7 @@ echo "
 install_bwa()
 {
 echo "------------------------------------------------------------------------------
-                           Compiling bwa 
+                           Compiling bwa
 ------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bwa
@@ -53,6 +53,39 @@ conda install --yes -c bioconda samtools
 echo "
 --------------------------------------------------------------------------------
                            samtools compiled
+--------------------------------------------------------------------------------
+"
+}
+
+
+install_bedtools()
+{
+echo "--------------------------------------------------------------------------
+                           Compiling bedtools
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda bedtools
+echo "
+--------------------------------------------------------------------------------
+                           bedtools compiled
+--------------------------------------------------------------------------------
+"
+}
+
+install_miniconda()
+{
+echo "--------------------------------------------------------------------------
+                           downloading miniconda
+--------------------------------------------------------------------------------
+"
+wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+chmod +x miniconda.sh
+./miniconda.sh -b -p $HOME/miniconda -f
+export PATH=$HOME/miniconda/bin:$PATH
+
+echo "
+--------------------------------------------------------------------------------
+                           bedtools compiled
 --------------------------------------------------------------------------------
 "
 }
@@ -94,14 +127,14 @@ usage: $0 options
     list            show available tools for updates
     tools_name      install/update individual tool
     force           force to install all list tools locally
-    
+
     ex: To update bowtie2 only
         $0 bowtie2
     ex: To update bowtie2 and bwa
         $0 bowtie2 bwa
     ex: RE-install Phylogeny tools
         $0 Phylogeny
-        
+
 EOF
 
 }
@@ -109,8 +142,8 @@ EOF
 print_tools_list()
 {
 
-   
-   echo "Available tools for updates/re-install"   
+
+   echo "Available tools for updates/re-install"
    echo -e "\nAlignment"
    for i in "${alignments_tools[@]}"
    do
@@ -152,16 +185,16 @@ then
             install_$tool
         done
         echo -e "Alignment tools installed.\n"
-        exit 0;; 
+        exit 0;;
       Utility)
         for tool in "${utility_tools[@]}"
         do
             install_$tool
         done
         echo -e "Utility tools installed.\n"
-        exit 0;; 
+        exit 0;;
       force)
-        for tool in "${all_tools[@]}" 
+        for tool in "${all_tools[@]}"
         do
             install_$tool
         done
@@ -205,7 +238,7 @@ else
     }
     else
     {
-        echo "R is not found" 
+        echo "R is not found"
         install_R
     }
     fi
@@ -214,13 +247,19 @@ fi
 
 # check if required bioconductor R packages are installed
 
-# echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(\"gridExtra_0.9.1.tar.gz\", repos = NULL, type=\"source\")}" | Rscript -  
-
 #edgeR
 echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R')
-      biocLite('edgeR')}" | Rscript -  
+      biocLite('edgeR')}" | Rscript -
 
 
+
+if ( checkSystemInstallation conda )
+then
+  echo "conda is found"
+else
+  echo "conda is not found"
+  install_miniconda
+fi
 
 if ( checkSystemInstallation bowtie2 )
 then
