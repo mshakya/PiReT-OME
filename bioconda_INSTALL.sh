@@ -91,6 +91,20 @@ echo "
 "
 }
 
+install_htseq()
+{
+echo "------------------------------------------------------------------------------
+                           installing htseq
+------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda htseq
+echo "
+------------------------------------------------------------------------------
+                           htseq installed
+------------------------------------------------------------------------------
+"
+}
+
 
 install_samtools()
 {
@@ -364,6 +378,14 @@ then
 else
   echo "hisat2 is not found"
   install_hisat2
+fi
+
+if ( checkSystemInstallation htseq-count )
+then
+  echo "htseq is found"
+else
+  echo "htseq is not found"
+  install_htseq
 fi
 
 if ( checkSystemInstallation jellyfish )
