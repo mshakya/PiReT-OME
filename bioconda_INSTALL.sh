@@ -106,6 +106,20 @@ echo "
 "
 }
 
+install_cpan()
+{
+echo "--------------------------------------------------------------------------
+                           Installing cpan
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda perl-cpan-meta
+echo "
+--------------------------------------------------------------------------------
+                           cpan installed
+--------------------------------------------------------------------------------
+"
+}
+
 
 install_bedtools()
 {
@@ -148,13 +162,18 @@ else
 
 }
 fi
+}
 
-
-
-
+install_perl_string_approx()
+{
+echo "--------------------------------------------------------------------------
+                           installing Perl Module String::Approx
+--------------------------------------------------------------------------------
+"
+cpan String::Approx
 echo "
 --------------------------------------------------------------------------------
-                           bedtools compiled
+                           String::Approx installed
 --------------------------------------------------------------------------------
 "
 }
@@ -394,6 +413,23 @@ else
   echo "Perl Parallel::ForkManager is not found"
   install_perl_parallel_forkmanager
 fi
+
+if ( checkSystemInstallation cpan )
+then
+  echo "cpan is found"
+else
+  echo "cpan is not found"
+  install_cpan
+fi
+
+if ( checkPerlModule String::Approx )
+then
+  echo "Perl String::Approx is found"
+else
+  echo "Perl String::Approx is not found"
+  install_perl_string_approx
+fi
+
 
 ################################################################################
 #                       Add path to bash

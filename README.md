@@ -7,8 +7,7 @@ Pipeline for Reference based Transcriptomics.
 
 ## Installing PiReT
 
-Download the latest version of PiReT from [github](https://github.com/mshakya/PiReT.git) into a
-Linux server.
+Download the latest version of PiReT from [github](https://github.com/mshakya/PiReT.git) or use `git clone` from command line.
 
 ```
 git clone https://github.com/mshakya/PiReT.git
@@ -31,13 +30,13 @@ There are two ways to install the required dependencies. We recommened using the
 
 ### Bioconda installation of dependecies
 
-PiReT uses many of the biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. The following script checks if the required dependencies (see below) are in your path and installs (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it.
+PiReT uses biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. If all the dependencies are already installed in your system, there is no need of any further step.
+
+We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installsif its not (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges to install these dependencies.
 
 ```
 ./bioconda_INSTALL.SH
 ```
-
-
 
 
 
@@ -46,9 +45,9 @@ PiReT run require fowllowing dependencies and in your path.
 
 ### Programming/Scritpting languages
 - [Python 2.7](https://www.python.org/downloads/release/python-2712/)
-    - The pipeline does not work in Python 3.0 or higher yet due
+    - The pipeline is not compatilble with Python v3.0 or higher.
 - [Perl v5.16.3](https://www.perl.org/get.html)
-    - The pipeline has only been tested in v5.16.3
+    - The pipeline has only been tested in v5.16.3 and v5.22.0
 - [R v3.3.1](https://www.r-project.org)
 
 
