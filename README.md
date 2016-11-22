@@ -54,9 +54,11 @@ PiReT run require fowllowing dependencies and in your path.
 - sed
 - awk
 - find
+- curl/wget
 
 
 ### Third party softwares/packages must be installed and in the path
+- [jellyfish](http://www.genome.umd.edu/jellyfish.html)
 - [samtools](http://www.htslib.org)
 - [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - [bwa](http://bio-bwa.sourceforge.net)
@@ -73,6 +75,9 @@ PiReT run require fowllowing dependencies and in your path.
 - [numpy](http://www.numpy.org)
 - [matplotlib](http://matplotlib.org)
 
+### Perl modules
+- [Parallel::ForkManager](http://search.cpan.org/~yanick/Parallel-ForkManager-1.19/lib/Parallel/ForkManager.pm)
+- [String::Approx](http://search.cpan.org/dist/String-Approx/Approx.pm)
 
 ## How to run the pipeline?
 
@@ -95,9 +100,9 @@ PiReT run require fowllowing dependencies and in your path.
 
 `-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence). [optional]
 
-`-test_kingdom`: desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default prokaryote));
+`-test_kingdom`: desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default:`prokaryote`));
 
-`-test_method`: dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default both)); must have have at least 3 duplicates if using Deseq2.
+`-test_method`: dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default: `both`)); must have have at least 3 duplicates if using Deseq2.
 
 `-cpu`: number of cpu to be used (default 1)
 
