@@ -60,13 +60,13 @@ if(&file_check("$workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref.b
   {
 
 print LOG "
-samtools sort $workdir/$sample/mapping_results/backward.eukarya_ref.bam $workdir/$sample/mapping_results/sortedpos.backward.eukarya_ref\n
-samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref\n
+samtools sort $workdir/$sample/mapping_results/backward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.backward.eukarya_ref.bam\n
+samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref.bam\n
 ";
 
 
-`samtools sort $workdir/$sample/mapping_results/backward.eukarya_ref.bam $workdir/$sample/mapping_results/sortedpos.backward.eukarya_ref`;
-`samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref`;
+`samtools sort $workdir/$sample/mapping_results/backward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.backward.eukarya_ref.bam`;
+`samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref.bam,`;
 #unlink "$workdir/$sample/mapping_results/backward.eukarya_ref.bam";
 #unlink "$workdir/$sample/mapping_results/forward.eukarya_ref.bam";
 }

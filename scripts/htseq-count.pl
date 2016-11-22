@@ -30,7 +30,7 @@ if (-e "$workdir/$sample/mapping_results/paired.prokaryote_ref.sam" )
 
 if( -e "$workdir/$sample/mapping_results/paired.prokaryote_ref.bam")
 {
-`samtools sort -n $workdir/$sample/mapping_results/paired.prokaryote_ref.bam $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref`;
+`samtools sort -n $workdir/$sample/mapping_results/paired.prokaryote_ref.bam -o $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.bam`;
 # unlink "$workdir/$sample/mapping_results/paired.prokaryote_ref.bam";
 }
 
@@ -42,8 +42,8 @@ if( -e "$workdir/$sample/mapping_results/paired.prokaryote_ref.bam")
        next unless -d "$workdir/differential_gene/prokaryote/$tmpdir";
        next if ($tmpdir =~ /^\./);
        my $tmpoutfile="$workdir/sum_gene_count/tmp_count/prokaryote/$tmpdir/$sample.prokaryote.name.htseq.locus_tag.txt";
- print LOG "$Bin/HTSeq-0.6.1/build/scripts-2.7/htseq-count  -t gene -q -i locus_tag $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.sam  $workdir/differential_gene/prokaryote/$tmpdir/prokaryote.gff  > $tmpoutfile\n";
- `$Bin/HTSeq-0.6.1/build/scripts-2.7/htseq-count  -t gene -q -i locus_tag $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.sam  $workdir/differential_gene/prokaryote/$tmpdir/prokaryote.gff  > $tmpoutfile`;
+ print LOG "htseq-count  -t gene -q -i locus_tag $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.sam  $workdir/differential_gene/prokaryote/$tmpdir/prokaryote.gff  > $tmpoutfile\n";
+ `htseq-count -t gene -q -i locus_tag $workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.sam  $workdir/differential_gene/prokaryote/$tmpdir/prokaryote.gff  > $tmpoutfile`;
   }
 # unlink "$workdir/$sample/mapping_results/sortedname.paired.prokaryote_ref.sam";
  }
@@ -59,7 +59,7 @@ if (-e "$workdir/$sample/mapping_results/paired.eukarya_ref.sam" )
 
 if (-e "$workdir/$sample/mapping_results/paired.eukarya_ref.bam" )    
 {
-`samtools sort -n $workdir/$sample/mapping_results/paired.eukarya_ref.bam $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref`;
+`samtools sort -n $workdir/$sample/mapping_results/paired.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.bam`;
 # unlink "$workdir/$sample/mapping_results/paired.eukarya_ref.bam";
 }
 `samtools view -h $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.bam > $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam`;
@@ -70,8 +70,8 @@ if (-e "$workdir/$sample/mapping_results/paired.eukarya_ref.bam" )
     next unless -d "$workdir/differential_gene/eukarya/$tmpdir";
     next if ($tmpdir =~ /^\./);
     my $tmpoutfile="$workdir/sum_gene_count/tmp_count/eukarya/$tmpdir/$sample.eukarya.name.htseq.locus_tag.txt";
-  print LOG "$Bin/HTSeq-0.6.1/build/scripts-2.7/htseq-count  -t gene -q -i gene_id  $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam $workdir/differential_gene/eukarya/$tmpdir/eukarya.gff  > $tmpoutfile\n";
-  `$Bin/HTSeq-0.6.1/build/scripts-2.7/htseq-count  -t gene  -q -i gene_id  $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam $workdir/differential_gene/eukarya/$tmpdir/eukarya.gff  > $tmpoutfile`;
+  print LOG "htseq-count  -t gene -q -i gene_id  $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam $workdir/differential_gene/eukarya/$tmpdir/eukarya.gff  > $tmpoutfile\n";
+  `htseq-count  -t gene  -q -i gene_id  $workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam $workdir/differential_gene/eukarya/$tmpdir/eukarya.gff  > $tmpoutfile`;
   }
  #unlink "$workdir/$sample/mapping_results/sortedname.paired.eukarya_ref.sam";
  }

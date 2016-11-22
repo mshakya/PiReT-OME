@@ -71,13 +71,13 @@ if(&file_check("$workdir/$sample/mapping_results/sortedpos.forward.prokaryote_re
 
 print LOG
 "          
-samtools sort $workdir/$sample/mapping_results/backward.prokaryote_ref.bam $workdir/$sample/mapping_results/sortedpos.backward.prokaryote_ref\n
-samtools sort $workdir/$sample/mapping_results/forward.prokaryote_ref.bam $workdir/$sample/mapping_results/sortedpos.forward.prokaryote_ref\n
+samtools sort $workdir/$sample/mapping_results/backward.prokaryote_ref.bam -o $workdir/$sample/mapping_results/sortedpos.backward.prokaryote_ref.bam\n
+samtools sort $workdir/$sample/mapping_results/forward.prokaryote_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.prokaryote_ref.bam\n
 ";
 
 
-`samtools sort $workdir/$sample/mapping_results/backward.prokaryote_ref.bam $workdir/$sample/mapping_results/sortedpos.backward.prokaryote_ref`;
-`samtools sort $workdir/$sample/mapping_results/forward.prokaryote_ref.bam $workdir/$sample/mapping_results/sortedpos.forward.prokaryote_ref`;
+`samtools sort $workdir/$sample/mapping_results/backward.prokaryote_ref.bam -o $workdir/$sample/mapping_results/sortedpos.backward.prokaryote_ref.bam`;
+`samtools sort $workdir/$sample/mapping_results/forward.prokaryote_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.prokaryote_ref.bam`;
 #unlink "$workdir/$sample/mapping_results/backward.prokaryote_ref.bam";
 #unlink "$workdir/$sample/mapping_results/forward.prokaryote_ref.bam";
 }
