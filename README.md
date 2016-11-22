@@ -118,6 +118,41 @@ PiReT run require fowllowing dependencies which should be in your path.
 `-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
 
 
+## Whats in the working dir (-d)?
+
+```
+
+ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+
+|-differential_gene
+   |---prokaryote
+   |-----test_prok
+   |-------Deseq
+   |-------EdgeR
+   |-------figures
+   |-------significant_gene
+   |---------pathway
+   |-logdir
+   |-samp2
+   |---mapping_results
+   |---trimming_results
+   |-samp3
+   |---mapping_results
+   |---trimming_results
+   |-sum_gene_count
+   |---read_count
+   |-----prokaryote
+   |-------test_prok
+   |---tmp_count
+   |-----prokaryote
+   |-------test_prok
+
+```
+
+`differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`.
+
+
+
 ## Citations:
 If you use PiReT please cite following papers:
 
