@@ -369,7 +369,7 @@ if ($pairfile)
 }
 
     #my $command = "bowtie2-build -f $index_fasta $index_bt2";
-      # my  $checkIndexFile = join "", ($index_bt2, '.5.bt2l');
+      # my  $checkIndexFile = join "", ($index_bt2, '.5.ht2l');
    my  $checkIndexFile = join "", ($index_bt2, '.5.ht2l');
    unless ( -s  $checkIndexFile)
    {

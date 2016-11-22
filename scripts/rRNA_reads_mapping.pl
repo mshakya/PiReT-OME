@@ -171,7 +171,7 @@ sub checkFiles
     my @queryPairedFile2 = split /\,/, $queryPairedFile_r2;
     my @queryUnpairedFile = split /\,/, $queryUnpairedFile;
 
-              $indexFile_r .= ".1.bt2l";
+              $indexFile_r .= ".1.ht2l";
             if ( -z $indexFile_r || ! -e $indexFile_r ) { die "Index file $indexFile_r file is empty or does not exist";}
 
      if ($#queryPairedFile1 != $#queryPairedFile2 ) { die "mate1 and mate2 have diffrent number of files ";}
