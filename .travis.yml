@@ -30,7 +30,7 @@ r_packages:
 
 install:
   - conda install --yes pip numpy scipy
-  - conda install --yes -c bioconda htseq hisat2 samtools bwa bowtie2
+  - conda install --yes -c bioconda htseq hisat2 samtools bwa bowtie2 bedtools
 
 script:
   cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log
