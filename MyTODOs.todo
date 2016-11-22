@@ -1,0 +1,9 @@
+ INSTALLATION:
+ ☐ in the installtion script (bioconda_INSTALL.sh), figure out a way to download the right version of Miniconda2-*.sh based on the type of system.
+
+RPKM:
+  ✔ figure out why RPKM calculation was failing. @done (16-11-21 16:58)
+  ✔ test the pipeline after adding a line that adds the absolute path in runPipeline_rRNA_noqsub_commandline.pl @done (16-11-21 16:58)
+
+SINGLE FILE RUN:
+  ☐ need to write wrapper to allow it to take in single fastq file
