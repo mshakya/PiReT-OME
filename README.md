@@ -31,6 +31,8 @@ There are two ways to install the required dependencies. We recommened using the
 
 ### Bioconda installation of dependecies
 
+PiReT uses many of the biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. The following script checks if the required dependencies (see below) are in your path and installs (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it.
+
 ```
 ./bioconda_INSTALL.SH
 ```
@@ -56,8 +58,11 @@ PiReT run require fowllowing dependencies and in your path.
 - find
 - curl/wget
 
+### Installation dependecies
+- [conda](http://conda.pydata.org/docs/index.html)
+    If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
 
-### Third party softwares/packages must be installed and in the path
+### Third party softwares/packages
 - [jellyfish](http://www.genome.umd.edu/jellyfish.html)
 - [samtools](http://www.htslib.org)
 - [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
@@ -110,7 +115,7 @@ PiReT run require fowllowing dependencies and in your path.
 
 `-significant_pvalue`: floating number cutoff to define significant differentially express genes, (default =0.001)
 
-`-exp`: tab delimited text file descripting experiments that each row represents one sample.
+`-exp`: A tab delimited file that contains at least 3 columns with following header `ID`, `Rawread_files`, and  `group`. `Rawread_files` must have an absolute path.
 
 `-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
 
