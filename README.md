@@ -5,6 +5,11 @@ Pipeline for Reference based Transcriptomics.
 
 [![Build Status](https://travis-ci.com/mshakya/PiReT.svg?token=xwcWcg2wroskmENQQapz&branch=master)](https://travis-ci.com/mshakya/PiReT)
 
+
+#Overview
+
+![alt tag](https://raw.githubusercontent.com/username/PiReT/master/image/Overview_pipeline.jpg)
+
 ## Installing PiReT
 
 Download the latest version of PiReT from [github](https://github.com/mshakya/PiReT.git) or use `git clone` from command line.
@@ -13,26 +18,17 @@ Download the latest version of PiReT from [github](https://github.com/mshakya/Pi
 git clone https://github.com/mshakya/PiReT.git
 ```
 
-`cd` into the `PiReT` directory and
+`cd` into the `PiReT` directory
 
 ```
 cd PiReT
 ```
 
-There are two ways to install the required dependencies. We recommened using the `bioconda_INSTALL.sh`.
-
-### Manual installation of dependencies.
-
-```
-./INSTALL.sh
-
-```
-
 ### Bioconda installation of dependecies
 
-PiReT uses biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. If all the dependencies are already installed in your system, there is no need of any further step.
+PiReT uses biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. If all the dependencies are already installed in your system, there is no need of any further installations.
 
-We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installsif its not (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges to install these dependencies.
+We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installsif its not (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges in your system to install these dependencies.
 
 ```
 ./bioconda_INSTALL.SH
@@ -166,18 +162,21 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 `differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`.
 
 
+## Unistallation
+    For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
+
 
 ## Citations:
 If you use PiReT please cite following papers:
 
 - **samtools**: Li H., Handsaker B., Wysoker A., Fennell T., Ruan J., Homer N., Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009) The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
-- Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357-359. [PMID: 22388286]
-- Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]
-- Anders S and Huber W (2010). Differential expression analysis for sequence count data. Genome Biology, 11, pp. R106. [PMID: 20979621]
-- McCarthy, J. D, Chen, Yunshun, Smyth and K. G (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research, 40(10), pp. -9. [PMID: 22287627]
-- Anders, S., Pyl, P. T., & Huber, W. (2014). HTSeq–a Python framework to work with high-throughput sequencing data. Bioinformatics. [PMID: 25260700]
-- Kim, D., Langmead, B., & Salzberg, S. L. (2015). HISAT: a fast spliced aligner with low memory requirements. Nature methods, 12(4), 357-360. [PMID: 25751142]
-- Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842. [PMID: 20110278]
+- **bowtie**: Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357-359. [PMID: 22388286]
+- **bwa**: Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]
+- **DESeq2**: Love MI, Huber W and Anders S (2014). “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome Biology, 15, pp. 550. [PMID: 25516281]
+- **EdgeR**: McCarthy, J. D, Chen, Yunshun, Smyth and K. G (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research, 40(10), pp. -9. [PMID: 22287627]
+- **HTSeq**: Anders, S., Pyl, P. T., & Huber, W. (2014). HTSeq–a Python framework to work with high-throughput sequencing data. Bioinformatics. [PMID: 25260700]
+- **HISAT2**: Kim, D., Langmead, B., & Salzberg, S. L. (2015). HISAT: a fast spliced aligner with low memory requirements. Nature methods, 12(4), 357-360. [PMID: 25751142]
+- **BEDTools**: Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842. [PMID: 20110278]
 
 
 
