@@ -8,7 +8,7 @@ Pipeline for Reference based Transcriptomics.
 
 #Overview
 
-![alt tag](https://raw.githubusercontent.com/username/PiReT/master/image/Overview_pipeline.jpg)
+![alt tag](image/Overview_pipeline.jpg)
 
 ## Installing PiReT
 
