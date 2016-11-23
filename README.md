@@ -58,31 +58,35 @@ PiReT run require fowllowing dependencies which should be in your path.
 - curl/wget
 
 ### Installation dependecies
-- [conda](http://conda.pydata.org/docs/index.html)
+- [conda v4.2.13](http://conda.pydata.org/docs/index.html)
     If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
 
 ### Third party softwares/packages
-- [jellyfish](http://www.genome.umd.edu/jellyfish.html)
-- [samtools](http://www.htslib.org)
-- [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
-- [bwa](http://bio-bwa.sourceforge.net)
-- [HTseq](http://www-huber.embl.de/HTSeq/doc/overview.html)
-- [HiSat2](https://ccb.jhu.edu/software/hisat/index.shtml)
-- [bedtools](http://bedtools.readthedocs.io/en/latest/index.html)
+- [jellyfish (v2.2.6)](http://www.genome.umd.edu/jellyfish.html)
+- [samtools (v1.3.1)](http://www.htslib.org)
+- [bowtie2 (v2.2.8)](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
+- [bwa (v0.7.15-r1140)](http://bio-bwa.sourceforge.net)
+- [HTseq (v0.6.1p1)](http://www-huber.embl.de/HTSeq/doc/overview.html)
+- [HiSat2 (v2.0.5)](https://ccb.jhu.edu/software/hisat/index.shtml)
+- [bedtools (v2.26.0)](http://bedtools.readthedocs.io/en/latest/index.html)
 
 ### R packages
-- [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
-- [DEseq](http://bioconductor.org/packages/release/bioc/html/DESeq.html)
+- [edgeR (v3.14.0)](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+    - [limma (v3.28.21)]()
+- [DEseq2 (v)](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)
+    - []()
 
 ### Python packages
-- [numpy](http://www.numpy.org)
-- [matplotlib](http://matplotlib.org)
+- [numpy (v1.1.12)](http://www.numpy.org)
+- [matplotlib (v1.5.3)](http://matplotlib.org)
 
 ### Perl modules
 - [Parallel::ForkManager](http://search.cpan.org/~yanick/Parallel-ForkManager-1.19/lib/Parallel/ForkManager.pm)
 - [String::Approx](http://search.cpan.org/dist/String-Approx/Approx.pm)
 
 ## How to run the pipeline?
+
+The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through qsub or in a single processor system where all jobs are run sequentially. The former system requries a qsub system
 
 
 ```
@@ -105,7 +109,7 @@ PiReT run require fowllowing dependencies which should be in your path.
 
 `-test_kingdom`: desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default:`prokaryote`));
 
-`-test_method`: dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default: `both`)); must have have at least 3 duplicates if using Deseq2.
+`-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (must have have at least 3 duplicates if using Deseq2.), and `both`. `default`: `both`. 
 
 `-cpu`: number of cpu to be used (default 1)
 
@@ -118,7 +122,9 @@ PiReT run require fowllowing dependencies which should be in your path.
 `-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
 
 
-## Whats in the working dir (-d)?
+## Whats in the working directory (-d)?
+
+Here are the list of directories from the test run that is included in the pipeline.
 
 ```
 
