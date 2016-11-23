@@ -72,17 +72,25 @@ PiReT run require fowllowing dependencies which should be in your path.
 
 ### R packages
 - [edgeR (v3.14.0)](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
-    - [limma (v3.28.21)]()
-- [DEseq2 (v)](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)
-    - []()
+    - [limma (v3.28.21)](https://bioconductor.org/packages/release/bioc/html/limma.html)
+- [DEseq2 (v1.12.4)](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)
+    - [BiocGenerics (>= 0.7.5)](https://bioconductor.org/packages/release/bioc/html/BiocGenerics.html)
+    - [Biobase (v2.32.0)](https://bioconductor.org/packages/release/bioc/html/Biobase.html)
+    - [BiocParallel (v1.6.6)](https://bioconductor.org/packages/release/bioc/html/BiocParallel.html)
+    - [genefilter (v1.54.2)](http://bioconductor.org/packages/release/bioc/html/genefilter.html)
+    - [locfit (v1.5-9.1)](https://cran.rstudio.com/web/packages/locfit/index.html)
+    - [geneplotter (v1.50.0)](https://www.bioconductor.org/packages/release/bioc/html/geneplotter.html)
+    - [ggplot2 (v1.0.9001 )](http://ggplot2.tidyverse.org)
+    - [Hmisc (v4.0-0)](https://cran.r-project.org/web/packages/Hmisc/index.html)
+    - [Rcpp (>= 0.11.0)](https://cran.r-project.org/web/packages/Rcpp/index.html)
 
 ### Python packages
 - [numpy (v1.1.12)](http://www.numpy.org)
 - [matplotlib (v1.5.3)](http://matplotlib.org)
 
 ### Perl modules
-- [Parallel::ForkManager](http://search.cpan.org/~yanick/Parallel-ForkManager-1.19/lib/Parallel/ForkManager.pm)
-- [String::Approx](http://search.cpan.org/dist/String-Approx/Approx.pm)
+- [Parallel::ForkManager (v1.17)](http://search.cpan.org/~yanick/Parallel-ForkManager-1.19/lib/Parallel/ForkManager.pm)
+- [String::Approx (v3.27)](http://search.cpan.org/dist/String-Approx/Approx.pm)
 
 ## How to run the pipeline?
 
