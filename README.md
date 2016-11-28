@@ -159,17 +159,17 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 ```
 
-`differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`. Direct sub-directory of `differential_gene` can be either `prokaryote`, `eukaryote`, or both of those. The folder within it are then named based on the given `gff` files corresponding usually to one organism. The file and directory structure within each folder are mostly similar with few differences, all of which are listed and described below.
+`differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`. Direct sub-directory of `differential_gene` can be either `prokaryote`, `eukarya`, or both of those. The folder within it are then named based on the given `gff` files corresponding usually to one organism. The file and directory structure within each folder are mostly similar with few differences, all of which are listed and described below.
 
-    `eukarya/splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script part of *HISAT*.
-    `sum_exp_stats.txt`: Summary table of number of reads after each major processsing (filtering and mapping) of files.
-    `RPKM_all_gene.txt`: A table of RPKM calculated per features for each samples.
-    `reads.table.txt` : A table of reads mapped to features for each samples.
-    `prokaryote.genedesc.rRNA.txt`: subset of `gff` files only containing `rRNA` featuress.
-    `prokaryote.gff`: the whole `gff` file.
-    `prokaryote.NonrRNA.genedesc.txt`: subset of `gff` files that only has gene description.
-    `prokaryote.NonrRNA.gff`: `gff` file with no rRNA.
-    `readcounts.expriment.txt`: table similar to experimental design file with location of `htseq-count` results full path.
+- `eukarya/splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script part of *HISAT*.
+- `sum_exp_stats.txt`: Summary table of number of reads after each major processsing (filtering and mapping) of files.
+- `RPKM_all_gene.txt`: A table of RPKM calculated per features for each samples.
+- `reads.table.txt` : A table of reads mapped to features for each samples.
+- `prokaryote.genedesc.rRNA.txt`: subset of `gff` files only containing `rRNA` featuress.
+- `prokaryote.gff`: the whole `gff` file.
+- `prokaryote.NonrRNA.genedesc.txt`: subset of `gff` files that only has gene description.
+- `prokaryote.NonrRNA.gff`: `gff` file with no rRNA.
+- `readcounts.expriment.txt`: table similar to experimental design file with location of `htseq-count` results full path.
 
 `process.log`: report of all the commands/scripts/ that were ran as part of the pipeline.
 
@@ -177,13 +177,13 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `samp2`: The name of this directory corresponds to sample name. Within this folder there are two subfolders: 
 
-    1. `mapping_results`
-            This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
-                - `.sam`: outputs of *HISAT2* (`forward`, `backward`, `paired`, `Notproperpaired`) and sorted `.sam` files
-                - `.bam`: generated from `.sam` with `samtools view -bt index_file .sam < .bam`
-                - `.bedgraph`: bedgraph summaries of feature coverage produced using`genomeCoverageBed -split -bg -ibam`
+- `mapping_results`
+    This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
+        - `.sam`: outputs of *HISAT2* (`forward`, `backward`, `paired`, `Notproperpaired`) and sorted `.sam` files
+        - `.bam`: generated from `.sam` with `samtools view -bt index_file .sam < .bam`
+        - `.bedgraph`: bedgraph summaries of feature coverage produced using`genomeCoverageBed -split -bg -ibam`
 
-    2. `trimming_results`
+- 2. `trimming_results`
             This folder contains results of quality trimming or filtering. This folder was generated using the same script that filteres reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline.
 
 
