@@ -28,7 +28,7 @@ cd PiReT
 
 PiReT uses biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. If all the dependencies are already installed in your system, there is no need of any further installations.
 
-We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installsif its not (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges in your system to install these dependencies.
+We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges in your system to install these dependencies.
 
 ```
 ./bioconda_INSTALL.SH
@@ -128,7 +128,7 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 ## Whats in the working directory (-d)?
 
-Here are the list of directories from the test run that is included in the pipeline.
+Here are the list of directories that will be in `working directory`.
 
 ```
 
@@ -159,11 +159,29 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 ```
 
+``
+
 `differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`.
+
+    `eukarya/splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script part of *HISAT*.
+
+`samp2`: The name of this directory corresponds to sample name. Within this folder there are two subfolders: 
+
+    1. `mapping_results`
+            This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
+                - `.sam`: outputs of *HISAT2* (`forward`, `backward`, `paired`, `Notproperpaired`) and sorted `.sam` files
+                - `.bam`: generated from `.sam` with `samtools view -bt index_file .sam < .bam`
+                - `.bedgraph`: bedgraph summaries of feature coverage using `genomeCoverageBed -split -bg -ibam`
+
+
+
+    2. `trimming_results`
+            This folder contains results of quality trimming or fitlering. This folder was generated using the same script that filteres reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline.
 
 
 ## Unistallation
-    For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
+
+For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
 
 
 ## Citations:
