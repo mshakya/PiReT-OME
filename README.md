@@ -65,6 +65,7 @@ PiReT run require fowllowing dependencies which should be in your path.
 - [HTseq (v0.6.1p1)](http://www-huber.embl.de/HTSeq/doc/overview.html)
 - [HiSat2 (v2.0.5)](https://ccb.jhu.edu/software/hisat/index.shtml)
 - [bedtools (v2.26.0)](http://bedtools.readthedocs.io/en/latest/index.html)
+- [gffread (v0.9.6)](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread_dl)
 
 ### R packages
 - [edgeR (v3.14.0)](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
@@ -88,8 +89,8 @@ PiReT run require fowllowing dependencies which should be in your path.
 - [Parallel::ForkManager (v1.17)](http://search.cpan.org/~yanick/Parallel-ForkManager-1.19/lib/Parallel/ForkManager.pm)
 - [String::Approx (v3.27)](http://search.cpan.org/dist/String-Approx/Approx.pm)
 
-## How to run the pipeline?
-
+## Running PiReT
+.mapping.log
 The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through qsub or in a single processor system where all jobs are run sequentially. The former system requries a qsub system
 
 
@@ -182,6 +183,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
         - `.sam`: outputs of *HISAT2* (`forward`, `backward`, `paired`, `Notproperpaired`) and sorted `.sam` files
         - `.bam`: generated from `.sam` with `samtools view -bt index_file .sam < .bam`
         - `.bedgraph`: bedgraph summaries of feature coverage produced using`genomeCoverageBed -split -bg -ibam`
+        - `.mapping.log`: Alignment summary file from `HISAT2`
 
 - 2. `trimming_results`
             This folder contains results of quality trimming or filtering. This folder was generated using the same script that filteres reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline.
@@ -190,7 +192,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 `sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.expriment.txt`.
 
 
-## Unistallation
+## Uninstallation
 
 For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
 
