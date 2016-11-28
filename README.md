@@ -176,7 +176,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `error.log`: any error are reported here.
 
-`samp2`: The name of this directory corresponds to sample name. Within this folder there are two subfolders: 
+`samp2`: The name of this directory corresponds to sample name. Within this folder there are two subfolders:
 
 - `mapping_results`
     This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
@@ -191,6 +191,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.expriment.txt`.
 
+`eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx $workdir/eukarya.fa`
 
 ## Uninstallation
 
