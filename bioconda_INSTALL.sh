@@ -23,13 +23,13 @@ all_tools=("${utility_tools[@]}" "${alignments_tools[@]}")
 install_hisat2()
 {
 echo "--------------------------------------------------------------------------
-                           installing hisat2
+                           installing hisat2 v2.0.5
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda hisat2=2.0.5
 echo "
 ------------------------------------------------------------------------------
-                           hisat2 installed
+                           hisat2 v2.0.5 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -37,13 +37,13 @@ echo "
 install_jellyfish()
 {
 echo "--------------------------------------------------------------------------
-                           installing jellyfish
+                           installing jellyfish v2.2.6
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda jellyfish=2.2.6
 echo "
 ------------------------------------------------------------------------------
-                           jellyfish installed
+                           jellyfish v2.2.6 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -51,7 +51,7 @@ echo "
 install_perl_parallel_forkmanager()
 {
 echo "------------------------------------------------------------------------------
-               Installing Perl Module Parallel-ForkManager
+               Installing Perl Module Parallel-ForkManager v1.17
 ------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda perl-parallel-forkmanager=1.17
@@ -66,13 +66,13 @@ echo "
 install_bowtie2()
 {
 echo "--------------------------------------------------------------------------
-                           installing bowtie2
+                           installing bowtie2 v2.2.8
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bowtie2=2.2.8
 echo "
 ------------------------------------------------------------------------------
-                           bowtie2 installed
+                           bowtie2 v2.2.8 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -80,13 +80,13 @@ echo "
 install_bwa()
 {
 echo "------------------------------------------------------------------------------
-                           Compiling bwa
+                           Downloading bwa v0.7.15
 ------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bwa=0.7.15
 echo "
 ------------------------------------------------------------------------------
-                           bwa installed
+                           bwa v0.7.15 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -94,13 +94,13 @@ echo "
 install_htseq()
 {
 echo "------------------------------------------------------------------------------
-                           installing htseq
+                           downloading htseq v0.6.1p1
 ------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda htseq=0.6.1p1
+conda install --yes -c bioconda htseq
 echo "
 ------------------------------------------------------------------------------
-                           htseq installed
+                           htseq v0.6.1p1 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -109,13 +109,13 @@ echo "
 install_samtools()
 {
 echo "--------------------------------------------------------------------------
-                           Compiling samtools
+                           Downloading samtools v1.3.1
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda samtools=1.3.1
 echo "
 --------------------------------------------------------------------------------
-                           samtools installed
+                           samtools v1.3.1 installed
 --------------------------------------------------------------------------------
 "
 }
@@ -138,13 +138,13 @@ echo "
 install_bedtools()
 {
 echo "--------------------------------------------------------------------------
-                           Compiling bedtools
+                           Compiling bedtools v2.26.0
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bedtools=2.26.0
 echo "
 --------------------------------------------------------------------------------
-                           bedtools compiled
+                           bedtools v2.26.0 compiled
 --------------------------------------------------------------------------------
 "
 }
@@ -160,7 +160,7 @@ if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
 
-  curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-4.2.12-MacOSX-x86_64.sh
+  curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.2.12-MacOSX-x86_64.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
   export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
@@ -169,7 +169,7 @@ then
 else
 {  
 
-  wget https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh -O miniconda.sh
+  wget https://repo.continuum.io/miniconda/Miniconda2-4.2.12-Linux-x86_64.sh -O miniconda.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
   export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
@@ -188,6 +188,25 @@ cpan String::Approx
 echo "
 --------------------------------------------------------------------------------
                            String::Approx installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_gffread()
+{
+echo "--------------------------------------------------------------------------
+                      installing gffread
+--------------------------------------------------------------------------------
+"
+cd $ROOTDIR/thirdParty/miniconda/bin
+git clone https://github.com/gpertea/gclib
+git clone https://github.com/gpertea/gffread gffread_git
+cd gffread_git
+make
+cp gffread ../
+echo "
+--------------------------------------------------------------------------------
+                           gffread installed
 --------------------------------------------------------------------------------
 "
 }
@@ -420,14 +439,6 @@ else
   install_samtools
 fi
 
-if ( checkSystemInstallation bedtools )
-then
-  echo "bedtools is found"
-else
-  echo "bedtools is not found"
-  install_bedtools
-fi
-
 if ( checkPerlModule Parallel::ForkManager )
 then
   echo "Perl Parallel::ForkManager is found"
@@ -436,12 +447,28 @@ else
   install_perl_parallel_forkmanager
 fi
 
+if ( checkSystemInstallation bedtools )
+then
+  echo "bedtools is found"
+else
+  echo "bedtools is not found"
+  install_bedtools
+fi
+
 if ( checkSystemInstallation cpan )
 then
   echo "cpan is found"
 else
   echo "cpan is not found"
   install_cpan
+fi
+
+if ( checkSystemInstallation gffread )
+then
+  echo "gffread is found"
+else
+  echo "gffread is not found"
+  install_gffread
 fi
 
 if ( checkPerlModule String::Approx )
