@@ -28,14 +28,17 @@ cache:
 #   - edgeR
 #   - DESeq2
 
-install:
-  - ./bioconda_INSTALL.sh
+before_install:
+    - ./bioconda_INSTALL.sh
 
-before_script:
-  - source ~/.bashrc
+# install:
+
+# before_script:
+  # - source ~/.bashrc
 
 script:
   - tail ~/.bashrc
   - which samtools
+  - which hisat2
   - cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log
 
