@@ -32,7 +32,7 @@ before_install:
     - ./bioconda_INSTALL.sh
 
 install:
-  - Rscript -e 'install.packages(c("devtools","roxygen2","testthat"));devtools::install_deps("RPackage")'
+  - Rscript -e 'install.packages(c("testthat"))'
 
 # before_script:
   # - source ~/.bashrc
