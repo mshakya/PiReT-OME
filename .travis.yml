@@ -31,8 +31,11 @@ cache:
 install:
   - ./bioconda_INSTALL.sh
 
-script:
+before_script:
   - source ~/.bashrc
+
+script:
+  - tail ~/.bashrc
   - which samtools
   - cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log
 
