@@ -3,34 +3,33 @@ language: r
 
 r: bioc-release
 
-python:
-  - 2.7.8
-  - 2.7.12
+# python:
+#   - 2.7.8
+#   - 2.7.12
 
-perl:
- - 5.16.3
+# perl:
+#  - 5.16.3
 
 cache:
   apt: true
   directories:
     - $HOME/miniconda
 
-before_install:
-  # install miniconda for Python dependencies
-  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b -p $HOME/miniconda -f
-  - export PATH=$HOME/miniconda/bin:$PATH
-  - conda update --yes conda
-  - conda info -a
+# before_install:
+#   # install miniconda for Python dependencies
+#   - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+#   - chmod +x miniconda.sh
+#   - ./miniconda.sh -b -p $HOME/miniconda -f
+#   - export PATH=$HOME/miniconda/bin:$PATH
+#   - conda update --yes conda
+#   - conda info -a
 
-r_packages:
-  - edgeR
-  - DESeq2
+# r_packages:
+#   - edgeR
+#   - DESeq2
 
 install:
-  - conda install --yes pip numpy scipy
-  - conda install --yes -c bioconda htseq hisat2 samtools bwa bowtie2 bedtools
+  - ./bioconda_INSTALL.sh
 
 script:
   cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log

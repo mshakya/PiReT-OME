@@ -3,3 +3,5 @@ test_data/test_experimental_design.txt
 sftp-config.json
 PiReT.sublime-project
 PiReT.sublime-workspace
+miniconda.sh
+.DS_Store
