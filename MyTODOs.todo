@@ -2,6 +2,7 @@
  ☐ in the installtion script (bioconda_INSTALL.sh), figure out a way to download the right version of Miniconda2-*.sh based on the type of system.
  ✔ in the installtion script (bioconda_INSTALL.sh), add a way to recognise Linux or mac system and install accordingly. @done (16-11-22 09:41)
  ☐ do i need csh?
+ ☐ paths are added to .bashrc of travis ci vritual machine, but tools are not in path. why?
 
 RPKM:
   ✔ figure out why RPKM calculation was failing. @done (16-11-21 16:58)
