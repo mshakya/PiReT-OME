@@ -191,7 +191,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.expriment.txt`.
 
-`eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx $workdir/eukarya.fa`
+`eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
 
 ## Uninstallation
 
