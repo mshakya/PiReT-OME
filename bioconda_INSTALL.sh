@@ -491,7 +491,7 @@ then
 {
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
   #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
-  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin" >> $HOME/.bashrc
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
   # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
   source $HOME/.bashrc 
   echo "
@@ -504,7 +504,8 @@ else
 {
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
   #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
-  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
+  # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
   source $HOME/.bash_profile 
   echo "
 --------------------------------------------------------------------------------
