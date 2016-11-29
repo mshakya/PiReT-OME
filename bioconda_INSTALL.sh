@@ -184,7 +184,8 @@ echo "--------------------------------------------------------------------------
                            installing Perl Module String::Approx
 --------------------------------------------------------------------------------
 "
-cpan String::Approx
+cpan install App::cpanminus
+cpanm String::Approx
 echo "
 --------------------------------------------------------------------------------
                            String::Approx installed
@@ -463,6 +464,14 @@ else
   install_cpan
 fi
 
+if ( checkPerlModule String::Approx )
+then
+  echo "Perl String::Approx is found"
+else
+  echo "Perl String::Approx is not found"
+  install_perl_string_approx
+fi
+
 if ( checkSystemInstallation gffread )
 then
   echo "gffread is found"
@@ -471,13 +480,6 @@ else
   install_gffread
 fi
 
-if ( checkPerlModule String::Approx )
-then
-  echo "Perl String::Approx is found"
-else
-  echo "Perl String::Approx is not found"
-  install_perl_string_approx
-fi
 
 
 ################################################################################
