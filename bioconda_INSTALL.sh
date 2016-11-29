@@ -120,17 +120,17 @@ echo "
 "
 }
 
-install_cpan()
+install_cpanm()
 {
 echo "--------------------------------------------------------------------------
-                           Installing cpan
+                           Installing cpanm
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda perl-cpan-meta
+# conda install --yes -c bioconda perl-cpan-meta
 conda install --yes -c bioconda perl-app-cpanminus
 echo "
 --------------------------------------------------------------------------------
-                           cpan installed
+                           cpanm installed
 --------------------------------------------------------------------------------
 "
 }
@@ -457,12 +457,12 @@ else
   install_bedtools
 fi
 
-if ( checkSystemInstallation cpan )
+if ( checkSystemInstallation cpanm )
 then
-  echo "cpan is found"
+  echo "cpanm is found"
 else
-  echo "cpan is not found"
-  install_cpan
+  echo "cpanm is not found"
+  install_cpanm
 fi
 
 if ( checkPerlModule String::Approx )
