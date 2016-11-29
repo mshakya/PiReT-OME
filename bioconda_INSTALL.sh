@@ -486,33 +486,32 @@ fi
 ################################################################################
 #                       Add path to bash
 ################################################################################
-# This might be automatically added by miniconda
-# if [ -f $HOME/.bashrc ]
-# then
-# {
-#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
-#   echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
-#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
-#   source $HOME/.bashrc 
-#   echo "
-# --------------------------------------------------------------------------------
-#                            added path to .bashrc
-# --------------------------------------------------------------------------------
-# "
-# }
-# else
-# {
-#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
-#   echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
-#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
-#   source $HOME/.bash_profile 
-#   echo "
-# --------------------------------------------------------------------------------
-#                            added path to .bash_profile
-# --------------------------------------------------------------------------------
-# "
-# }
-# fi
+if [ -f $HOME/.bashrc ]
+then
+{
+  echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
+  echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
+  source $HOME/.bashrc 
+  echo "
+--------------------------------------------------------------------------------
+                           added path to .bashrc
+--------------------------------------------------------------------------------
+"
+}
+else
+{
+  echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
+  echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
+  source $HOME/.bash_profile 
+  echo "
+--------------------------------------------------------------------------------
+                           added path to .bash_profile
+--------------------------------------------------------------------------------
+"
+}
+fi
 
 echo "
 All done! Please Restart the Terminal Session.
