@@ -493,6 +493,11 @@ then
   echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
   source $HOME/.bashrc 
+  echo "
+--------------------------------------------------------------------------------
+                           added path to .bashrc
+--------------------------------------------------------------------------------
+"
 }
 else
 {
@@ -500,6 +505,11 @@ else
   echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
   source $HOME/.bash_profile 
+  echo "
+--------------------------------------------------------------------------------
+                           added path to .bash_profile
+--------------------------------------------------------------------------------
+"
 }
 fi
 
