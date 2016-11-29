@@ -31,7 +31,8 @@ cache:
 before_install:
     - ./bioconda_INSTALL.sh
 
-# install:
+install:
+  - Rscript -e 'install.packages(c("devtools","roxygen2","testthat"));devtools::install_deps("RPackage")'
 
 # before_script:
   # - source ~/.bashrc
