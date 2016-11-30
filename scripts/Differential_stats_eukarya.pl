@@ -27,7 +27,7 @@ my %allRPKM;
 my %replicates;
 my %averageRPKM;
 
-open (LOGFILE, ">>$workdir/process.log") or die "  can not open log file $workdir/process.log $!";
+open (LOGFILE, ">>$workdir/process.log") or die "can not create log file $workdir/process.log $!";
 
 
 open (IN, "$exprimentfile") or die " can not open description file $exprimentfile $!";
@@ -63,17 +63,18 @@ open (my $fh, "$descriptionfile") or die "$! $descriptionfile  \n";
             }
        close $fh;
 
+# TODO: this is for pathway analysis, kegg_locus_orgnism is a large file, need to find a way to
+# either package it or make user download it or gzip it read from gzip
+# open (PATHIN, "./kegg_locus_orgnism.txt") or die "$! ./kegg_locus_orgnism.txt  \n";
 
-open (PATHIN, "./kegg_locus_orgnism.txt") or die "$! ./kegg_locus_orgnism.txt  \n";
-
-        while (<PATHIN>)
-            {
-                chomp;
-               my @tmpline=split /\s+/, $_;
-               my $pathmap=join ':', ($tmpline[0],$tmpline[2]);
-               push @{$pathway{$tmpline[1]}}, $pathmap;
-            }
-       close PATHIN;
+#         while (<PATHIN>)
+#             {
+#                 chomp;
+#                my @tmpline=split /\s+/, $_;
+#                my $pathmap=join ':', ($tmpline[0],$tmpline[2]);
+#                push @{$pathway{$tmpline[1]}}, $pathmap;
+#             }
+#        close PATHIN;
 
   
   # foreach (sort {$uniqdes{$b} <=> $uniqdes{$a}} keys %uniqdes ) {print "$_\t$uniqdes{$_}\n";}
@@ -285,7 +286,7 @@ my (%total_reads, %trim_reads,%map_reads, %nonmap_reads, %non_gff_ref_reads, %gf
      $pathwaysample=~s/\.txt//g;
       push @allpathwaysample, $pathwaysample;
    #start one compariosn at a time
-     my (%allname,%commonname, %desname, %edgname,%sigdesname,%sigedgname, %desdata, %edgdata);
+     my (%allname, %commonname, %desname, %edgname, %sigdesname, %sigedgname, %desdata, %edgdata);
 
    #read over EdgeR
      my $linecountsig=0;
@@ -385,14 +386,13 @@ my (%total_reads, %trim_reads,%map_reads, %nonmap_reads, %non_gff_ref_reads, %gf
           }
        close COUNTIN;
 
-
              $heatmapfile=join "_", ('heatmap',$desfile);
     open ( RPKMOUT, ">$diffgendir/significant_gene/$heatmapfile") or die "$! $diffgendir/significant_gene/$heatmapfile  \n";
     print RPKMOUT  "ID";
     for (my $i=0; $i<=$#samplename; $i++) {print RPKMOUT "\t$samplename[$i]";   }
     print  RPKMOUT "\n";
     foreach (sort {$desname{$a} <=>$desname{$b} } keys %desname )
-  #  foreach (sort {$desname{$a} cmp $desname{$b} } keys %desname )
+   # foreach (sort {$desname{$a} cmp $desname{$b} } keys %desname )
    {
     my $genename=$_;
     unless ($geneln{$genename} ) {next;}

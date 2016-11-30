@@ -27,6 +27,21 @@ cd PiReT
 
 PiReT uses biofinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` priviledges are not needed for installation.
 
+##Test
+We have provided small test data set to check if the installation was successful or not. Test fastq files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
+
+``
+cd test_data
+
+# if you are in a LINUX system:
+sh ./test_pipeline_linux.sh
+
+# if you are in Mac OS X:
+sh ./test_pipeline_MacOSX.sh
+``
+In `OS X El Capitan v10.11.6` on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took 27m20.219s for the test run with single processor.
+
+
 ##Dependencies
 PiReT run require fowllowing dependencies which should be in your path. It will be installed, if its not.
 
@@ -44,7 +59,7 @@ PiReT run require fowllowing dependencies which should be in your path. It will 
 - find
 - curl/wget
 
-### Installation dependecies
+### Installing dependecies
 This is the core list of dependencies. However, there are secondary dependencies for many of the tools, which will also be installed by `bioconda`.
 - [conda v4.2.13](http://conda.pydata.org/docs/index.html)
     If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
@@ -82,15 +97,15 @@ This is the core list of dependencies. However, there are secondary dependencies
 - [String::Approx (v3.27)](http://search.cpan.org/dist/String-Approx/Approx.pm)
 
 ## Running PiReT
-.mapping.log
-The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through qsub or in a single processor system where all jobs are run sequentially. The former system requries a qsub system
+
+The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requries a qsub system. Also, the current state of pipeline only works for single processor.
 
 
 ```
     perl runPipeline_rRNA_noqsub_commandline.pl [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
 ```
 
-`-d`: working directory where all output files will be written, the user must have write permission.
+`-d`: working directory where all output files/directories will be written, user must have write permission.
 
 `-prokaryote_fasta`: comma-separated list of referecnce genome (prokarya) fasta files (for making bowtie2 mapping index file). [optional]
 
@@ -104,19 +119,19 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 `-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence). [optional]
 
-`-test_kingdom`: desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default:`prokaryote`));
+`-test_kingdom`: desired differential gene expression kingdom (`both` (for both eukarya and prokaryote), `prokaryote`, or `eukarya` (default:`prokaryote`));
 
-`-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (must have have at least 3 duplicates if using Deseq2.), and `both`. `default`: `both`. 
+`-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (For Deseq2, must have have at least 3 replicates for each group), and `both`. `default`: `both`. 
 
 `-cpu`: number of cpu to be used (default 1)
 
 `-BAM_ready`: if mapping file are provided for samples by users (`yes` or `no`). default: `no`
 
-`-significant_pvalue`: floating number cutoff to define significant differentially express genes, (default =0.001)
+`-significant_pvalue`: floating number cutoff to define significant differentially express genes, (default=0.001)
 
 `-exp`: A tab delimited file that contains at least 3 columns with following header `ID`, `Rawread_files`, and  `group`. `Rawread_files` must have an absolute path.
 
-`-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be condected.
+`-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be conducted.
 
 
 ## Whats in the working directory (-d)?
@@ -189,6 +204,10 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
 
+
+##Contributions
+- Shihai Feng
+- Migun Shakya
 
 ## Citations:
 If you use PiReT please cite following papers:
