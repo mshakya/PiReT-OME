@@ -34,13 +34,14 @@ before_install:
 install:
   - Rscript -e 'install.packages(c("testthat"))'
 
-# before_script:
-  # - export PATH=$HOME/miniconda/bin:$PATH
-
 script:
   - source ~/.bashrc
   - tail ~/.bashrc
+  - hash -r
   - which samtools
   - which hisat2
   - cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log
+
+after_failure:
+  - ls -l /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin //home/travis/texlive/bin/x86_64-linux /home/travis/R-bin/bin
 
