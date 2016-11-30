@@ -25,7 +25,7 @@ cd PiReT
 ./bioconda_INSTALL.SH
 ```
 
-PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` privileges are not needed for installation.
+PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
 
 ##Test
 We have provided small test data set to check if the installation was successful or not. Test fastq files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
@@ -39,6 +39,8 @@ sh ./test_pipeline_linux.sh
 # if you are in Mac OS X:
 sh ./test_pipeline_MacOSX.sh
 ```
+
+Pipeline run status can be checked in either `process.log` or `error.log`. If the pipeline runs completely a file called `process_current.log` is generated.
 
 In **OS X El Capitan v10.11.6** on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took *27m20.219s* for the test run with single processor.
 
