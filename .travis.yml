@@ -12,8 +12,8 @@ r: bioc-release
 
 cache:
   apt: true
-  directories:
-    - $HOME/miniconda
+  # directories:
+  #   - $HOME/miniconda
 
 # before_install:
 #   # install miniconda for Python dependencies
@@ -35,9 +35,10 @@ install:
   - Rscript -e 'install.packages(c("testthat"))'
 
 # before_script:
-  # - source ~/.bashrc
+  # - export PATH=$HOME/miniconda/bin:$PATH
 
 script:
+  - source ~/.bashrc
   - tail ~/.bashrc
   - which samtools
   - which hisat2

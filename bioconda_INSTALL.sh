@@ -492,8 +492,8 @@ then
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
   #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
   #echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
-  # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bashrc
-  #source $HOME/.bashrc 
+  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
+  source $HOME/.bashrc 
   echo "
 --------------------------------------------------------------------------------
                            added path to .bashrc
