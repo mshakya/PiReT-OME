@@ -22,29 +22,20 @@ git clone https://github.com/mshakya/PiReT.git
 
 ```
 cd PiReT
-```
-
-### Bioconda installation of dependecies
-
-PiReT uses biofinformatic tools that are already available in [bioconda](https://bioconda.github.io). Many of these dependencies (see below) are likely already available in your UNIX system. If all the dependencies are already installed in your system, there is no need of any further installations.
-
-We have also provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. You do not need to have sudo priviledges in your system to install these dependencies.
-
-```
 ./bioconda_INSTALL.SH
 ```
 
-
+PiReT uses biofinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` priviledges are not needed for installation.
 
 ##Dependencies
-PiReT run require fowllowing dependencies which should be in your path.
+PiReT run require fowllowing dependencies which should be in your path. It will be installed, if its not.
 
 ### Programming/Scritpting languages
-- [Python 2.7](https://www.python.org/downloads/release/python-2712/)
+- [Python >=v2.7](https://www.python.org/downloads/release/python-2712/)
     - The pipeline is not compatilble with Python v3.0 or higher.
-- [Perl v5.16.3](https://www.perl.org/get.html)
+- [Perl >=v5.16.3](https://www.perl.org/get.html)
     - The pipeline has only been tested in v5.16.3 and v5.22.0
-- [R v3.3.1](https://www.r-project.org)
+- [R >=v3.3.1](https://www.r-project.org)
 
 
 ### Unix
@@ -54,6 +45,7 @@ PiReT run require fowllowing dependencies which should be in your path.
 - curl/wget
 
 ### Installation dependecies
+This is the core list of dependencies. However, there are secondary dependencies for many of the tools, which will also be installed by `bioconda`.
 - [conda v4.2.13](http://conda.pydata.org/docs/index.html)
     If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
 
