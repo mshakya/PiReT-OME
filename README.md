@@ -25,12 +25,12 @@ cd PiReT
 ./bioconda_INSTALL.SH
 ```
 
-PiReT uses biofinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` priviledges are not needed for installation.
+PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` privileges are not needed for installation.
 
 ##Test
 We have provided small test data set to check if the installation was successful or not. Test fastq files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
 
-``
+```
 cd test_data
 
 # if you are in a LINUX system:
@@ -38,16 +38,17 @@ sh ./test_pipeline_linux.sh
 
 # if you are in Mac OS X:
 sh ./test_pipeline_MacOSX.sh
-``
-In `OS X El Capitan v10.11.6` on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took 27m20.219s for the test run with single processor.
+```
+
+In **OS X El Capitan v10.11.6** on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took *27m20.219s* for the test run with single processor.
 
 
 ##Dependencies
-PiReT run require fowllowing dependencies which should be in your path. It will be installed, if its not.
+PiReT run requires following dependencies which should be in your path. All of the dependencies will be installed by `bioconda_INSTALL.sh`.
 
-### Programming/Scritpting languages
+### Programming/Scripting languages
 - [Python >=v2.7](https://www.python.org/downloads/release/python-2712/)
-    - The pipeline is not compatilble with Python v3.0 or higher.
+    - The pipeline is not compatible with Python v3.0 or higher.
 - [Perl >=v5.16.3](https://www.perl.org/get.html)
     - The pipeline has only been tested in v5.16.3 and v5.22.0
 - [R >=v3.3.1](https://www.r-project.org)
@@ -98,7 +99,7 @@ This is the core list of dependencies. However, there are secondary dependencies
 
 ## Running PiReT
 
-The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requries a qsub system. Also, the current state of pipeline only works for single processor.
+The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requires a `qsub` system. Also, the current state of pipeline only works for single processor.
 
 
 ```
@@ -107,23 +108,23 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 `-d`: working directory where all output files/directories will be written, user must have write permission.
 
-`-prokaryote_fasta`: comma-separated list of referecnce genome (prokarya) fasta files (for making bowtie2 mapping index file). [optional]
+`-prokaryote_fasta`: comma-separated list of reference genome (prokaryote) fasta files (for making bowtie2 mapping index file). [optional]
 
-`-gff_prokaryote`: comma-separated list of gff files for corresponding referecnce genome fasta files (contig names must match reference sequence header). [optional]
+`-gff_prokaryote`: comma-separated list of gff files for corresponding reference genome fasta files (contig names must match reference sequence header). [optional]
 
-`-eukarya_fasta` : comma-separated list of referecnce genome (eukarya) fasta files (for making bowtie2 mapping index file). [optional]
+`-eukarya_fasta` : comma-separated list of reference genome (eukarya) fasta files (for making bowtie2 mapping index file). [optional]
 
-`-gff_eukarya`: comma-separated list of gff files for corresponding referecnce genome fasta files (contig names must match reference sequence header). [optional]
+`-gff_eukarya`: comma-separated list of gff files for corresponding reference genome fasta files (contig names must match reference sequence header). [optional]
 
 `-index_ref_bt2`: bowtie2 mapping index file,  if the file exists, pipeline skips this step. [optional]
 
-`-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence). [optional]
+`-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequence  must be part of prokaryote mapping reference sequence). [optional]
 
 `-test_kingdom`: desired differential gene expression kingdom (`both` (for both eukarya and prokaryote), `prokaryote`, or `eukarya` (default:`prokaryote`));
 
 `-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (For Deseq2, must have have at least 3 replicates for each group), and `both`. `default`: `both`. 
 
-`-cpu`: number of cpu to be used (default 1)
+`-cpu`: number of CPU to be used (default 1)
 
 `-BAM_ready`: if mapping file are provided for samples by users (`yes` or `no`). default: `no`
 
@@ -131,7 +132,7 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 `-exp`: A tab delimited file that contains at least 3 columns with following header `ID`, `Rawread_files`, and  `group`. `Rawread_files` must have an absolute path.
 
-`-pair_comparison`: tab delimited txt file descripting pairwise comparison. If the file is not specified, all possible pairwise analysis will be conducted.
+`-pair_comparison`: tab delimited file describing pairwise comparison. If the file is not specified, all possible pairwise analysis will be conducted.
 
 
 ## Whats in the working directory (-d)?
@@ -167,13 +168,13 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 ```
 
-`differential_gene`: contains subfolders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`. Direct sub-directory of `differential_gene` can be either `prokaryote`, `eukarya`, or both of those. The folder within it are then named based on the given `gff` files corresponding usually to one organism. The file and directory structure within each folder are mostly similar with few differences, all of which are listed and described below.
+`differential_gene`: contains sub-folders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`. Direct sub-directory of `differential_gene` can be either `prokaryote`, `eukarya`, or both of those. The folder within it are then named based on the given `gff` files corresponding usually to one organism. The file and directory structure within each folder are mostly similar with few differences, all of which are listed and described below.
 
 - `eukarya/splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script part of *HISAT*.
-- `sum_exp_stats.txt`: Summary table of number of reads after each major processsing (filtering and mapping) of files.
+- `sum_exp_stats.txt`: Summary table of number of reads after each major processing (filtering and mapping) of files.
 - `RPKM_all_gene.txt`: A table of RPKM calculated per features for each samples.
 - `reads.table.txt` : A table of reads mapped to features for each samples.
-- `prokaryote.genedesc.rRNA.txt`: subset of `gff` files only containing `rRNA` featuress.
+- `prokaryote.genedesc.rRNA.txt`: subset of `gff` files only containing `rRNA` features.
 - `prokaryote.gff`: the whole `gff` file.
 - `prokaryote.NonrRNA.genedesc.txt`: subset of `gff` files that only has gene description.
 - `prokaryote.NonrRNA.gff`: `gff` file with no rRNA.
@@ -183,7 +184,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `error.log`: any error are reported here.
 
-`samp2`: The name of this directory corresponds to sample name. Within this folder there are two subfolders:
+`samp2`: The name of this directory corresponds to sample name. Within this folder there are two sub-folders:
 
 - `mapping_results`
     This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
@@ -200,9 +201,9 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 `eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
 
-## Uninstallation
+## Removing PiReT
 
-For uninstalltion, delete `PiReT` folder, which will remove any packages that were downloaded in that folder. Also, remove the path added to either `~/.bash_profile` or `~/.bashrc`
+For removal, delete (`rm -rf`) `PiReT` folder, which will remove any packages that were downloaded in that folder. Before removing check if your project files are within PiReT. Additionally, delete paths added to either `~/.bash_profile` or `~/.bashrc`.
 
 
 ##Contributions
