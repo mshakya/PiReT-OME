@@ -13,3 +13,7 @@ SINGLE FILE RUN:
 
 FILES:
   ✔ readcounts.expriment.txt, this file must be wrongly named as its a copy of experminetal design file, find out whats going on @done (16-11-27 22:46)
+
+PERL DEPENDENCIES:
+  ☐ find out where the perl dependencies are installed (native or it reads from miniconda).
+  ☐ 

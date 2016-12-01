@@ -28,7 +28,7 @@ cd PiReT
 PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
 
 ##Test
-We have provided small test data set to check if the installation was successful or not. Test fastq files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
+We have provided small test data set to check if the installation was successful or not. Test `.fastq` files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
 
 ```
 cd test_data
@@ -39,11 +39,12 @@ sh ./test_pipeline_linux.sh
 # if you are in Mac OS X:
 sh ./test_pipeline_MacOSX.sh
 ```
+These shell script automatically creates `experimental_design.txt` and runs the pipeline.
 
 Pipeline run status can be checked in either `process.log` or `error.log`. If the pipeline runs completely a file called `process_current.log` is generated.
 
 In **OS X El Capitan v10.11.6** on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took *27m20.219s* for the test run with single processor.
-
+In **OS X Yosemite v10.10.5** on a MacBook Pro (2.8GHz Intel Core i7) with 16GB 1600 MHz DDR3 memory it took *31m57.352s* for the test run with single processor.
 
 ##Dependencies
 PiReT run requires following dependencies which should be in your path. All of the dependencies will be installed by `bioconda_INSTALL.sh`.
@@ -126,7 +127,7 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 `-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (For Deseq2, must have have at least 3 replicates for each group), and `both`. `default`: `both`. 
 
-`-cpu`: number of CPU to be used (default 1)
+<!-- `-cpu`: number of CPU to be used (default 1) -->
 
 `-BAM_ready`: if mapping file are provided for samples by users (`yes` or `no`). default: `no`
 
@@ -216,15 +217,10 @@ For removal, delete (`rm -rf`) `PiReT` folder, which will remove any packages th
 If you use PiReT please cite following papers:
 
 - **samtools**: Li H., Handsaker B., Wysoker A., Fennell T., Ruan J., Homer N., Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009) The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
-- **bowtie**: Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357-359. [PMID: 22388286]
+- **bowtie2**: Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357-359. [PMID: 22388286]
 - **bwa**: Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]
 - **DESeq2**: Love MI, Huber W and Anders S (2014). “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome Biology, 15, pp. 550. [PMID: 25516281]
 - **EdgeR**: McCarthy, J. D, Chen, Yunshun, Smyth and K. G (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research, 40(10), pp. -9. [PMID: 22287627]
 - **HTSeq**: Anders, S., Pyl, P. T., & Huber, W. (2014). HTSeq–a Python framework to work with high-throughput sequencing data. Bioinformatics. [PMID: 25260700]
 - **HISAT2**: Kim, D., Langmead, B., & Salzberg, S. L. (2015). HISAT: a fast spliced aligner with low memory requirements. Nature methods, 12(4), 357-360. [PMID: 25751142]
 - **BEDTools**: Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842. [PMID: 20110278]
-
-
-
-
-
