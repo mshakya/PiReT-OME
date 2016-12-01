@@ -12,37 +12,37 @@ r: bioc-release
 
 cache:
   apt: true
-  # directories:
-  #   - $HOME/miniconda
-
-# before_install:
-#   # install miniconda for Python dependencies
-#   - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-#   - chmod +x miniconda.sh
-#   - ./miniconda.sh -b -p $HOME/miniconda -f
-#   - export PATH=$HOME/miniconda/bin:$PATH
-#   - conda update --yes conda
-#   - conda info -a
-
-# r_packages:
-#   - edgeR
-#   - DESeq2
+  directories:
+    - $HOME/miniconda
 
 before_install:
-    - ./bioconda_INSTALL.sh
+  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda -f
+  - export PATH=$HOME/miniconda/bin:$PATH
+  - conda update --yes conda
+  - conda info -a
+
+r_packages:
+  - edgeR
+  - DESeq2
 
 install:
   - Rscript -e 'install.packages(c("testthat"))'
+  - conda install --yes -c bioconda hisat2=2.0.5
+  - conda install --yes -c bioconda jellyfish=2.2.6
+  - conda install --yes -c bioconda perl-parallel-forkmanager=1.17
+  - conda install --yes -c bioconda bowtie2=2.2.8
+  - conda install --yes -c bioconda bwa=0.7.15
+  - conda install --yes -c bioconda htseq
+  - conda install --yes -c bioconda samtools=1.3.1
+  - conda install --yes -c bioconda perl-app-cpanminus
+  - conda install --yes -c bioconda bedtools=2.26.0
 
 script:
-  - source ~/.bashrc
-  - tail ~/.bashrc
-  - hash -r
   - ls -l /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin //home/travis/texlive/bin/x86_64-linux /home/travis/R-bin/bin
   - which samtools
   - which hisat2
   - cd test_data && sh test_whole_pipeline.sh && less pipeline_test/error.log && less pipeline_test/error.log
 
-after_failure:
-  - ls -l /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin /home/travis/build/mshakya/PiReT/thirdParty/miniconda/bin //home/travis/texlive/bin/x86_64-linux /home/travis/R-bin/bin
 
