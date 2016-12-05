@@ -480,7 +480,7 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
             "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai \n"
         );
         # for printing in screen
-        print "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai\n"
+        print "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai\n";
         `perl $Bin/parse_prokaryote_gfffile.pl $tmpgff $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai`;
     }
 }
@@ -548,7 +548,7 @@ unless ( -s $checkIndexFile ) {
         &lprint(
             "hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
         );
-        print "hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n" 
+        print "hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n";
         `hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
 
 #`$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
@@ -1182,7 +1182,7 @@ open( CURRENTLOGFILE, "> $workdir/process_current.log" )
     or die "   $workdir/process_current.log $!";
 print CURRENTLOGFILE "All Done\n";
 # print in screen
-print "All Done\n"
+print "All Done\n";
 
 close LOG;
 close CURRENTLOGFILE;
