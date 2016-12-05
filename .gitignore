@@ -7,3 +7,4 @@ miniconda.sh
 .DS_Store
 install.log
 README.html
+test_data/*.ht2l

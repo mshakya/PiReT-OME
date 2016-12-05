@@ -580,6 +580,7 @@ print "Done Checking Files \n";
 
 my $time1 = time();
 &lprint("[Trimming and Mapping Reads]\n\tRunning \n\n");
+print "[Trimming and Mapping Reads]\n\tRunning \n\n";
 
 foreach ( sort keys %description ) {
     my $sample   = $_;
@@ -606,11 +607,13 @@ foreach ( sort keys %description ) {
             &lprint(
                 "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n"
             );
+            print "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n";
             `perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads`;
 
             &lprint(
                 "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n"
             );
+            print "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n";
             `perl $scriptDir/rRNA_reads_mapping.pl -test $test -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref -o $workdir`;
 
         }
