@@ -84,7 +84,7 @@ unless ( -d "$workdir" ) {
 
 my $process_log_file = "$workdir/process.log";
 my $error_log_file   = "$workdir/error.log";
-open( LOG, ">", $process_log_file )
+open( my $LOG, ">", $process_log_file )
     or die "failed: failed to write $process_log_file\n$!";
 open( STDERR, '>&', STDOUT )
     or die "failed: failed: Can't redirect stderr: $!";
@@ -555,6 +555,7 @@ unless ( -s $checkIndexFile ) {
     }
     elsif ($eukarya_fasta) {
         &lprint("hisat2-build -q --large-index $eukarya_fasta  $index_bt2\n");
+        print "hisat2-build -q --large-index $eukarya_fasta $index_bt2\n";
         `hisat2-build -q --large-index $eukarya_fasta  $index_bt2`;
 
 #`$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
@@ -562,6 +563,7 @@ unless ( -s $checkIndexFile ) {
     elsif ($prokaryote_fasta) {
         &lprint(
             "hisat2-build -q--large-index $prokaryote_fasta $index_bt2\n");
+        print "hisat2-build -q --large-index $prokaryote_fasta $index_bt2\n";
         `hisat2-build -q --large-index $prokaryote_fasta  $index_bt2`;
 
 # `$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta  $index_bt2`;
@@ -1278,7 +1280,7 @@ sub printRunTime {
 
 sub lprint {
     my ($line) = @_;
-    print LOG $line;
+    print $LOG $line;
 }
 
 sub readfai {

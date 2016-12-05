@@ -43,8 +43,12 @@ These shell script automatically creates `experimental_design.txt` and runs the 
 
 Pipeline run status can be checked in either `process.log` or `error.log`. If the pipeline runs completely a file called `process_current.log` is generated.
 
-In **OS X El Capitan v10.11.6** on a MacBook Pro (2.8 GHz Intel COre i7) with 16GB 1600 MHz DDR3 memory it took *27m20.219s* for the test run with single processor.
-In **OS X Yosemite v10.10.5** on a MacBook Pro (2.8GHz Intel Core i7) with 16GB 1600 MHz DDR3 memory it took *31m57.352s* for the test run with single processor.
+
+| System | OS | Date | Time |
+|--------|----|------|------|
+|    MacBook Pro (2.8 GHz Intel COre i7)    |  OS X El Capitan v10.11.6  |   12/01/2016   |  27m20.219s    |
+|    MacBook Pro (2.8GHz Intel Core i7)    |  OS X Yosemite v10.10.5 |  12/01/2016    |   31m57.352s   |
+
 
 ##Dependencies
 PiReT run requires following dependencies which should be in your path. All of the dependencies will be installed by `bioconda_INSTALL.sh`.
