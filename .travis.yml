@@ -38,6 +38,7 @@ install:
   - conda install --yes -c bioconda samtools=1.3.1
   - conda install --yes -c bioconda perl-app-cpanminus
   - conda install --yes -c bioconda bedtools=2.26.0
+  - travis_wait 30 mvn install
 
 script:
   - ./bioconda_INSTALL.sh
