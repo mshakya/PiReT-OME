@@ -546,25 +546,25 @@ unless ( -s $checkIndexFile ) {
     #     `bowtie2-build -f $index_fasta1 $index_bt2`;
     if ( $eukarya_fasta && $prokaryote_fasta ) {
         &lprint(
-            "hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
+            "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
         );
-        print "hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n";
-        `hisat2-build -q --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+        print "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n";
+        `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
 
 #`$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
     }
     elsif ($eukarya_fasta) {
-        &lprint("hisat2-build -q --large-index $eukarya_fasta  $index_bt2\n");
-        print "hisat2-build -q --large-index $eukarya_fasta $index_bt2\n";
-        `hisat2-build -q --large-index $eukarya_fasta  $index_bt2`;
+        &lprint("hisat2-build --large-index $eukarya_fasta  $index_bt2\n");
+        print "hisat2-build --large-index $eukarya_fasta $index_bt2\n";
+        `hisat2-build --large-index $eukarya_fasta  $index_bt2`;
 
 #`$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
     }
     elsif ($prokaryote_fasta) {
         &lprint(
-            "hisat2-build -q--large-index $prokaryote_fasta $index_bt2\n");
-        print "hisat2-build -q --large-index $prokaryote_fasta $index_bt2\n";
-        `hisat2-build -q --large-index $prokaryote_fasta  $index_bt2`;
+            "hisat2-build --large-index $prokaryote_fasta $index_bt2\n");
+        print "hisat2-build --large-index $prokaryote_fasta $index_bt2\n";
+        `hisat2-build --large-index $prokaryote_fasta  $index_bt2`;
 
 # `$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta  $index_bt2`;
     }
