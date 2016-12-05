@@ -98,7 +98,7 @@ print "\n[Checking Files]\nCheckingFiles=Always\n\n";
 &lprint(
     "[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n"
 );
-
+# For printing in screen
 print "\n[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n";
 
 &lprint(
@@ -576,6 +576,7 @@ else                        { &lprint("failed: INDEX $index_bt2\n"); exit; }
 
 &printRunTime($time);
 &lprint("  Done Checking Files \n");
+print "Done Checking Files \n";
 
 my $time1 = time();
 &lprint("[Trimming and Mapping Reads]\n\tRunning \n\n");
@@ -823,10 +824,12 @@ if ( &file_check($eukarya_fasta) > 0 && &file_check($gff_eukarya) > 0 ) {
 
 my $time3 = time();
 &lprint("[Differential Gene Analysis]\n\tRunning\n\n");
+print "[Differential Gene Analysis]\n\tRunning\n\n";
 
 foreach ( sort keys %description ) {
     my $sample = $_;
     &lprint("$scriptDir/htseq-count.pl $workdir $sample $test\n");
+    print "$scriptDir/htseq-count.pl $workdir $sample $test\n";
     `$scriptDir/htseq-count.pl $workdir $sample $test`;
 
 }
@@ -1276,6 +1279,8 @@ sub printRunTime {
         int( $runTime % 60 )
     );
     &lprint($time_string);
+    # Also print to screen
+    print $time_string
 }
 
 sub lprint {
