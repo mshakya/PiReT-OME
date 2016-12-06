@@ -1,8 +1,8 @@
  INSTALLATION:
  ☐ in the installtion script (bioconda_INSTALL.sh), figure out a way to download the right version of Miniconda2-*.sh based on the type of system.
  ✔ in the installtion script (bioconda_INSTALL.sh), add a way to recognise Linux or mac system and install accordingly. @done (16-11-22 09:41)
- ☐ do i need csh?
- ☐ paths are added to .bashrc of travis ci vritual machine, but tools are not in path. why?
+ ✔ do i need csh? @done (16-12-06 09:11)
+ ✔ paths are added to .bashrc of travis ci vritual machine, but tools are not in path. why? @done (16-12-06 09:11)
 
 RPKM:
   ✔ figure out why RPKM calculation was failing. @done (16-11-21 16:58)
@@ -15,5 +15,5 @@ FILES:
   ✔ readcounts.expriment.txt, this file must be wrongly named as its a copy of experminetal design file, find out whats going on @done (16-11-27 22:46)
 
 PERL DEPENDENCIES:
-  ☐ find out where the perl dependencies are installed (native or it reads from miniconda).
+  ✔ find out where the perl dependencies are installed (native or it reads from miniconda). @done (16-12-06 09:11)
   ☐ 

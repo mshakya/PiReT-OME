@@ -25,7 +25,7 @@ cd PiReT
 ./bioconda_INSTALL.SH
 ```
 
-PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`) it. Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
+PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`). Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
 
 ##Test
 We have provided small test data set to check if the installation was successful or not. Test `.fastq` files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
@@ -110,24 +110,30 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 
 ```
-    perl runPipeline_rRNA_noqsub_commandline.pl [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
+    perl ../scripts/runPipeline_rRNA_noqsub_commandline.pl -test_kingdom both \
+    -significant_pvalue 0.001 -exp experimental_design.txt \
+    -d pipeline_test_both \
+    -prokaryote_fasta data/test_prok.fa \
+    -eukarya_fasta data/eukarya_test.fa -index_ref_bt2 test_index \
+    -gff_eukarya data/eukarya_test.gff3 -gff_prokaryote data/test_prok.gff \
+    -test_method both -gene_coverage_fasta data/test_prok.fa
 ```
 
-`-d`: working directory where all output files/directories will be written, user must have write permission.
+`-d`: working directory where all output files/directories will be written, users must have write permission.
 
-`-prokaryote_fasta`: comma-separated list of reference genome (prokaryote) fasta files (for making bowtie2 mapping index file). [optional]
+`-prokaryote_fasta`: comma-separated list of reference genome (prokaryote) fasta files. [optional]
 
 `-gff_prokaryote`: comma-separated list of gff files for corresponding reference genome fasta files (contig names must match reference sequence header). [optional]
 
-`-eukarya_fasta` : comma-separated list of reference genome (eukarya) fasta files (for making bowtie2 mapping index file). [optional]
+`-eukarya_fasta` : comma-separated list of reference genome (eukarya) fasta files. [optional]
 
 `-gff_eukarya`: comma-separated list of gff files for corresponding reference genome fasta files (contig names must match reference sequence header). [optional]
 
-`-index_ref_bt2`: bowtie2 mapping index file,  if the file exists, pipeline skips this step. [optional]
+`-index_ref_bt2`: HISAT2 mapping index file, if the file exists, pipeline skips this step. [optional]
 
 `-gene_coverage_fasta`: fasta file  (for directional coverage analysis, sequence  must be part of prokaryote mapping reference sequence). [optional]
 
-`-test_kingdom`: desired differential gene expression kingdom (`both` (for both eukarya and prokaryote), `prokaryote`, or `eukarya` (default:`prokaryote`));
+`-test_kingdom`: desired differential gene expression analysis (`both` (for both eukarya and prokaryote), `prokaryote`, or `eukarya` (default:`prokaryote`));
 
 `-test_method`: method for determining differentially expressed genes. Options are `EdgeR`, `DeSeq2` (For Deseq2, must have have at least 3 replicates for each group), and `both`. `default`: `both`. 
 
@@ -207,6 +213,8 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 `sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.expriment.txt`.
 
 `eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
+
+`process_current.log`: Created at the end of the pipeline indicating, successful run.
 
 ## Removing PiReT
 
