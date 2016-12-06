@@ -1,0 +1,7 @@
+ID	Rawreads_files	group
+samp1	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test15_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test15_R2.fastq	gr1
+samp2	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test25_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test25_R2.fastq	gr2
+samp3	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test26_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test26_R2.fastq	gr1
+samp4	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test27_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test27_R2.fastq	gr1
+samp5	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test43_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test43_R2.fastq	gr2
+samp6	/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test44_R1.fastq:/Users/migunshakya/Desktop/PiReT/test_data/fastqs/BTT_test44_R2.fastq	gr2
