@@ -1289,6 +1289,7 @@ sub printRunTime {
 sub lprint {
     my ($line) = @_;
     print $LOG $line;
+    print $line;
 }
 
 sub readfai {
