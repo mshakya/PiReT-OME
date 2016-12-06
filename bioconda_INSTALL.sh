@@ -287,15 +287,8 @@ print_tools_list()
 
 
 ### Main ####
-# if ( checkSystemInstallation csh )
-# then
-#   #echo "csh is found"
-#   echo ""
-# else
-#   echo "csh is not found"
-#   echo "Please Install csh first, then INSTALL the package"
-#   exit 1
-# fi
+
+mkdir -p  $ROOTDIR/thirdParty/miniconda/bin
 
 if [ "$#" -ge 1 ]
 then
