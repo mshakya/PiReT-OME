@@ -41,10 +41,6 @@ install:
 
 script:
   - ./bioconda_INSTALL.sh
-  - which samtools
-  - which hisat2
   - cd test_data && sh test_pipeline_linux.sh
-  - less pipeline_test_both/error.log 
-  - less pipeline_test_both/process.log
 
 
