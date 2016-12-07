@@ -106,7 +106,7 @@ This is the core list of dependencies. However, there are secondary dependencies
 
 ## Running PiReT
 
-The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requires a `qsub` system. Also, the current state of pipeline only works for single processor.
+The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requires a `qsub` system. Also, the current state of pipeline only works for a single processor.
 
 
 ```
