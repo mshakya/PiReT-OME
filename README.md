@@ -48,7 +48,7 @@ Pipeline run status can be checked in either `process.log` or `error.log`. If th
 |--------|----|------|------|
 |    MacBook Pro (2.8 GHz Intel COre i7)    |  OS X El Capitan v10.11.6  |   12/01/2016   |  27m20.219s    |
 |    MacBook Pro (2.8GHz Intel Core i7)    |  OS X Yosemite v10.10.5 |  12/01/2016    |   31m57.352s   |
-|VM|CentOS Linux release 7.1.1503 (Core)|12/07/2016|46m56.558s|
+|Virtual Machine|CentOS Linux release 7.1.1503 (Core)|12/07/2016|46m56.558s|
 
 
 ##Dependencies
