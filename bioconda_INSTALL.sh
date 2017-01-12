@@ -14,8 +14,8 @@ mkdir -p thirdParty
 cd thirdParty
 
 
-utility_tools=(samtools bedtools hisat2)
-alignments_tools=(bowtie2 bwa)
+utility_tools=(samtools bedtools)
+alignments_tools=(bowtie2 bwa hisat2)
 perl_modules=( perl_parallel_forkmanager )
 all_tools=("${utility_tools[@]}" "${alignments_tools[@]}")
 
@@ -140,6 +140,20 @@ install_bedtools()
 {
 echo "--------------------------------------------------------------------------
                            Compiling bedtools v2.26.0
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda bedtools=2.26.0
+echo "
+--------------------------------------------------------------------------------
+                           bedtools v2.26.0 compiled
+--------------------------------------------------------------------------------
+"
+}
+
+install_R()
+{
+echo "--------------------------------------------------------------------------
+                           Installing R
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bedtools=2.26.0
@@ -357,6 +371,7 @@ else
     then
     {
         echo "R is found"
+
     }
     else
     {
