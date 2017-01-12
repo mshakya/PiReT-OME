@@ -1,8 +1,15 @@
  INSTALLATION:
- ☐ in the installtion script (bioconda_INSTALL.sh), figure out a way to download the right version of Miniconda2-*.sh based on the type of system.
+ ✔ in the installtion script (bioconda_INSTALL.sh), figure out a way to download the right version of Miniconda2-*.sh based on the type of system. @done (16-12-09 09:14)
  ✔ in the installtion script (bioconda_INSTALL.sh), add a way to recognise Linux or mac system and install accordingly. @done (16-11-22 09:41)
  ✔ do i need csh? @done (16-12-06 09:11)
  ✔ paths are added to .bashrc of travis ci vritual machine, but tools are not in path. why? @done (16-12-06 09:11)
+ ☐ Add script to install required version of R
+ ☐ Find out how does it handle the installation of wrong version.
+ ☐ fix the installation of R in bioconda_INSTALL.sh, currently it has bwa_installer copied and not changed.
+ ☐ test the installtion in ubuntu
+ ☐ test the installation in system that already has EDGE
+ ☐ Figure out what does this error means "failed to do Differential Gene Analysis failed because of no good samples"
+ ☐ figure out whats going on with incorrect mapping file being generated in ubuntu
 
 RPKM:
   ✔ figure out why RPKM calculation was failing. @done (16-11-21 16:58)
@@ -16,4 +23,4 @@ FILES:
 
 PERL DEPENDENCIES:
   ✔ find out where the perl dependencies are installed (native or it reads from miniconda). @done (16-12-06 09:11)
-  ☐ 
+  
