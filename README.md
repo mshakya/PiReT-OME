@@ -68,7 +68,7 @@ PiReT run requires following dependencies which should be in your path. All of t
 - find
 - curl/wget
 
-### Installing dependecies
+### Installing dependencies
 This is the core list of dependencies. However, there are secondary dependencies for many of the tools, which will also be installed by `bioconda`.
 - [conda v4.2.13](http://conda.pydata.org/docs/index.html)
     If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
@@ -192,7 +192,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 - `prokaryote.gff`: the whole `gff` file.
 - `prokaryote.NonrRNA.genedesc.txt`: subset of `gff` files that only has gene description.
 - `prokaryote.NonrRNA.gff`: `gff` file with no rRNA.
-- `readcounts.expriment.txt`: table similar to experimental design file with location of `htseq-count` results full path.
+- `readcounts.experiment.txt`: table similar to experimental design file with location of `htseq-count` results full path.
 
 `process.log`: report of all the commands/scripts/ that were ran as part of the pipeline.
 
@@ -211,7 +211,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
             This folder contains results of quality trimming or filtering. This folder was generated using the same script that filteres reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline.
 
 
-`sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.expriment.txt`.
+`sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.experiment.txt`.
 
 `eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
 
