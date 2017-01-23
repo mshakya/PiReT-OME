@@ -14,6 +14,31 @@ mkdir -p thirdParty
 cd thirdParty
 
 
+# Minimum Required versions of dependencies
+# nucmer 3.1 is packaged in mummer 3.23
+bowtie2_VER=2.2.8
+bwa_VER=0.7.15
+cpanm_VER=1.7039
+miniconda_VER=4.2.12
+samtools_VER=1.3.1
+jellyfish_VER=2.2.6
+bedtools_VER=2.26.0
+R_VER=3.3.1
+hisat2_VER=2.0.5
+htseq_VER=0.6.1
+
+perl5_VER=5.8.0
+
+#minimum required version of Perl modules
+perl_String_Approx_VER=3.27
+perl_Parllel_ForkManager_VER=1.27
+#minimum required version of Python modules
+python_numpy_VER=1.1.12
+python_matplotlib_VER=1.5.3
+
+
+
+
 utility_tools=(samtools bedtools)
 alignments_tools=(bowtie2 bwa hisat2)
 perl_modules=( perl_parallel_forkmanager )
@@ -23,13 +48,13 @@ all_tools=("${utility_tools[@]}" "${alignments_tools[@]}")
 install_hisat2()
 {
 echo "--------------------------------------------------------------------------
-                           installing hisat2 v2.0.5
+                           installing hisat2 v$hisat2_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda hisat2=2.0.5
+conda install --yes -c bioconda hisat2=$hisat2_VER
 echo "
 ------------------------------------------------------------------------------
-                           hisat2 v2.0.5 installed
+                           hisat2 v$hisat2_VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -37,70 +62,70 @@ echo "
 install_jellyfish()
 {
 echo "--------------------------------------------------------------------------
-                           installing jellyfish v2.2.6
+                           installing jellyfish v$jellyfish_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda jellyfish=2.2.6
+conda install --yes -c bioconda jellyfish=$jellyfish_VER
 echo "
 ------------------------------------------------------------------------------
-                           jellyfish v2.2.6 installed
+                           jellyfish v$jellyfish_VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_perl_parallel_forkmanager()
 {
-echo "------------------------------------------------------------------------------
-               Installing Perl Module Parallel-ForkManager v1.17
-------------------------------------------------------------------------------
+echo "--------------------------------------------------------------------------
+  Installing Perl Module Parallel-ForkManager v$perl_Parllel_ForkManager_VER
+--------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda perl-parallel-forkmanager=1.17
+conda install --yes -c bioconda perl-parallel-forkmanager=$perl_Parllel_ForkManager_VER
 
 echo "
-------------------------------------------------------------------------------
-                        Parallel-ForkManager-1.17 Installed
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+      Parallel-ForkManager-$perl_Parllel_ForkManager_VER Installed
+--------------------------------------------------------------------------------
 "
 }
 
 install_bowtie2()
 {
 echo "--------------------------------------------------------------------------
-                           installing bowtie2 v2.2.8
+                           installing bowtie2 v$bowtie2_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bowtie2=2.2.8
+conda install --yes -c bioconda bowtie2=$bowtie2_VER
 echo "
 ------------------------------------------------------------------------------
-                           bowtie2 v2.2.8 installed
+                           bowtie2 v$bowtie2_VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_bwa()
 {
-echo "------------------------------------------------------------------------------
-                           Downloading bwa v0.7.15
-------------------------------------------------------------------------------
+echo "--------------------------------------------------------------------------
+                           Downloading bwa v$bwa_VER
+--------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bwa=0.7.15
+conda install --yes -c bioconda bwa=$bwa_VER
 echo "
-------------------------------------------------------------------------------
-                           bwa v0.7.15 installed
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+                           bwa v$bwa_VER installed
+--------------------------------------------------------------------------------
 "
 }
 
 install_htseq()
 {
 echo "------------------------------------------------------------------------------
-                           downloading htseq v0.6.1p1
+                           downloading htseq v $htseq_VER p1
 ------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda htseq
+conda install --yes -c bioconda htseq=$htseq_VER
 echo "
 ------------------------------------------------------------------------------
-                           htseq v0.6.1p1 installed
+                           htseq v $htseq_VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -109,13 +134,13 @@ echo "
 install_samtools()
 {
 echo "--------------------------------------------------------------------------
-                           Downloading samtools v1.3.1
+                           Downloading samtools v $samtools_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda samtools=1.3.1
+conda install --yes -c bioconda samtools=$samtools_VER
 echo "
 --------------------------------------------------------------------------------
-                           samtools v1.3.1 installed
+                           samtools v $samtools_VER installed
 --------------------------------------------------------------------------------
 "
 }
@@ -126,8 +151,7 @@ echo "--------------------------------------------------------------------------
                            Installing cpanm
 --------------------------------------------------------------------------------
 "
-# conda install --yes -c bioconda perl-cpan-meta
-conda install --yes -c bioconda perl-app-cpanminus
+conda install --yes -c bioconda perl-app-cpanminus=$cpanm_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 --------------------------------------------------------------------------------
                            cpanm installed
@@ -139,13 +163,13 @@ echo "
 install_bedtools()
 {
 echo "--------------------------------------------------------------------------
-                           Compiling bedtools v2.26.0
+                           Compiling bedtools v $bedtools_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bedtools=2.26.0
+conda install --yes -c bioconda bedtools=$bedtools_VER
 echo "
 --------------------------------------------------------------------------------
-                           bedtools v2.26.0 compiled
+                           bedtools v $bedtools_VER compiled
 --------------------------------------------------------------------------------
 "
 }
@@ -153,13 +177,13 @@ echo "
 install_R()
 {
 echo "--------------------------------------------------------------------------
-                           Installing R
+                           Installing R v $R_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c r r-base=3.3.1
+conda install --yes -c r r-base=$R_VER
 echo "
 --------------------------------------------------------------------------------
-                           bedtools v2.26.0 compiled
+                           R v $R_VER installed
 --------------------------------------------------------------------------------
 "
 }
@@ -199,8 +223,7 @@ echo "--------------------------------------------------------------------------
                            installing Perl Module String::Approx
 --------------------------------------------------------------------------------
 "
-# cpan install App::cpanminus
-cpanm String::Approx
+cpanm String::Approx@$perl_String_Approx_VER
 echo "
 --------------------------------------------------------------------------------
                            String::Approx installed
