@@ -15,7 +15,6 @@ cd thirdParty
 
 
 # Minimum Required versions of dependencies
-# nucmer 3.1 is packaged in mummer 3.23
 bowtie2_VER=2.2.8
 bwa_VER=0.7.15
 cpanm_VER=1.7039
@@ -27,31 +26,38 @@ R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
 
+# minimum required version of Scripting languages
 perl5_VER=5.8.0
+python2_VER=2.7.12
 
 #minimum required version of Perl modules
 perl_String_Approx_VER=3.27
 perl_Parllel_ForkManager_VER=1.27
+
 #minimum required version of Python modules
 python_numpy_VER=1.1.12
 python_matplotlib_VER=1.5.3
 
 
 
-
+# Tools categorized based on function
 utility_tools=(samtools bedtools)
+other_tools=( jellyfish )
 alignments_tools=(bowtie2 bwa hisat2)
-perl_modules=( perl_parallel_forkmanager )
-all_tools=("${utility_tools[@]}" "${alignments_tools[@]}")
+count_tools=( htseq )
+perl_modules=( perl_parallel_forkmanager string_approx)
+all_tools=("${utility_tools[@]}" "${alignments_tools[@]}" "${count_tools[@]}" "${other_tools[@]}")
 
-
+################################################################################
+#                           Installation recipes
+################################################################################
 install_hisat2()
 {
 echo "--------------------------------------------------------------------------
                            installing hisat2 v$hisat2_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda hisat2=$hisat2_VER
+conda install --yes -c bioconda hisat2=$hisat2_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 ------------------------------------------------------------------------------
                            hisat2 v$hisat2_VER installed
@@ -65,7 +71,7 @@ echo "--------------------------------------------------------------------------
                            installing jellyfish v$jellyfish_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda jellyfish=$jellyfish_VER
+conda install --yes -c bioconda jellyfish=$jellyfish_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 ------------------------------------------------------------------------------
                            jellyfish v$jellyfish_VER installed
@@ -94,7 +100,7 @@ echo "--------------------------------------------------------------------------
                            installing bowtie2 v$bowtie2_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bowtie2=$bowtie2_VER
+conda install --yes -c bioconda bowtie2=$bowtie2_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 ------------------------------------------------------------------------------
                            bowtie2 v$bowtie2_VER installed
@@ -108,7 +114,7 @@ echo "--------------------------------------------------------------------------
                            Downloading bwa v$bwa_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bwa=$bwa_VER
+conda install --yes -c bioconda bwa=$bwa_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 --------------------------------------------------------------------------------
                            bwa v$bwa_VER installed
@@ -119,10 +125,10 @@ echo "
 install_htseq()
 {
 echo "------------------------------------------------------------------------------
-                           downloading htseq v $htseq_VER p1
+                           downloading htseq v $htseq_VER
 ------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda htseq=$htseq_VER
+conda install --yes -c bioconda htseq=$htseq_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 ------------------------------------------------------------------------------
                            htseq v $htseq_VER installed
@@ -137,7 +143,7 @@ echo "--------------------------------------------------------------------------
                            Downloading samtools v $samtools_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda samtools=$samtools_VER
+conda install --yes -c bioconda samtools=$samtools_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 --------------------------------------------------------------------------------
                            samtools v $samtools_VER installed
@@ -166,7 +172,7 @@ echo "--------------------------------------------------------------------------
                            Compiling bedtools v $bedtools_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda bedtools=$bedtools_VER
+conda install --yes -c bioconda bedtools=$bedtools_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 --------------------------------------------------------------------------------
                            bedtools v $bedtools_VER compiled
@@ -180,7 +186,7 @@ echo "--------------------------------------------------------------------------
                            Installing R v $R_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c r r-base=$R_VER
+conda install --yes -c r r-base=$R_VER -p $ROOTDIR/thirdParty/miniconda
 echo "
 --------------------------------------------------------------------------------
                            R v $R_VER installed
@@ -289,20 +295,17 @@ cat << EOF
 usage: $0 options
     If no options, it will check existing installation and run tools installation for those uninstalled.
     options:
-    help            show this help
-    list            show available tools for updates
-    tools_name      install/update individual tool
-    force           force to install all list tools locally
+    <help | help| -h>          show this help
+    list                       show available tools for updates
+    tools_name                 install/update individual tool
+    force                      force to install all list tools locally
     
     ex: To update bowtie2 only
         $0 bowtie2
     ex: To update bowtie2 and bwa
         $0 bowtie2 bwa
-    ex: RE-install Phylogeny tools
-        $0 Phylogeny
         
 EOF
-
 }
 
 print_tools_list()
@@ -320,6 +323,11 @@ print_tools_list()
    do
        echo "* $i"
    done
+   echo -e "\nCount"
+   for i in "${count_tools[@]}"
+   do
+       echo "* $i"
+   done
 }
 
 
@@ -332,7 +340,7 @@ then
   for f in $@
   do
     case $f in
-      help)
+      -h|help|-help)
         print_usage
         exit 0;;
       list)
@@ -371,38 +379,20 @@ then
   done
 fi
 
-
-if [[ "$OSTYPE" == "darwin"* ]]
-then
-{
-    if ( checkSystemInstallation R )
+###############################################################################
+if ( checkSystemInstallation R )
     then
-    {
-        echo "R is found"
-    }
-    else
-    {
-        echo "R is not found"
-        echo "Please install R from http://cran.r-project.org/bin/macosx/";
-        exit 1
-    }
-    fi
-}
-else
-{  #TODO: Ask chien-chi why local installation is checked here
-    if ( checkSystemInstallation R )
-    then
-    {
-        echo "R is found"
-
-    }
-    else
-    {
-        echo "R is not found"
+      R_installed_VER=`R --version 2>&1 | grep "version"| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+      if ( echo $R_installed_VER $R_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+      then 
+        echo " - found R $R_installed_VER"
+      else
+        echo "Required version of R version $R_VER was not found"
         install_R
-    }
-    fi
-}
+      fi
+    else
+      echo "R was not found"
+      install_R
 fi
 
 # check if required bioconductor R packages are installed
@@ -416,92 +406,146 @@ echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https
       biocLite('DESeq2')}" | Rscript -
 
 
+###############################################################################
 if ( checkSystemInstallation conda )
 then
-  echo "conda is found"
+  conda_installed_VER=`conda --version 2>&1 | perl -nle 'print $& if m{conda \d+\.\d+\.\d+}'`;
+  if ( echo $conda_installed_VER $miniconda_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then 
+    echo " - found conda $conda_installed_VER"
+    if [ -d "$ROOTDIR/thirdParty/miniconda" ]; then
+      echo "conda is pointed to right environment"  
+    else
+      echo "Creating a separate conda enviroment ..."
+      conda create --yes -p $ROOTDIR/thirdParty/miniconda
+    fi
+  else
+    echo "Required version of conda ($miniconda_VER) was not found"
+    install_miniconda
+  fi
 else
-  echo "conda is not found"
+  echo "conda was not found"
   install_miniconda
 fi
-
+################################################################################
 if ( checkSystemInstallation hisat2 )
 then
-  echo "hisat2 is found"
+  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  if ( echo $hisat2_installed_VER $hisat2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then 
+    echo " - found hisat2 $hisat2_installed_VER"
+  else
+  echo "Required version of hisat2 was not found"
+  install_hisat2
+  fi
 else
   echo "hisat2 is not found"
   install_hisat2
 fi
-
+################################################################################
 if ( checkSystemInstallation htseq-count )
 then
-  echo "htseq is found"
+  htseq_installed_VER=`htseq-count -h | grep 'version'| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`
+  if ( echo $htseq_installed_VER $htseq_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found htseq $htseq_installed_VER"
+  else 
+    echo "Required version of htseq was not found"
+    install_htseq
+  fi
 else
-  echo "htseq is not found"
+  echo "htseq was not found"
   install_htseq
 fi
-
+################################################################################
 if ( checkSystemInstallation jellyfish )
 then
-  echo "jellyfish is found"
+  jellyfish_installed_VER=`jellyfish --version | perl -nle 'print $& if m{jellyfish \d+\.\d+\.\d+}'`
+  if ( echo $jellyfish_installed_VER $jellyfish_VER | awk '{if($2>=$3) exit 0; else exit 1}')
+  then
+    echo " - found $jellyfish_installed_VER"
+  else
+    echo "Required version of jellyfish was not found"
+  fi
 else
-  echo "jellyfish is not found"
+  echo "jellyfish was not found"
   install_jellyfish
 fi
-
+################################################################################
 if ( checkSystemInstallation bowtie2 )
 then
-  echo "bowtie2 is found"
+bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  if (echo $bowtie2_installed_VER $bowtie2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found bowtie2 $bowtie2_installed_VER"
+  else
+    echo "Required version of bowtie2 $bowtie2_VER was not found"
+    install_bowtie2
+  fi
 else
   echo "bowtie2 is not found"
   install_bowtie2
 fi
-
+################################################################################
 if ( checkSystemInstallation bwa )
 then
-  echo "bwa is found"
+bwa_installed_VER=`bwa 2>&1| grep 'Version'  | perl -nle 'print $& if m{Version: \d+\.\d+\.\d+}'`;
+  if  ( echo $bwa_installed_VER $bwa_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found BWA $bwa_installed_VER"
+  else
+    install_bwa
+  fi
 else
   echo "bwa is not found"
   install_bwa
 fi
-
+################################################################################
 if ( checkSystemInstallation samtools )
 then
-  echo "samtools is found"
+  samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $& if m{Version: \d+\.\d+.\d+}'`;
+    if ( echo $samtools_installed_VER $samtools_VER| awk '{if($2>=$3) exit 0; else exit 1}' )
+    then
+    echo " - found samtools $samtools_installed_VER"
+    else
+    echo "Required version of samtools $samtools_VER was not found"
+    install_samtools
+    fi
 else
-  echo "samtools is not found"
+  echo "samtools was not found"
   install_samtools
 fi
 
-if ( checkPerlModule Parallel::ForkManager )
-then
-  echo "Perl Parallel::ForkManager is found"
-else
-  echo "Perl Parallel::ForkManager is not found"
-  install_perl_parallel_forkmanager
-fi
-
+################################################################################
 if ( checkSystemInstallation bedtools )
 then
-  echo "bedtools is found"
+  bedtools_installed_VER=`bedtools --version | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`;
+  if ( echo $bedtools_installed_VER $bedtools_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
+  then
+    echo " - found bedtools $bedtools_installed_VER"
+  else
+    echo "Required version of bedtools $bedtools_VER was not found"
+    install_bedtools
+    fi
 else
   echo "bedtools is not found"
   install_bedtools
 fi
 
+################################################################################
 if ( checkSystemInstallation cpanm )
 then
-  echo "cpanm is found"
-else
-  echo "cpanm is not found"
+  cpanm_installed_VER=`cpanm -V 2>&1| head -n 1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+}'`;
+  if  ( echo $cpanm_installed_VER $cpanm_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then 
+    echo " - found cpanm $cpanm_installed_VER"
+  else
+  echo "Required version of cpanm was not found"
   install_cpanm
-fi
-
-if ( checkPerlModule String::Approx )
-then
-  echo "Perl String::Approx is found"
-else
-  echo "Perl String::Approx is not found"
-  install_perl_string_approx
+  fi
+else 
+  echo "cpanm was not found"
+  install_cpanm
 fi
 
 if ( checkSystemInstallation gffread )
@@ -511,6 +555,44 @@ else
   echo "gffread is not found"
   install_gffread
 fi
+
+################################################################################
+#                        Perl Modules
+################################################################################
+
+if ( checkPerlModule Parallel::ForkManager )
+then
+  perl_Parallel_ForkManager_installed_VER=`cpan -D Parallel::ForkManager 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
+  if ( echo $perl_Parallel_ForkManager_installed_VER $perl_Parallel_ForkManager_VER | awk '{if($2>=$3) exit 0; else exit 1}')
+  then
+    echo " - found Perl module Parallel::ForkManager $perl_Parallel_ForkManager_installed_VER"
+  else
+    echo "Required version of Parallel::ForkManager $perl_Parallel_ForkManager_VER was not found"
+    install_perl_Parallel_ForkManager
+  fi
+else
+  echo "Perl Parallel::ForkManager is not found"
+  install_perl_Parallel_ForkManager
+fi
+
+################################################################################
+
+if ( checkPerlModule String::Approx )
+then
+  perl_String_Approx_installed_VER=`cpan -D String::Approx 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
+  if ( echo $perl_String_Approx_installed_VER $perl_String_Approx_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo "- found Perl module String::Approx $perl_String_Approx_installed_VER"
+  else
+    echo "Required version of String::Approx $perl_String_Approx_VER was not found"
+    install_perl_string_approx
+  fi
+else
+  echo "Perl String::Approx was not found"
+  install_perl_string_approx
+fi
+################################################################################
+
 
 
 
@@ -534,7 +616,6 @@ then
 else
 {
   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
-  #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bash_profile
   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bash_profile
   # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
   source $HOME/.bash_profile 
