@@ -1,6 +1,6 @@
-#!/usr/bin/perl -W
-use strict;
+#!/usr/bin/env perl
 
+use strict;
 use Getopt::Long;
 use File::Basename;
 use Term::ANSIColor;
@@ -9,10 +9,10 @@ use FindBin qw($Bin);
 use POSIX qw(strftime);
 
 $| = 1;
-$ENV{PATH}
-      = "$Bin:$Bin/../:$Bin/script/:$ENV{PATH}";
-    #TODO: removing following line, if the test is successful
-    # = "$Bin:$Bin/../:$Bin/hisat-0.1.5-beta/:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/sge/2011.11p1/bin/linux-x64:$Bin/../../edge_ui/JBrowse/bin/";
+$ENV{PATH} = "$Bin:$Bin/../:$Bin/script/:$ENV{PATH}";
+
+#TODO: removing following line, if the test is successful
+# = "$Bin:$Bin/../:$Bin/hisat-0.1.5-beta/:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/sge/2011.11p1/bin/linux-x64:$Bin/../../edge_ui/JBrowse/bin/";
 my $main_pid = $$;
 my $version  = "1.1";
 
@@ -98,13 +98,16 @@ print "\n[Checking Files]\nCheckingFiles=Always\n\n";
 &lprint(
     "[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n"
 );
+
 # For printing in screen
-print "\n[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n";
+print
+    "\n[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n";
 
 &lprint(
     "[De Novo Detection of small RNAs]\nDe Novo Detection of small RNAs =Always\n\n"
 );
-print "[De Novo Detection of small RNAs]\nDe Novo Detection of small RNAs =Always\n\n";
+print
+    "[De Novo Detection of small RNAs]\nDe Novo Detection of small RNAs =Always\n\n";
 
 &lprint("[Differential Gene Analysis]\nDifferentialGeneAnalysis=Always\n\n");
 
@@ -117,7 +120,7 @@ unless ( $descriptfile
     && ( $eukarya_fasta || $prokaryote_fasta )
     && $index_bt2 )
 {
-    &Usage
+    &Usage;
 }
 
 unless ( -d "$workdir/sum_gene_count/" ) {
@@ -390,14 +393,18 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         &lprint(
             "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
         );
+
         # for printing in screen
-        print "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n";
+        print
+            "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n";
         `perl $Bin/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
         &lprint(
             "hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
         );
+
         # for printing in screen
-        print "hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n";
+        print
+            "hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n";
         `hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
         if (&file_check(
                 "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
@@ -407,8 +414,10 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
             &lprint(
                 "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n"
             );
+
             # for printing in screen
-            print "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n";
+            print
+                "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n";
             `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
         }
     }
@@ -479,8 +488,10 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
         &lprint(
             "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai \n"
         );
+
         # for printing in screen
-        print "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai\n";
+        print
+            "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai\n";
         `perl $Bin/parse_prokaryote_gfffile.pl $tmpgff $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai`;
     }
 }
@@ -548,7 +559,8 @@ unless ( -s $checkIndexFile ) {
         &lprint(
             "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
         );
-        print "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n";
+        print
+            "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n";
         `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
 
 #`$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
@@ -561,8 +573,7 @@ unless ( -s $checkIndexFile ) {
 #`$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
     }
     elsif ($prokaryote_fasta) {
-        &lprint(
-            "hisat2-build --large-index $prokaryote_fasta $index_bt2\n");
+        &lprint("hisat2-build --large-index $prokaryote_fasta $index_bt2\n");
         print "hisat2-build --large-index $prokaryote_fasta $index_bt2\n";
         `hisat2-build --large-index $prokaryote_fasta  $index_bt2`;
 
@@ -607,13 +618,15 @@ foreach ( sort keys %description ) {
             &lprint(
                 "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n"
             );
-            print "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n";
+            print
+                "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n";
             `perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads`;
 
             &lprint(
                 "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n"
             );
-            print "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n";
+            print
+                "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n";
             `perl $scriptDir/rRNA_reads_mapping.pl -test $test -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref -o $workdir`;
 
         }
@@ -669,6 +682,7 @@ while ($alldone) {
         if ( &file_check($tmpfile) > 0 ) {
             $alldone--;
             print LOG"done samples : $alldone\n";
+
             # For printing in screen
             print "done samples : $alldone\n";
 
@@ -677,8 +691,9 @@ while ($alldone) {
     }
     if ( $alldone > 0 ) {
         print LOG"sample unfinished : $alldone\n";
+
         # For printing in screen
-        print "sample unfinished : $alldone\n";        
+        print "sample unfinished : $alldone\n";
         sleep(60);
         $alldone = keys(%allsample);
     }
@@ -692,6 +707,7 @@ while ($alldone) {
 
 my $time2 = time();
 &lprint("[De Novo Detection of small RNAs]\n\tRunning\n\n");
+
 # For printing in screen
 print "[De Novo Detection of small RNAs]\n\tRunning\n\n";
 
@@ -701,8 +717,10 @@ foreach ( sort keys %description ) {
         &lprint(
             "perl $scriptDir/prokaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n"
         );
+
         # For printing in screen
-        print "perl $scriptDir/prokaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n";
+        print
+            "perl $scriptDir/prokaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n";
         `perl $scriptDir/prokaryote_rRNACoverageFold_plot.pl  $sample   $workdir`;
 
     }
@@ -714,14 +732,17 @@ foreach ( sort keys %description ) {
         &lprint(
             "perl $scriptDir/eukaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n"
         );
+
         # For priniting in screen
-        print "perl $scriptDir/eukaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n";
+        print
+            "perl $scriptDir/eukaryote_rRNACoverageFold_plot.pl  $sample   $workdir\n";
         `perl $scriptDir/eukaryote_rRNACoverageFold_plot.pl  $sample   $workdir`;
 
     }
 }
 $alldone = keys(%allsample);
 print LOG "total $alldone samples\n";
+
 # for printing in screen
 print "total $alldone samples\n";
 while ($alldone) {
@@ -1189,6 +1210,7 @@ else {
 open( CURRENTLOGFILE, "> $workdir/process_current.log" )
     or die "   $workdir/process_current.log $!";
 print CURRENTLOGFILE "All Done\n";
+
 # print in screen
 print "All Done\n";
 
@@ -1282,8 +1304,9 @@ sub printRunTime {
         int( $runTime % 60 )
     );
     &lprint($time_string);
+
     # Also print to screen
-    print $time_string
+    print $time_string;
 }
 
 sub lprint {

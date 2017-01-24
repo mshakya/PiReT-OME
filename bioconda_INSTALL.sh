@@ -256,6 +256,34 @@ echo "
 "
 }
 
+install_python_numpy()
+{
+echo "--------------------------------------------------------------------------
+                installing Python module numpy $python_numpy_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c anaconda numpy=$python_numpy_VER
+echo "
+--------------------------------------------------------------------------------
+                           numpy installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_python_matplotlib()
+{
+echo "--------------------------------------------------------------------------
+                installing Python module matplotlib $python_matplotlib_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c anaconda matplotlib=$python_matplotlib_VER
+echo "
+--------------------------------------------------------------------------------
+                           matplotlib installed
+--------------------------------------------------------------------------------
+"
+}
+
 
 
 checkSystemInstallation()
@@ -282,6 +310,12 @@ checkPerlModule()
    return $?
 }
 
+
+checkPythonModule()
+{
+  python -c "import $1" 2>&1
+  return $?
+}
 
 containsElement () {
   local e
@@ -582,7 +616,7 @@ then
   perl_String_Approx_installed_VER=`cpan -D String::Approx 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
   if ( echo $perl_String_Approx_installed_VER $perl_String_Approx_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
-    echo "- found Perl module String::Approx $perl_String_Approx_installed_VER"
+    echo " - found Perl module String::Approx $perl_String_Approx_installed_VER"
   else
     echo "Required version of String::Approx $perl_String_Approx_VER was not found"
     install_perl_string_approx
@@ -592,40 +626,72 @@ else
   install_perl_string_approx
 fi
 ################################################################################
+#                        Python Modules
+################################################################################
+if ( checkPythonModule numpy)
+  then
+  python_numpy_installed_VER=`python -c "import numpy; print numpy.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
+  if (echo $python_numpy_installed_VER $python_numpy_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
+  then
+    echo " - found Python module numpy $python_numpy_installed_VER"
+  else
+    echo "Required version of numpy $python_numpy_VER was not found" 
+    install_python_numpy
+  fi
+else
+    echo "numpy was not found"
+    install_python_numpy
+fi
+
+################################################################################
+
+if ( checkPythonModule matplotlib)
+  then
+  python_matplotlib_installed_VER=`python -c "import matplotlib; print matplotlib.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
+  if (echo $python_matplotlib_installed_VER $python_matplotlib_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
+  then
+    echo " - found Python module matplotlib $python_matplotlib_installed_VER"
+  else
+    echo "Required version of matplotlib $python_matplotlib_VER was not found" 
+    install_python_matplotlib
+  fi
+else
+    echo "matplotlib was not found"
+    install_python_matplotlib
+fi
 
 
-
-
+# removed this to not mase with user environment
 ################################################################################
 #                       Add path to bash
 ################################################################################
-if [ -f $HOME/.bashrc ]
-then
-{
-  echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
-  #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
-  #echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
-  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
-  source $HOME/.bashrc 
-  echo "
---------------------------------------------------------------------------------
-                           added path to .bashrc
---------------------------------------------------------------------------------
-"
-}
-else
-{
-  echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
-  echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bash_profile
-  # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
-  source $HOME/.bash_profile 
-  echo "
---------------------------------------------------------------------------------
-                           added path to .bash_profile
---------------------------------------------------------------------------------
-"
-}
-fi
+# if [ -f $HOME/.bashrc ]
+# then
+# {
+#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
+#   #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
+#   #echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
+#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
+#   source $HOME/.bashrc 
+#   echo "
+# --------------------------------------------------------------------------------
+#                            added path to .bashrc
+# --------------------------------------------------------------------------------
+# "
+# }
+# else
+# {
+#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
+#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bash_profile
+#   # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
+#   source $HOME/.bash_profile 
+#   echo "
+# --------------------------------------------------------------------------------
+#                            added path to .bash_profile
+# --------------------------------------------------------------------------------
+# "
+# }
+# fi
 
 echo "
 All done! Please Restart the Terminal Session.
