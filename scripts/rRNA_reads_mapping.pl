@@ -6,6 +6,8 @@ use File::Basename;
 use Term::ANSIColor;
 use FindBin qw($Bin);
 
+
+#TODO: test and see if this ENV can be removed since it is set on runPipeline
 $ENV{PATH} = "$Bin:$Bin/bin/:$ENV{PATH}";
 
 umask 000;
