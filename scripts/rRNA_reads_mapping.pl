@@ -242,14 +242,14 @@ my $pair_eukarya_reads=0;
 
 
 
-open (OUTNON,">$workdir/$sample/mapping_results/paired.eukarya_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/paired.eukarya_ref.sam\n";
-open (OUTALL,">$workdir/$sample/mapping_results/paired.prokaryote_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/paired.prokaryote_ref.sam\n";
-open (BADMAPEU,">$workdir/$sample/mapping_results/Notproperpaired.eukarya_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/Notproperpaired.eukarya_ref.sam\n";
-open (BADMAPPRO,">$workdir/$sample/mapping_results/Notproperpaired.prokaryote_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/Notproperpaired.prokaryote_ref.sam\n";
-open (OUTFW,">$workdir/$sample/mapping_results/forward.prokaryote_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/forward.prokaryote_ref.sam\n";
-open (OUTBW,">$workdir/$sample/mapping_results/backward.prokaryote_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/backward.prokaryote_ref.sam\n";
-open (OUTEUFW,">$workdir/$sample/mapping_results/forward.eukarya_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/forward.eukarya_ref.sam\n";
-open (OUTEUBW,">$workdir/$sample/mapping_results/backward.eukarya_ref.sam") or die "$! canot open $workdir/$sample/mapping_results/backward.eukarya_ref.sam\n";
+open (OUTNON,">$workdir/$sample/mapping_results/paired.eukarya_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/paired.eukarya_ref.sam\n";
+open (OUTALL,">$workdir/$sample/mapping_results/paired.prokaryote_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/paired.prokaryote_ref.sam\n";
+open (BADMAPEU,">$workdir/$sample/mapping_results/Notproperpaired.eukarya_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/Notproperpaired.eukarya_ref.sam\n";
+open (BADMAPPRO,">$workdir/$sample/mapping_results/Notproperpaired.prokaryote_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/Notproperpaired.prokaryote_ref.sam\n";
+open (OUTFW,">$workdir/$sample/mapping_results/forward.prokaryote_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/forward.prokaryote_ref.sam\n";
+open (OUTBW,">$workdir/$sample/mapping_results/backward.prokaryote_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/backward.prokaryote_ref.sam\n";
+open (OUTEUFW,">$workdir/$sample/mapping_results/forward.eukarya_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/forward.eukarya_ref.sam\n";
+open (OUTEUBW,">$workdir/$sample/mapping_results/backward.eukarya_ref.sam") or die "$! cannot open $workdir/$sample/mapping_results/backward.eukarya_ref.sam\n";
 #sf
 
 
@@ -382,7 +382,7 @@ $totalrawreads =&parsetrimmingfile("$outDir1/../trimming_results/$prefix.stats.t
 
 my $unmappedreads=$numTotalUnmappedReadsUnpaired + $numTotalUnmappedReadsPaired*2;
 my $mappedreads=$trimmedreads-$unmappedreads; 
-open (OUTSTAT,">$statsfile") or die "$! canot open $statsfile\n";
+open (OUTSTAT,">$statsfile") or die "$! cannot open $statsfile\n";
 print OUTSTAT "total_reads\t$trimmedreads\n";
 print OUTSTAT "total_Unmapped_reads\t$unmappedreads\n";
 print OUTSTAT "total_Mapped_reads\t$mappedreads\n";
