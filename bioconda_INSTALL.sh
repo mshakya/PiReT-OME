@@ -14,6 +14,25 @@ mkdir -p thirdParty
 cd thirdParty
 
 
+# create a directory to add short cuts to dependencies
+mkdir -p $ROOTDIR/bin
+export "PATH=$PATH:$ROOTDIR/bin/"
+
+if [[ "$OSTYPE" == "darwin"* ]]
+then
+{
+export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/ext/lib/perl5/darwin-thread-multi-2level:$PERL5LIB"
+}
+else
+{  
+export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$PERL5LIB"
+}
+fi
+
+# Add pythonpath
+export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
+
+
 # Minimum Required versions of dependencies
 bowtie2_VER=2.2.8
 bwa_VER=0.7.15
@@ -32,7 +51,7 @@ python2_VER=2.7.12
 
 #minimum required version of Perl modules
 perl_String_Approx_VER=3.27
-perl_Parllel_ForkManager_VER=1.27
+perl_Parllel_ForkManager_VER=1.17
 
 #minimum required version of Python modules
 python_numpy_VER=1.1.12
@@ -45,7 +64,7 @@ utility_tools=(samtools bedtools)
 other_tools=( jellyfish )
 alignments_tools=(bowtie2 bwa hisat2)
 count_tools=( htseq )
-perl_modules=( perl_parallel_forkmanager string_approx)
+# perl_modules=( perl_parallel_forkmanager string_approx)
 all_tools=("${utility_tools[@]}" "${alignments_tools[@]}" "${count_tools[@]}" "${other_tools[@]}")
 
 ################################################################################
@@ -58,6 +77,8 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda hisat2=$hisat2_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/hisat2 $ROOTDIR/bin/hisat2
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/hisat2-build $ROOTDIR/bin/hisat2-build
 echo "
 ------------------------------------------------------------------------------
                            hisat2 v$hisat2_VER installed
@@ -72,6 +93,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda jellyfish=$jellyfish_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/jellyfish $ROOTDIR/bin/jellyfish
 echo "
 ------------------------------------------------------------------------------
                            jellyfish v$jellyfish_VER installed
@@ -79,14 +101,15 @@ echo "
 "
 }
 
-install_perl_parallel_forkmanager()
+install_perl_Parallel_ForkManager()
 {
 echo "--------------------------------------------------------------------------
   Installing Perl Module Parallel-ForkManager v$perl_Parllel_ForkManager_VER
 --------------------------------------------------------------------------------
 "
-conda install --yes -c bioconda perl-parallel-forkmanager=$perl_Parllel_ForkManager_VER
 
+cpanm Parallel::ForkManager@$perl_Parllel_ForkManager_VER -l $ROOTDIR/ext
+# conda install --yes -c bioconda perl-parallel-forkmanager=$perl_Parllel_ForkManager_VER
 echo "
 --------------------------------------------------------------------------------
       Parallel-ForkManager-$perl_Parllel_ForkManager_VER Installed
@@ -101,6 +124,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bowtie2=$bowtie2_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/bowtie2 $ROOTDIR/bin/bowtie2
 echo "
 ------------------------------------------------------------------------------
                            bowtie2 v$bowtie2_VER installed
@@ -115,6 +139,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bwa=$bwa_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/bwa $ROOTDIR/bin/bwa
 echo "
 --------------------------------------------------------------------------------
                            bwa v$bwa_VER installed
@@ -129,13 +154,13 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda htseq=$htseq_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/htseq-count $ROOTDIR/bin/htseq-count
 echo "
 ------------------------------------------------------------------------------
                            htseq v $htseq_VER installed
 ------------------------------------------------------------------------------
 "
 }
-
 
 install_samtools()
 {
@@ -144,6 +169,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda samtools=$samtools_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/samtools $ROOTDIR/bin/samtools
 echo "
 --------------------------------------------------------------------------------
                            samtools v $samtools_VER installed
@@ -158,6 +184,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda perl-app-cpanminus=$cpanm_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/cpanm $ROOTDIR/bin/cpanm
 echo "
 --------------------------------------------------------------------------------
                            cpanm installed
@@ -173,6 +200,8 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c bioconda bedtools=$bedtools_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/genomeCoverageBed $ROOTDIR/bin/genomeCoverageBed
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/bedtools $ROOTDIR/bin/bedtools
 echo "
 --------------------------------------------------------------------------------
                            bedtools v $bedtools_VER compiled
@@ -187,6 +216,7 @@ echo "--------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 "
 conda install --yes -c r r-base=$R_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/R $ROOTDIR/bin/R
 echo "
 --------------------------------------------------------------------------------
                            R v $R_VER installed
@@ -208,7 +238,9 @@ then
   curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.2.12-MacOSX-x86_64.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
-  export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+  # export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+  ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
+  ln -sf $ROOTDIR/thirdParty/miniconda/bin/pip $ROOTDIR/bin/pip
 
 }
 else
@@ -217,23 +249,55 @@ else
   wget https://repo.continuum.io/miniconda/Miniconda2-4.2.12-Linux-x86_64.sh -O miniconda.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
-  export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+  # export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
+  ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
+  ln -sf $ROOTDIR/thirdParty/miniconda/bin/pip $ROOTDIR/bin/pip
 
 }
 fi
+echo "--------------------------------------------------------------------------
+                miniconda installed and and bin added to PATH
+--------------------------------------------------------------------------------
+"
 }
+
+# install_perl_string_approx()
+# {
+# echo "--------------------------------------------------------------------------
+#                            installing Perl Module String::Approx
+# --------------------------------------------------------------------------------
+# "
+# cpanm String::Approx@$perl_String_Approx_VER -l $ROOTDIR
+# echo "
+# --------------------------------------------------------------------------------
+#                            String::Approx installed
+# --------------------------------------------------------------------------------
+# "
+# }
 
 install_perl_string_approx()
 {
-echo "--------------------------------------------------------------------------
-                           installing Perl Module String::Approx
---------------------------------------------------------------------------------
+echo "------------------------------------------------------------------------------
+                 Installing Perl Module String-Approx-3.27
+------------------------------------------------------------------------------
 "
-cpanm String::Approx@$perl_String_Approx_VER
+#TODO: Figure out how to download this using curl
+# curl -k -l http://search.cpan.org/CPAN/authors/id/J/JH/JHI/String-Approx-3.27.tar.gz -o String-Approx-3.27.tar.gz
+
+tar xvzf String-Approx-3.27.tar.gz
+cd String-Approx-3.27
+perl Makefile.PL 
+make
+cp -fR blib/lib/* $ROOTDIR/ext/lib/perl5
+mkdir -p $ROOTDIR/ext/lib/perl5/auto
+mkdir -p $ROOTDIR/ext/lib/perl5/auto/String
+mkdir -p $ROOTDIR/ext/lib/perl5/auto/String/Approx
+cp -fR blib/arch/auto/String/Approx/Approx.* $ROOTDIR/ext/lib/perl5/auto/String/Approx/
+cd $ROOTDIR/thirdParty
 echo "
---------------------------------------------------------------------------------
-                           String::Approx installed
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+                        String-Approx-3.27 Installed
+------------------------------------------------------------------------------
 "
 }
 
@@ -249,6 +313,8 @@ git clone https://github.com/gpertea/gffread gffread_git
 cd gffread_git
 make
 cp gffread ../
+
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/gffread $ROOTDIR/bin/gffread
 echo "
 --------------------------------------------------------------------------------
                            gffread installed
@@ -306,7 +372,8 @@ checkLocalInstallation()
 
 checkPerlModule()
 {
-   perl -e "use lib \"$rootdir/lib\"; use $1;"
+   # perl -e "use lib \"$ROOTDIR/lib/lib/perl5\"; use $1;"
+   perl -e "use $1";
    return $?
 }
 
@@ -469,11 +536,11 @@ then
   then 
     echo " - found hisat2 $hisat2_installed_VER"
   else
-  echo "Required version of hisat2 was not found"
-  install_hisat2
+    echo "Required version of hisat2 was not found"
+    install_hisat2
   fi
 else
-  echo "hisat2 is not found"
+  echo "hisat2 was not found"
   install_hisat2
 fi
 ################################################################################
@@ -483,7 +550,7 @@ then
   if ( echo $htseq_installed_VER $htseq_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
     echo " - found htseq $htseq_installed_VER"
-  else 
+  else
     echo "Required version of htseq was not found"
     install_htseq
   fi
@@ -596,8 +663,8 @@ fi
 
 if ( checkPerlModule Parallel::ForkManager )
 then
-  perl_Parallel_ForkManager_installed_VER=`cpan -D Parallel::ForkManager 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
-  if ( echo $perl_Parallel_ForkManager_installed_VER $perl_Parallel_ForkManager_VER | awk '{if($2>=$3) exit 0; else exit 1}')
+  perl_Parallel_ForkManager_installed_VER=`perl -MParallel::ForkManager -e 'print $Parallel::ForkManager::VERSION ."\n";'`
+  if ( echo $perl_Parallel_ForkManager_installed_VER $perl_Parallel_ForkManager_VER | awk '{if($1>=$2) exit 0; else exit 1}')
   then
     echo " - found Perl module Parallel::ForkManager $perl_Parallel_ForkManager_installed_VER"
   else
