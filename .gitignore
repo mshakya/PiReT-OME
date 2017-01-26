@@ -8,3 +8,5 @@ miniconda.sh
 install.log
 README.html
 test_data/*.ht2l
+thirdParty/miniconda/*
+thirdParty/miniconda/*.*
