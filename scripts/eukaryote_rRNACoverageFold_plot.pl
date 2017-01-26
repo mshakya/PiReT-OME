@@ -66,7 +66,7 @@ samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam -o $workd
 
 
 `samtools sort $workdir/$sample/mapping_results/backward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.backward.eukarya_ref.bam`;
-`samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref.bam,`;
+`samtools sort $workdir/$sample/mapping_results/forward.eukarya_ref.bam -o $workdir/$sample/mapping_results/sortedpos.forward.eukarya_ref.bam`;
 #unlink "$workdir/$sample/mapping_results/backward.eukarya_ref.bam";
 #unlink "$workdir/$sample/mapping_results/forward.eukarya_ref.bam";
 }
