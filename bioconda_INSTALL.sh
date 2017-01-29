@@ -481,6 +481,28 @@ then
 fi
 
 ###############################################################################
+if ( checkSystemInstallation conda )
+then
+  conda_installed_VER=`conda --version 2>&1 | perl -nle 'print $& if m{conda \d+\.\d+\.\d+}'`;
+  if ( echo $conda_installed_VER $miniconda_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then 
+    echo " - found conda $conda_installed_VER"
+    if [ -d "$ROOTDIR/thirdParty/miniconda" ]; then
+      echo "conda is pointed to right environment"  
+    else
+      echo "Creating a separate conda enviroment ..."
+      conda create --yes -p $ROOTDIR/thirdParty/miniconda
+    fi
+  else
+    echo "Required version of conda ($miniconda_VER) was not found"
+    install_miniconda
+  fi
+else
+  echo "conda was not found"
+  install_miniconda
+fi
+
+###############################################################################
 if ( checkSystemInstallation R )
     then
       R_installed_VER=`R --version 2>&1 | grep "version"| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
@@ -507,27 +529,7 @@ echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https
       biocLite('DESeq2')}" | Rscript -
 
 
-###############################################################################
-if ( checkSystemInstallation conda )
-then
-  conda_installed_VER=`conda --version 2>&1 | perl -nle 'print $& if m{conda \d+\.\d+\.\d+}'`;
-  if ( echo $conda_installed_VER $miniconda_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then 
-    echo " - found conda $conda_installed_VER"
-    if [ -d "$ROOTDIR/thirdParty/miniconda" ]; then
-      echo "conda is pointed to right environment"  
-    else
-      echo "Creating a separate conda enviroment ..."
-      conda create --yes -p $ROOTDIR/thirdParty/miniconda
-    fi
-  else
-    echo "Required version of conda ($miniconda_VER) was not found"
-    install_miniconda
-  fi
-else
-  echo "conda was not found"
-  install_miniconda
-fi
+
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
