@@ -45,25 +45,36 @@ GetOptions(
 );
 
 
-if ( ! -e $outDir2) {print "no working dir $outDir2\n";}
+# First, check if the working directory exists
+if ( ! -e $outDir2) {print "no working dir $outDir2 found\n";}
 
+# Second, make directories based on sample name within working dir
 $outDir1=join '/', ($outDir2, "$prefix");
 mkdir $outDir1 if ( ! -e $outDir1);
-if ( ! -e $outDir1) {print "can not make dir $outDir1\n";}
 
+# Third, throw, a complain, if cant make directory
+if ( ! -e $outDir1) {print "cannot make dir $outDir1\n";}
+
+# Fourth, make directory for adding the mapping results
 $outDir=join '/', ($outDir1, 'mapping_results');
 mkdir $outDir if ( ! -e $outDir);
-if ( ! -e $outDir) {print "can not make dir $outDir\n";}
+if ( ! -e $outDir) {print "can notmake dir $outDir\n";}
 
 
-#sfeng
+
+# reassign outDir2 to workdir
 my $workdir=$outDir2;
 my $headfile="$workdir/prokaryote.fa.fai";
 my %seqln;
 
 #unless(&file_check("$outDir2/coverage.fa.fai")<0 ) {$testcoverage=2;}
 
+
+# check, if the prokaryotic index file exist,
+#TODO: Ask Shihai, how is this affected when eukaryotic option is chosen
 open (GENOIN, "$headfile") or die "$headfile does not exist $!";
+
+# Process
  while (<GENOIN>) {
 
          chomp;
@@ -75,11 +86,15 @@ open (GENOIN, "$headfile") or die "$headfile does not exist $!";
     }
 close GENOIN;
 
+# reassing prefix to sample variables
 my $sample=$prefix;
 
-#sfeng
+
+# Run the subroutine checkfiles
 &checkFiles($indexFile, $pairedReadsFile1,$pairedReadsFile2,$unpairedReadsFile);
 
+
+# subroutine for Usage of this script
 sub Usage
 {
      my $Bowtie2op=shift;
@@ -157,12 +172,19 @@ END
 exit;
 }
 
+
+# create the outDir,
+#TODO: why is working directory being created here?
 mkdir $outDir if ( ! -e $outDir);
 
+
+#run the mapping subroutine and exit
 &runMapping($indexFile,$pairedReadsFile1,$pairedReadsFile2,$unpairedReadsFile,$outDir);
 
 exit(0);
 
+
+# subroutine for checking if all files exist
 sub checkFiles
 {
     my $indexFile_r=shift;
@@ -204,6 +226,8 @@ sub checkFiles
     } 
 }
 
+
+#subrouting for running mapping
 sub runMapping 
 {
     my $IndexFile=shift;
