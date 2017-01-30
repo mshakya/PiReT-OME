@@ -285,6 +285,7 @@ echo "--------------------------------------------------------------------------
 #TODO: Figure out how to download this using curl
 # curl -k -l http://search.cpan.org/CPAN/authors/id/J/JH/JHI/String-Approx-3.27.tar.gz -o String-Approx-3.27.tar.gz
 
+cd $ROOTDIR/thirdParty
 tar xvzf String-Approx-3.27.tar.gz
 cd String-Approx-3.27
 perl Makefile.PL 
