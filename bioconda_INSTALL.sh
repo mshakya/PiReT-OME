@@ -290,10 +290,10 @@ tar xvzf String-Approx-3.27.tar.gz
 cd String-Approx-3.27
 perl Makefile.PL 
 make
-cp -fR blib/lib/* $ROOTDIR/ext/lib/perl5
 mkdir -p $ROOTDIR/ext/lib/perl5/auto
 mkdir -p $ROOTDIR/ext/lib/perl5/auto/String
 mkdir -p $ROOTDIR/ext/lib/perl5/auto/String/Approx
+cp -fR blib/lib/* $ROOTDIR/ext/lib/perl5
 cp -fR blib/arch/auto/String/Approx/Approx.* $ROOTDIR/ext/lib/perl5/auto/String/Approx/
 cd $ROOTDIR/thirdParty
 echo "
