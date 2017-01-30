@@ -559,7 +559,7 @@ fi
 
 if ( checkRpackages edgeR )
   then
-  R_edgeR_installed_VER=`echo "installed.packages()[,3][\"edgeR\"]" | Rscript - | sed "s/\"//g"`;
+  R_edgeR_installed_VER=`echo "cat(unname(installed.packages()[,3][\"edgeR\"]))" | Rscript - | sed "s/\"//g"`;
   echo $R_edgeR_installed_VER 
   if (echo $R_edgeR_installed_VER $R_edgeR_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
@@ -577,7 +577,7 @@ fi
 
 if ( checkRpackages DESeq2 )
   then
-  R_DESeq2_installed_VER=`echo "installed.packages()[,3][\"DESeq2\"]" | Rscript - | sed "s/\"//g"`;
+  R_DESeq2_installed_VER=`echo "cat(unname(installed.packages()[,3][\"DESeq2\"]))" | Rscript - | sed 's/\"//g'`;
   echo $R_DESeq2_installed_VER 
   if (echo $R_DESeq2_installed_VER $R_DESeq2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
