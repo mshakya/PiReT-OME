@@ -31,8 +31,10 @@ export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2
 fi
 
 # Add pythonpath
-export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
+# export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
 
+#Add R path
+export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
 
 # Minimum Required versions of dependencies
 bowtie2_VER=2.2.8
@@ -58,7 +60,9 @@ perl_Parllel_ForkManager_VER=1.17
 python_numpy_VER=1.1.12
 python_matplotlib_VER=1.5.3
 
-
+#minimum required version of Python modules
+R_edgeR_VER=3.14.0
+R_DESeq2_VER=1.12.4
 
 # Tools categorized based on function
 utility_tools=(samtools bedtools)
@@ -262,19 +266,7 @@ echo "--------------------------------------------------------------------------
 "
 }
 
-# install_perl_string_approx()
-# {
-# echo "--------------------------------------------------------------------------
-#                            installing Perl Module String::Approx
-# --------------------------------------------------------------------------------
-# "
-# cpanm String::Approx@$perl_String_Approx_VER -l $ROOTDIR
-# echo "
-# --------------------------------------------------------------------------------
-#                            String::Approx installed
-# --------------------------------------------------------------------------------
-# "
-# }
+
 
 install_perl_string_approx()
 {
@@ -352,6 +344,38 @@ echo "
 "
 }
 
+install_R_edgeR()
+{
+echo "--------------------------------------------------------------------------
+                installing latest R package edgeR $R_edgeR_VER
+--------------------------------------------------------------------------------
+"
+mkdir -p $ROOTDIR/ext/lib/R
+echo "source('https://bioconductor.org/biocLite.R') 
+      biocLite('edgeR', lib='$ROOTDIR/ext/lib/R')" | Rscript -
+echo "
+--------------------------------------------------------------------------------
+                           latest version of edgeR installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_R_DESeq2()
+{
+echo "--------------------------------------------------------------------------
+                installing latest R package DESeq2 $R_DESeq2_VER
+--------------------------------------------------------------------------------
+"
+mkdir -p $ROOTDIR/ext/lib/R
+echo "source('https://bioconductor.org/biocLite.R') 
+      biocLite('DESeq2', lib='$ROOTDIR/ext/lib/R')" | Rscript -
+echo "
+--------------------------------------------------------------------------------
+                           DESeq2 installed
+--------------------------------------------------------------------------------
+"
+}
+
 
 
 checkSystemInstallation()
@@ -377,6 +401,14 @@ checkPerlModule()
    # perl -e "use lib \"$ROOTDIR/lib/lib/perl5\"; use $1;"
    perl -e "use $1";
    return $?
+}
+
+
+checkRpackages()
+{
+
+  echo "if(\"$1\" %in% rownames(installed.packages()) == FALSE) {0} else {1}"| Rscript - 
+
 }
 
 
@@ -520,15 +552,44 @@ if ( checkSystemInstallation R )
       install_R
 fi
 
+
+################################################################################
 # check if required bioconductor R packages are installed
+################################################################################
 
-#edgeR
-echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R')
-      biocLite('edgeR')}" | Rscript -
+if ( checkRpackages edgeR )
+  then
+  R_edgeR_installed_VER=`echo "installed.packages()[,3][\"edgeR\"]" | Rscript - | sed "s/\"//g"`;
+  echo $R_edgeR_installed_VER 
+  if (echo $R_edgeR_installed_VER $R_edgeR_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+  echo " - found edgeR $R_edgeR_installed_VER"
+  else
+    echo "Required version of edgeR $R_edgeR_VER was not found"
+    install_R_edgeR
+  fi
+else
+  echo "edgeR is not found"
+    install_R_edgeR
+fi
 
-#Deseq2
-echo "if(\"edgeR\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R')
-      biocLite('DESeq2')}" | Rscript -
+#------------------------------------------------------------------------------#
+
+if ( checkRpackages DESeq2 )
+  then
+  R_DESeq2_installed_VER=`echo "installed.packages()[,3][\"DESeq2\"]" | Rscript - | sed "s/\"//g"`;
+  echo $R_DESeq2_installed_VER 
+  if (echo $R_DESeq2_installed_VER $R_DESeq2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+  echo " - found DESeq2 $R_DESeq2_installed_VER"
+  else
+    echo "Required version of DESeq2 $R_DESeq2_VER was not found"
+    install_R_DESeq2
+  fi
+else
+  echo "DESeq2 is not found"
+    install_R_DESeq2
+fi
 
 
 
@@ -731,38 +792,6 @@ else
     install_python_matplotlib
 fi
 
-
-# removed this to not mase with user environment
-################################################################################
-#                       Add path to bash
-################################################################################
-# if [ -f $HOME/.bashrc ]
-# then
-# {
-#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bashrc
-#   #echo "export RNASeq_HOME=$ROOTDIR" >> $HOME/.bashrc
-#   #echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
-#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bashrc
-#   source $HOME/.bashrc 
-#   echo "
-# --------------------------------------------------------------------------------
-#                            added path to .bashrc
-# --------------------------------------------------------------------------------
-# "
-# }
-# else
-# {
-#   echo "#Added by RNASeq pipeline installation" >> $HOME/.bash_profile
-#   echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH" >> $HOME/.bash_profile
-#   # echo "export PATH=$ROOTDIR/thirdParty/miniconda/bin/:$PATH:$ROOTDIR/scripts:$PATH" >> $HOME/.bash_profile
-#   source $HOME/.bash_profile 
-#   echo "
-# --------------------------------------------------------------------------------
-#                            added path to .bash_profile
-# --------------------------------------------------------------------------------
-# "
-# }
-# fi
 
 echo "
 All done! Please Restart the Terminal Session.
