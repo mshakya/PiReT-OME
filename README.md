@@ -111,7 +111,7 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 
 ```
-    perl ../scripts/runPipeline_rRNA_noqsub_commandline.pl -test_kingdom both \
+    perl ../scripts/runPiReT.pl -test_kingdom both \
     -significant_pvalue 0.001 -exp experimental_design.txt \
     -d pipeline_test_both \
     -prokaryote_fasta data/test_prok.fa \

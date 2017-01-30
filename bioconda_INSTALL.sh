@@ -4,6 +4,7 @@ set -e # Exit as soon as any line in the bash script fails
 
 ROOTDIR=$( cd $(dirname $0) ; pwd -P ) # path to main PiReT directory
 
+
 echo
 exec &> >(tee -a  install.log)
 exec 2>&1 # copies stderr onto stdout
@@ -765,8 +766,13 @@ fi
 echo "
 All done! Please Restart the Terminal Session.
 Run
-./runPipeline_rRNA_noqsub_commandline.pl
+./runPiReT.pl
 for usage.
 Read the README for more information!
+To run a test data set
+cd test_data
+sh test_pipeline_linux.sh
+OR
+sh test_pipeline_MacOSX.sh
 Thanks!
     "
