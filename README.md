@@ -12,7 +12,11 @@ Pipeline for Reference based Transcriptomics.
 
 ## Installing PiReT
 
-Download the latest version of PiReT from [github](https://github.com/mshakya/PiReT.git) or use `git clone` from command line.
+**If you DO NOT HAVE git installed in your machine**
+Please download PiReT directly from the [github](https://github.com/mshakya/PiReT).
+
+**If you HAVE git installed in your machine**
+Use `git clone` from command line.
 
 ```
 git clone https://github.com/mshakya/PiReT.git
