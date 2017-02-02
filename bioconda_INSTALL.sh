@@ -25,6 +25,7 @@ then
 export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/ext/lib/perl5/darwin-thread-multi-2level:$PERL5LIB"
 }
 else
+#TODO: update this specific to unix
 {  
 export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$PERL5LIB"
 }
@@ -222,6 +223,7 @@ echo "--------------------------------------------------------------------------
 "
 conda install --yes -c r r-base=$R_VER -p $ROOTDIR/thirdParty/miniconda
 ln -sf $ROOTDIR/thirdParty/miniconda/bin/R $ROOTDIR/bin/R
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/Rscript $ROOTDIR/bin/Rscript
 echo "
 --------------------------------------------------------------------------------
                            R v $R_VER installed
