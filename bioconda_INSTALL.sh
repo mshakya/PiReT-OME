@@ -76,6 +76,24 @@ all_tools=("${utility_tools[@]}" "${alignments_tools[@]}" "${count_tools[@]}" "$
 ################################################################################
 #                           Installation recipes
 ################################################################################
+
+install_python()
+{
+echo "--------------------------------------------------------------------------
+                           installing python v$python2_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes python=$python2_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/python $ROOTDIR/bin/python
+
+echo "
+------------------------------------------------------------------------------
+                           python v$python2_VER installed
+------------------------------------------------------------------------------
+"
+}
+
+
 install_hisat2()
 {
 echo "--------------------------------------------------------------------------
@@ -536,6 +554,22 @@ then
 else
   echo "conda was not found"
   install_miniconda
+fi
+
+###############################################################################
+if ( checkSystemInstallation python )
+then
+  python_installed_VER=`python -V 2>&1 | perl -nle 'print $& if m{Python \d+\.\d+\.\d+}'`;
+  if ( echo $python_installed_VER $python_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then 
+    echo " - found python $python_installed_VER"
+  else
+    echo "Required version of python ($python2_VER) was not found"
+    install_python
+  fi
+else
+  echo "Python was not found"
+  install_python
 fi
 
 ###############################################################################

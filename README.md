@@ -71,11 +71,13 @@ PiReT run requires following dependencies which should be in your path. All of t
 - awk
 - find
 - curl/wget
+- make
+
 
 ### Installing dependencies
-This is the core list of dependencies. However, there are secondary dependencies for many of the tools, which will also be installed by `bioconda`.
+This is the core list of dependencies. However, there are secondary dependencies for many of the listed tools, which will also be installed by `bioconda`.
 - [conda v4.2.13](http://conda.pydata.org/docs/index.html)
-    If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only install handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
+    If conda is not installed, `bioconda_INSTALL.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only installs handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs)
 
 ### Third party softwares/packages
 - [jellyfish (v2.2.6)](http://www.genome.umd.edu/jellyfish.html)
