@@ -1,0 +1,13 @@
+# processed test results
+test_data/pipeline_test_both*
+test_data/test_experimental_design.txt
+test_data/*.ht2l
+
+# all miniconda installations
+thirdParty/miniconda
+
+# String-Approx-3.27 installation
+thirdParty/String-Approx-3.27
+
+# all HTML files
+*.html
