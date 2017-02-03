@@ -13,7 +13,7 @@ Pipeline for Reference based Transcriptomics.
 ## Installing PiReT
 
 **If you DO NOT HAVE git installed in your machine**
-Please download PiReT directly from the [github](https://github.com/mshakya/PiReT).
+Please download PiReT directly from the [github](https://github.com/mshakya/PiReT). However, we recommend that a user install `git`, which is require for obtaining dependencies that are not yet available in bioconda.
 
 **If you HAVE git installed in your machine**
 Use `git clone` from command line.
@@ -29,10 +29,10 @@ cd PiReT
 ./bioconda_INSTALL.SH
 ```
 
-PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks if the required dependencies are in your path and installs if they are not found (download binaries within the PiReT directory and adds the path to your `~/.bashrc` or `~/.bash_profile`). Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
+PiReT uses bioinformatic tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `bioconda_INSTALL.sh` that checks for required dependencies (including their versions) are installed and in your path, and installs it in directories within `PiReT` if not found. Additionally, `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
 
 ##Test
-We have provided small test data set to check if the installation was successful or not. Test `.fastq` files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test:
+We have provided test data set to check if the installation was successful or not. `fastq` files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test, from within `PiReT` directory:
 
 ```
 cd test_data
@@ -56,7 +56,7 @@ Pipeline run status can be checked in either `process.log` or `error.log`. If th
 
 
 ##Dependencies
-PiReT run requires following dependencies which should be in your path. All of the dependencies will be installed by `bioconda_INSTALL.sh`.
+PiReT requires following dependencies, all of which should be installed and in the PATH. All of the dependencies will be installed by `bioconda_INSTALL.sh`.
 
 ### Programming/Scripting languages
 - [Python >=v2.7](https://www.python.org/downloads/release/python-2712/)
@@ -72,6 +72,7 @@ PiReT run requires following dependencies which should be in your path. All of t
 - find
 - curl/wget
 - make
+- git
 
 
 ### Installing dependencies
@@ -225,7 +226,7 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 
 ## Removing PiReT
 
-For removal, delete (`rm -rf`) `PiReT` folder, which will remove any packages that were downloaded in that folder. Before removing check if your project files are within PiReT. Additionally, delete paths added to either `~/.bash_profile` or `~/.bashrc`.
+For removal, since all dependencies that are not in your system are installed in `PiReT`, delete (`rm -rf`) `PiReT` folder is sufficient to uninstall the package. **Before removing check if your project files are within `PiReT` directory**.
 
 
 ##Contributions
