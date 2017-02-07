@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 
-test
-# The sc
-
 set -e # Exit as soon as any line in the bash script fails
 
 ################################################################################
+# a subroutine for help message and some exits
+###############################################################################
 print_usage()
 {
 cat << EOF
 usage: $0 options
-    The installation script specifically is made for installing PiReT in a system
-that already has EDGE installed. This script will be called specifically in
+    This script is specifically written for installing PiReT in a system
+that already has EDGE installed. This script will be called within
 INSTALL.sh in EDGE pipeline.
 
 DO NOT USE THIS SCRIPT TO INSTALL IN NON-EDGE SYSTEMS.
@@ -21,14 +20,14 @@ DO NOT USE THIS SCRIPT TO INSTALL IN NON-EDGE SYSTEMS.
 EOF
 }
 ################################################################################
-
+# scripts to test if the PiReT is found within thirdParty folder
+################################################################################
 ROOTDIR=$( cd $(dirname $0) ; pwd -P ) # path to main PiReT directory
 cd $ROOTDIR
-cd ..   
+cd ..
 
 # check if the PiReT directory is within the EDGE/thirdParty
 PARENT_DIRECTORY=${PWD##*/}
-#TODO: change this
 if [ "$PARENT_DIRECTORY" != "thirdParty" ]
     then
     echo "PiReT is not located in the thirdParty folder"
@@ -39,25 +38,29 @@ else
     cd $ROOTDIR
     echo "PiReT is located in the thirdParty folder of EDGE"
 fi
-
 ################################################################################
-# create a directory to add short cuts to dependencies
+# create a directory to add short cuts to dependencies and path to EDGE installation
+###############################################################################
 mkdir -p $ROOTDIR/bin
 PARENT_DIRECTORY=${PWD}
-EDGE_BIN="$(dirname "$PARENT_DIRECTORY")/bin"
+APP_ROOT=$(dirname $PWD)
+EDGE_BIN="$(dirname $APP_ROOT)/bin"
 export "PATH=$ROOTDIR/bin/:$EDGE_BIN:$PATH"
-
 ################################################################################################################################################################
 #add perlpath
+##########################################################################################################
+EDGE_PERL5="$(dirname $APP_ROOT)/lib"
+echo $EDGE_PERL5
+
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
-export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/ext/lib/perl5/darwin-thread-multi-2level:$PERL5LIB"
+export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/ext/lib/perl5/darwin-thread-multi-2level:$EDGE_PERL5:$PERL5LIB"
 }
 else
-#TODO: update this specific to unix
+#TODO: check if $EDGE_PERL5 has the darwin-thread-multi-2level or the whatever the folder for unix
 {  
-export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$PERL5LIB"
+export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$EDGE_PERL5:$PERL5LIB"
 }
 fi
 
