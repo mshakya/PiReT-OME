@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+test
 # The sc
 
 set -e # Exit as soon as any line in the bash script fails
