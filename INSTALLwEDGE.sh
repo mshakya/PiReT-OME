@@ -50,7 +50,6 @@ export "PATH=$ROOTDIR/bin/:$EDGE_BIN:$PATH"
 #add perlpath
 ##########################################################################################################
 EDGE_PERL5="$(dirname $APP_ROOT)/lib"
-echo $EDGE_PERL5
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
@@ -66,17 +65,23 @@ fi
 
 ################################################################################
 #Add R path
-export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
+EDGE_R_LIBS="$APP_ROOT/lib/R/library"
+echo $EDGE_R_LIBS
+export R_LIBS="$ROOTDIR/ext/lib/R:$EDGE_R_LIBS:$R_LIBS:$R_LIBS_USER"
 ################################################################################
 echo
 exec &> >(tee -a  install.log)
 exec 2>&1 # copies stderr onto stdout
 
+################################################################################
+echo
 # create a directory where all dependencies will be installed
 cd $ROOTDIR
 mkdir -p thirdParty
 cd thirdParty
 
+################################################################################
+echo
 # Minimum Required versions of dependencies
 bowtie2_VER=2.2.8
 bwa_VER=0.7.15
@@ -296,7 +301,6 @@ then
   curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.2.12-MacOSX-x86_64.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
-  # export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/pip $ROOTDIR/bin/pip
 
@@ -327,9 +331,6 @@ echo "--------------------------------------------------------------------------
                  Installing Perl Module String-Approx-3.27
 ------------------------------------------------------------------------------
 "
-#TODO: Figure out how to download this using curl
-# curl -k -l http://search.cpan.org/CPAN/authors/id/J/JH/JHI/String-Approx-3.27.tar.gz -o String-Approx-3.27.tar.gz
-
 cd $ROOTDIR/thirdParty
 tar xvzf String-Approx-3.27.tar.gz
 cd String-Approx-3.27
@@ -452,7 +453,8 @@ checkLocalInstallation()
 checkPerlModule()
 {
    # perl -e "use lib \"$ROOTDIR/lib/lib/perl5\"; use $1;"
-   perl -e "use $1";
+   echo "use $1";
+	perl -e "use $1";
    return $?
 }
 
@@ -635,8 +637,10 @@ fi
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
-  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-  if ( echo $hisat2_installed_VER $hisat2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'hisat2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  echo $hisat2_installed_VER
+	echo $hisat2_VER
+	if ( echo $hisat2_installed_VER $hisat2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then 
     echo " - found hisat2 $hisat2_installed_VER"
   else
@@ -679,7 +683,7 @@ fi
 ################################################################################
 if ( checkSystemInstallation bowtie2 )
 then
-bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'bowtie2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
   if (echo $bowtie2_installed_VER $bowtie2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
     echo " - found bowtie2 $bowtie2_installed_VER"
@@ -780,18 +784,21 @@ else
   install_perl_Parallel_ForkManager
 fi
 
+echo "the script gets outside the loop"
 ################################################################################
 
+perl_String_Approx_installed_VER=`perl -MString::Approx -e 'print $String::Approx::VERSION ."\n";'`
+echo $perl_String_Approx_installed_VER
 if ( checkPerlModule String::Approx )
 then
-  perl_String_Approx_installed_VER=`cpan -D String::Approx 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
-  if ( echo $perl_String_Approx_installed_VER $perl_String_Approx_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-    echo " - found Perl module String::Approx $perl_String_Approx_installed_VER"
-  else
-    echo "Required version of String::Approx $perl_String_Approx_VER was not found"
-    install_perl_string_approx
-  fi
+	perl_String_Approx_installed_VER=`perl -MString::Approx -e 'print $String::Approx::VERSION ."\n";'`
+	if ( echo $perl_String_Approx_installed_VER $perl_String_Approx_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  	then
+    	echo " - found Perl module String::Approx $perl_String_Approx_installed_VER"
+  	else
+    	echo "Required version of String::Approx $perl_String_Approx_VER was not found"
+    	install_perl_string_approx
+  	fi
 else
   echo "Perl String::Approx was not found"
   install_perl_string_approx
@@ -830,6 +837,16 @@ else
     echo "matplotlib was not found"
     install_python_matplotlib
 fi
+
+
+################################################################################
+# copy testfiles to edge test directory
+################################################################################
+
+cd $ROOTDIR
+mkdir -p ../../testData
+cp -r test_data ../../testData/runPiReTTest 
+
 
 
 echo "
