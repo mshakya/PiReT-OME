@@ -7,6 +7,7 @@
 ##$ -M sfeng@lanl.gov
 ##$ -j y
 ##$ -cwd
+#TODO: change it to a writable directory
 ##$ -o /users/203270/scratch/trim_readmapping.log
 
 echo "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  $workdir/refseq/artifact.fna -lc 0.7 -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads"
