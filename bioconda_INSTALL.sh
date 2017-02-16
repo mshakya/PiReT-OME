@@ -750,13 +750,15 @@ else
   install_cpanm
 fi
 
-if ( checkSystemInstallation gffread )
-then
-  echo "gffread is found"
-else
-  echo "gffread is not found"
-  install_gffread
-fi
+
+# commenting this out until i figure out what is this actually used for
+#if ( checkSystemInstallation gffread )
+#then
+#  echo "gffread is found"
+#else
+#  echo "gffread is not found"
+#  install_gffread
+#fi
 
 ################################################################################
 #                        Perl Modules
