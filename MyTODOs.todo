@@ -4,13 +4,14 @@
  ✔ do i need csh? @done (16-12-06 09:11)
  ✔ paths are added to .bashrc of travis ci vritual machine, but tools are not in path. why? @done (16-12-06 09:11)
  ✔ Add script to install required version of R @done (17-01-12 10:32)
- ☐ Find out how does it handle the installation of wrong version.
+ ✔ Find out how does it handle the installation of wrong version. @done (17-02-13 09:36)
  ✔ fix the installation of R in bioconda_INSTALL.sh, currently it has bwa_installer copied and not changed. @done (17-01-12 10:32)
- ☐ test the installtion in ubuntu
- ☐ test the installation in system that already has EDGE
- ☐ Figure out what does this error means "failed to do Differential Gene Analysis failed because of no good samples"
- ☐ figure out whats going on with incorrect mapping file being generated in ubuntu
- ☐ make checkSystemInstallation compatible with versions
+ ✔ test the installtion in ubuntu @done (17-02-13 09:36)
+ ✔ test the installation in system that already has EDGE @done (17-02-13 09:36)
+ ✔ Figure out what does this error means "failed to do Differential Gene Analysis failed because of no good samples" @done (17-02-13 09:36)
+ ✔ figure out whats going on with incorrect mapping file being generated in ubuntu @done (17-02-13 09:36)
+ ✔ make checkSystemInstallation compatible with versions @done (17-02-13 09:36)
+ ☐ 
 
 RPKM:
   ✔ figure out why RPKM calculation was failing. @done (16-11-21 16:58)
@@ -18,6 +19,12 @@ RPKM:
 
 SINGLE FILE RUN:
   ☐ need to write wrapper to allow it to take in single fastq file
+
+ERROR.LOG:
+   ☐ write to erro.log if not allr required options for runPiReT are not entered
+
+index files:
+   ☐ eukarya.fa.fai doesnt exist re.
 
 FILES:
   ✔ readcounts.expriment.txt, this file must be wrongly named as its a copy of experminetal design file, find out whats going on @done (16-11-27 22:46)
