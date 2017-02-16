@@ -13,9 +13,14 @@ $| = 1;    #?
 $ENV{PATH}
     = "$Bin:$Bin/../:$Bin/hisat-0.1.5-beta/:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/sge/2011.11p1/bin/linux-x64:$Bin/../../edge_ui/JBrowse/bin/";
 $ENV{PATH}     = "$Bin:$Bin/bin/:$Bin/scripts/:$ENV{PATH}";
-$ENV{SGE_ROOT}         = "/cm/shared/apps/sge/2011.11p1"; #?
-$ENV{SGE_CELL}         = "default"; #?
-$ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
+
+#NOTE: need these paths to find qsub binaries
+#TODO: change it so that its independent of the user system
+#NOTE: also mention that qsub must be present
+#NOTE: these paths should be set for any server with qsub capabalities
+#$ENV{SGE_ROOT}         = "/cm/shared/apps/sge/2011.11p1"; #?
+#$ENV{SGE_CELL}         = "default"; #?
+#$ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
 #TODO: remove this later, once the this thing works
 #foreach ( sort keys %ENV ) {
 #    print "$_  =  $ENV{$_}\n";
@@ -116,6 +121,7 @@ open( STDERR, '>', $error_log_file )
 
 #------------------------------------------------------------------------------#
 
+# if there is a waring or error write in in STDERR and lprint
 $SIG{__WARN__} = sub { print STDERR @_; &lprint(@_) };
 $SIG{__DIE__} = sub { print STDERR @_; &lprint(@_); exit 1 };
 
@@ -429,6 +435,7 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
     &lprint(
         "[Creating additional directories based on type of analysis]\n Finished\n\n"
     );
+
 #------------------------------------------------------------------------------#
     &lprint("[parsing gff files]\n Running\n\n");
 #------------------------------------------------------------------------------#
@@ -446,6 +453,7 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         }
         push @{ $allgff{eukarya} }, $tmpeukarya[-1];
 
+        #TODO: in the module, the whole path to edge_ui/JBrowse/bin/ will be added, so make changes which assumes flatfile-to-json.pl to be in the path
         `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
         `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
         `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
@@ -670,7 +678,7 @@ foreach ( sort keys %description ) {
             my $troutDir = join '/', ( $outDir1, 'trimming_results' );
             mkdir $troutDir if ( !-e $troutDir );
             if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
-
+            #TODO: add a script to check for job id using `qstat -j` will tell you if the job is finished or not. 
             &lprint(
                 "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/trim_readmapping.sh \n\n"
             );
