@@ -16,12 +16,17 @@ $ENV{PATH}     = "$Bin:$Bin/bin/:$Bin/scripts/:$ENV{PATH}";
 $ENV{SGE_ROOT}         = "/cm/shared/apps/sge/2011.11p1"; #?
 $ENV{SGE_CELL}         = "default"; #?
 $ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
+#TODO: remove this later, once the this thing works
+#foreach ( sort keys %ENV ) {
+#    print "$_  =  $ENV{$_}\n";
+#}
+
+&checkDependedPrograms()
 
 my $main_pid  = $$;
 my $version   = "0.3";
 my $time      = time();
 my $scriptDir = $Bin/scripts;
-
 my ($descriptfile,     $test,      $splice_file_out,
     $splice_file_in,   $pairfile,  $diffdir,
     $workdir,          $numCPU,    $eukarya_fasta,
@@ -42,10 +47,10 @@ my $rna_mapping_opt  = 'yes';
 $gff_eukarya    = 'NONE';
 $gff_prokaryote = 'NONE';
 
+#------------------------------------------------------------------------------#
 GetOptions(
     'rna_mapping_opt=s'  => \$rna_mapping_opt,
-    'rna_trimming_opt=s' => \$rna_trimming_opt,
-
+    'rna_trimming_opt=s' => \$rna_trimming_opt,∂
     'exp=s'                 => \$descriptfile,
     'd=s'                   => \$workdir,
     'cpu=i'                 => \$numCPU,             # bwa option
@@ -66,59 +71,80 @@ GetOptions(
     'help|?'         => sub { &Usage() }
 );
 
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 if ( $eukarya_fasta eq 'NONE' )    { $eukarya_fasta    = ""; }
 if ( $prokaryote_fasta eq 'NONE' ) { $prokaryote_fasta = ""; }
 if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; }
 if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; }
 if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; }
 
+#------------------------------------------------------------------------------#
+
 my $start_time_string = &getTmpNameByTime;
+
+#------------------------------------------------------------------------------#
 
 $scriptDir = Cwd::abs_path("$scriptDir");
 $workdir   = Cwd::abs_path("$workdir");
+$descriptfile = Cwd::abs_path("$descriptfile");
 
+#------------------------------------------------------------------------------#
+
+# creates a working directory
 unless ( -d "$workdir" ) {
     mkdir "$workdir", 0777
         or die "failed: failed: can not make dir  $workdir $!";
 }
 
+#------------------------------------------------------------------------------#
+
+# process log file
 my $process_log_file = "$workdir/process.log";
+
+# error log file
 my $error_log_file   = "$workdir/error.log";
+
 open( LOG, ">", $process_log_file )
     or die "failed: failed to write $process_log_file\n$!";
 open( STDERR, '>&', STDOUT )
     or die "failed: failed: Can't redirect stderr: $!";
 open( STDERR, '>', $error_log_file )
     or die "failed: failed: Can't redirect stderr: $!";
+
+#------------------------------------------------------------------------------#
+
 $SIG{__WARN__} = sub { print STDERR @_; &lprint(@_) };
 $SIG{__DIE__} = sub { print STDERR @_; &lprint(@_); exit 1 };
 
-&lprint("\nProject Start: $start_time_string\n");
-print LOG qx/ps -o args $$/;
-&lprint("Version: $version\n\n");
+# &lprint("\nProject Start: $start_time_string\n");
+# print LOG qx/ps -o args $$/;
+# &lprint("Version: $version\n\n");
 
-open( IN, "$workdir/config.txt" )
-    or die "failed: failed: not open $workdir/config.txt $!";
-my $linenumc = 0;
-while (<IN>) {
-    chomp;
-    $linenumc++;
-    my $line = $_;
-    if ( $linenumc < 28 ) {
-        &lprint("$line\n");
-    }
-}
-close IN;
-
-&lprint("[Checking Files]\nCheckingFiles=Always\n\n");
-&lprint(
-    "[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n"
-);
-&lprint(
-    "[De Novo Detection of small RNAs]\nDe Novo Detection of small RNAs =Always\n\n"
-);
-&lprint("[Differential Gene Analysis]\nDifferentialGeneAnalysis=Always\n\n");
-
+#NOTE: This looks like it reads the config.txt file, but for what??
+# open( IN, "$workdir/config.txt" )
+#     or die "failed: failed: not open $workdir/config.txt $!";
+# my $linenumc = 0;
+# while (<IN>) {
+#     chomp;
+#     $linenumc++;
+#     my $line = $_;
+#     if ( $linenumc < 28 ) {
+#         &lprint("$line\n");
+#     }
+# }
+# close IN;
+# &lprint("[Checking Files]\nCheckingFiles=Always\n\n");
+# &lprint(
+#     "[Trimming and Mapping Reads]\nTrimmingMappingReads=$rna_trimming_opt\t$rna_mapping_opt\n\n"
+# );
+# &lprint(
+#     "[De Novo Detection of small RNAs]\nDe Novo Detection of small RNAs =Always\n\n"
+# );
+# &lprint("[Differential Gene Analysis]\nDifferentialGeneAnalysis=Always\n\n");
+#------------------------------------------------------------------------------#
 unless ( $descriptfile
     && $workdir
     && $test
@@ -129,28 +155,34 @@ unless ( $descriptfile
     &Usage
 }
 
+#------------------------------------------------------------------------------#
+# create directory, throw error, if can't
 unless ( -d "$workdir/sum_gene_count/" ) {
     mkdir "$workdir/sum_gene_count/", 0777
         or die
         "failed: failed: can not make dir  $workdir/sum_gene_count/ $!";
 }
+#------------------------------------------------------------------------------#
 unless ( -d "$workdir/logdir/" ) {
     mkdir "$workdir/logdir/", 0777
         or die "failed: failed: can not make dir  $workdir/dir/ $!";
 }
-
+#------------------------------------------------------------------------------#
 my %description;
 my @colname;
 my %expdescription;
 my %allsample;
 my @allsample;
 my %pairs;
-
 my %allrawreads1;
 my %allrawreads2;
 
-&lprint("[Checking Files]\n Running\n\n");
+#------------------------------------------------------------------------------#
 
+&lprint("[Checking Experimental Design File]\n Running\n\n");
+
+#------------------------------------------------------------------------------#
+# parse experimental design file
 open( IN, "$descriptfile" )
     or die "failed: failed: can not open description file $descriptfile $!";
 my $linenum = 0;
@@ -221,7 +253,15 @@ while (<IN>) {
     }
 }
 close IN;
+#------------------------------------------------------------------------------#
 
+&lprint("[Checking Experimental Design File]\n Finished\n\n");
+
+&lprint("[Checking if enough samples are present]\n Running\n\n");
+
+#------------------------------------------------------------------------------#
+
+# throw error if there are not enough samples
 foreach ( keys %pairs ) {
     my $tmpgroup = $_;
     if ( ( ( $test_method eq 'both' ) || ( $test_method eq 'Deseq' ) )
@@ -234,8 +274,15 @@ foreach ( keys %pairs ) {
     }
 }
 
+#------------------------------------------------------------------------------#
+&lprint("[Checking if enough samples are present]\n Finished\n\n");
+
+#------------------------------------------------------------------------------#
 my ( @eukaryagff, @prokaryotegffi, %allgff );
 
+#------------------------------------------------------------------------------#
+&lprint("[Creating additional directories]\n Running\n\n");
+#------------------------------------------------------------------------------#
 if ( -d "$workdir/Jbrowse/" ) {
     `rm -r $workdir/Jbrowse/`;
     mkdir "$workdir/Jbrowse/", 0777
@@ -264,9 +311,15 @@ unless ( -d "$workdir/sum_gene_count/read_count/" ) {
         or die
         "failed: failed: can not make dir  $workdir/sum_gene_count/read_count/ $!";
 }
-
+#------------------------------------------------------------------------------#
+&lprint("[Creating additional directories]\n Finished\n\n");
+#------------------------------------------------------------------------------#
 my %allcontigs;
 
+#------------------------------------------------------------------------------#
+&lprint(
+    "[Copying and creating indices of reference fasta files]\n Running\n\n");
+#------------------------------------------------------------------------------#
 if ($eukarya_fasta) {
     if ( &file_check($eukarya_fasta) < 0 ) {
         die
@@ -276,13 +329,14 @@ if ($eukarya_fasta) {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         `samtools faidx $workdir/eukarya.fa`;
+        #TODO: fix path to Jbrowse directory here.
         `$Bin/../../edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
 
         my @contigs = &readfai("$workdir/eukarya.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
     }
 }    #else {die "failed:  need eukarya sequence file\n";}
-
+#------------------------------------------------------------------------------#
 if ($prokaryote_fasta) {
 
     if ( &file_check($prokaryote_fasta) < 0 ) {
@@ -291,6 +345,7 @@ if ($prokaryote_fasta) {
     }
     else {
         if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
+        #TODO: use copy here
         `ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
         `samtools faidx $workdir/prokaryote.fa`;
         `$Bin/../../edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
@@ -300,15 +355,31 @@ if ($prokaryote_fasta) {
     }
 }    #else  {die "failed: failed: need prokaryote sequence file\n";}
 
+#------------------------------------------------------------------------------#
+&lprint(
+    "[Copying and creating indices of reference fasta files]\n Finished\n\n");
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+&lprint(
+    "[Making sure if sequences in references are not named the same]\n Running\n\n"
+);
+
+#------------------------------------------------------------------------------#
 foreach ( keys %allcontigs ) {
     if ( $allcontigs{$_} > 1 ) {
         &lprint(
-            "contig name $_ is dubplicated, please make sure the name of contigs is unique in reference fasta files (prokaryout and eukarya references)\n"
+            "contig name $_ is duplicated, please make sure the name of contigs is unique in reference fasta files (prokaryout and eukarya references)\n"
         );
         exit;
     }
 }
 
+#------------------------------------------------------------------------------#
+&lprint(
+    "[Making sure if sequences in references are not named the same]\n Finished\n\n"
+);
+#------------------------------------------------------------------------------#
 my $pjcoverage = "$workdir/coverage.fa";
 if ( -e "$workdir/coverage.fa.fai" ) { `rm $workdir/coverage.fa.fai`; }
 if ($coverage_fasta) {
@@ -333,6 +404,12 @@ if ($coverage_fasta) {
 }
 else { $pjcoverage = 'NA' }
 
+#------------------------------------------------------------------------------#
+&lprint(
+    "[Creating additional directories based on type of analysis]\n Running\n\n"
+);
+#------------------------------------------------------------------------------#
+
 if ( $test eq 'both' || $test eq 'eukarya' ) {
     unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya" ) {
         mkdir "$workdir/sum_gene_count/tmp_count/eukarya", 0777
@@ -349,6 +426,13 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
             or die
             "failed: failed: can not make dir  $workdir/differential_gene/eukarya $!";
     }
+    &lprint(
+        "[Creating additional directories based on type of analysis]\n Finished\n\n"
+    );
+#------------------------------------------------------------------------------#
+    &lprint("[parsing gff files]\n Running\n\n");
+#------------------------------------------------------------------------------#
+
     my @tmpgff = split /,/, $gff_eukarya;
 
     foreach (@tmpgff) {
@@ -1276,3 +1360,20 @@ sub readfai {
     return @tmpcontigs;
 }
 
+sub checkDependedPrograms
+
+    #TODO: Also check for appropriate version
+
+{
+    system("which bwa 1>/dev/null") == 0
+        || die "\nbwa is not in your PATH\n $ENV{PATH}\n";
+    system("which samtools 1>/dev/null") == 0
+        || die "\nsamtools is not in your PATH\n $ENV{PATH}\n";
+    system("which R 1>/dev/null") == 0
+        || die "\nR is not in your PATH\n $ENV{PATH}\n";
+    system("which hisat2-build 1>/dev/null") == 0
+        || die "\nhisat2-build is not in your PATH\n $ENV{PATH}\n";
+    # system("which parse_eukarya_gfffile.pl 1>/dev/null") == 0
+    #     || die
+    #     "\nparse_eukarya_gfffile.pl is not in your PATH\n $ENV{PATH}\n";
+}

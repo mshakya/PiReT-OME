@@ -24,7 +24,7 @@ $ENV{PYTHONPATH}
 &checkDependedPrograms();
 
 my $main_pid  = $$;
-my $version   = "1.1";
+my $version   = "0.3";
 my $time      = time();
 my $scriptDir = "$Bin/scripts";
 my ($descriptfile,     $test,      $splice_file_out,
@@ -52,7 +52,6 @@ GetOptions(
 
     'rna_mapping_opt=s'  => \$rna_mapping_opt,
     'rna_trimming_opt=s' => \$rna_trimming_opt,
-
     'exp=s'                 => \$descriptfile,
     'd=s'                   => \$workdir,
     'cpu=i'                 => \$numCPU,             # bwa option
@@ -180,7 +179,7 @@ my %allrawreads2;
 
 #------------------------------------------------------------------------------#
 
-&lprint("[Checking Exoerimental Design File]\n Running\n\n");
+&lprint("[Checking Experimental Design File]\n Running\n\n");
 
 #------------------------------------------------------------------------------#
 # parse experimental design file
