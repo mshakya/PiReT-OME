@@ -18,7 +18,7 @@ cd thirdParty
 # create a directory to add short cuts to dependencies
 mkdir -p $ROOTDIR/bin
 export "PATH=$PATH:$ROOTDIR/bin/"
-
+printenv
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
@@ -632,7 +632,7 @@ fi
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
-  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'hisat2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
   if ( echo $hisat2_installed_VER $hisat2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then 
     echo " - found hisat2 $hisat2_installed_VER"
@@ -676,7 +676,7 @@ fi
 ################################################################################
 if ( checkSystemInstallation bowtie2 )
 then
-bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'bowtie2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
   if (echo $bowtie2_installed_VER $bowtie2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
     echo " - found bowtie2 $bowtie2_installed_VER"
