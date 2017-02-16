@@ -5,9 +5,23 @@ use Getopt::Long;
 use File::Basename;
 use Term::ANSIColor;
 
-my ($descriptfile, $test, $splice_file_out, $splice_file_in, $pairfile, $diffdir, $workdir, $numCPU, $eukarya_fasta, $prokaryote_fasta, $index_bt2, $gff_eukarya, $gff_prokaryote,$coverage_fasta);
+my ($descriptfile,
+    $test,
+    $splice_file_out,
+    $splice_file_in,
+    $pairfile,
+    $diffdir,
+    $workdir,
+    $numCPU,
+    $eukarya_fasta,
+    $prokaryote_fasta,
+    $index_bt2,
+    $gff_eukarya,
+    $gff_prokaryote,
+    $coverage_fasta);
+
 $gff_eukarya = 'unknown';
-$gff_prokaryote= 'unknown';
+$gff_prokaryote = 'unknown';
 my $mapread = 'no';
 my  $rna_trimming_opt='yes';
 $numCPU=1;
@@ -17,44 +31,61 @@ my $mptool='bowtie2';
 my $htseq='gene';
 my $p_cutoff =0.001;
 my $memlim='10G';
-$|=1;
+$|=1; #?
+
 GetOptions(
-              'exp=s'   => \$descriptfile,
-              'd=s'   => \$workdir,
-            'cpu=i'   => \$numCPU, # bwa option
-             'eukarya_fasta=s' => \$eukarya_fasta,
-             'prokaryote_fasta=s' => \$prokaryote_fasta,
-             'index_ref_bt2=s' => \$index_bt2,
-             'h_vmem=s' => \$memlim, 
-             'gff_eukarya=s' => \$gff_eukarya,
-             'gff_prokaryote=s' => \$gff_prokaryote,
-             'gene_coverage_fasta=s' => \$coverage_fasta,
-             'significant_pvalue=f' => \$p_cutoff,
-             'pair_comparison=s' => \$pairfile,
+            'exp=s' => \$descriptfile,
+            'd=s' => \$workdir,
+            'cpu=i' => \$numCPU, # bwa option
+            'eukarya_fasta=s' => \$eukarya_fasta,
+            'prokaryote_fasta=s' => \$prokaryote_fasta,
+            'index_ref_bt2=s' => \$index_bt2,
+            'h_vmem=s' => \$memlim, 
+            'gff_eukarya=s' => \$gff_eukarya,
+            'gff_prokaryote=s' => \$gff_prokaryote,
+            'gene_coverage_fasta=s' => \$coverage_fasta,
+            'significant_pvalue=f' => \$p_cutoff,
+            'pair_comparison=s' => \$pairfile,
             'BAM_ready=s' =>\$mapread,      #if mapping file are provided for samples by users
-              'trimming_reads' => $rna_trimming_opt, 
-              'test_kingdom=s' => \$test,
-              'test_method=s' => \$test_method,
-            'help|?'   => sub{&Usage()}
+            'trimming_reads' => $rna_trimming_opt, 
+            'test_kingdom=s' => \$test,
+            'test_method=s' => \$test_method,
+            'help|?' => sub{&Usage()}
 );
 
+#?
 my %allrawreads1;
 my %allrawreads2;
 
 
 unless ($descriptfile && $workdir && $test && ($gff_eukarya || $gff_prokaryote)  && ($eukarya_fasta || $prokaryote_fasta) && $index_bt2 )  {&Usage};
 
+############checking permissions and creating required directories##############
+
+# create working directory
 unless (-d "$workdir") {mkdir "$workdir", 0777 or die "can not make dir  $workdir $!";}
 
-if (-d "$workdir/Jbrowse/") {`rm -r $workdir/Jbrowse/`; mkdir "$workdir/Jbrowse/", 0777 or die "can not make dir  $workdir/Jbrowse $!";} 
-else {mkdir "$workdir/Jbrowse/", 0777 or die "can not make dir  $workdir/Jbrowse $!";}
+# create Jbrowse directory
+if (-d "$workdir/Jbrowse/") {
+  `rm -r $workdir/Jbrowse/`; mkdir "$workdir/Jbrowse/", 0777 or die "can not make dir  $workdir/Jbrowse $!";
+} 
+else {
+  mkdir "$workdir/Jbrowse/", 0777 or die "can not make dir  $workdir/Jbrowse $!";
+}
+# create BigWig directory
 mkdir "$workdir/Jbrowse/BigWig", 0777 or die "can not make dir  $workdir/Jbrowse/BigWig $!";
 
+#create sum_gene_count_directory and logdir
 unless (-d "$workdir/sum_gene_count/") {mkdir "$workdir/sum_gene_count/", 0777 or die "can not make dir  $workdir/sum_gene_count/ $!";}
 unless (-d "$workdir/logdir/") {mkdir "$workdir/logdir/", 0777 or die "can not make dir  $workdir/dir/ $!";}
 
+################################################################################
 
+########################opening logfile.txt#####################################
 open (LOGFILE, ">$workdir/logfile.txt") or die "  can not open log file $workdir/logfile.txt $!";
+
+
+#? what are these variables?
 my %description;
 my @colname;
 my %expdescription;
@@ -62,15 +93,17 @@ my %allsample;
 my @allsample;
 my %pairs;
 
-open (IN, "$descriptfile") or die " can not open description file $descriptfile $!";
+
+##########################parse description file################################
+open (IN, "$descriptfile") or die " cannot open description file $descriptfile $!";
  my $linenum=0;
  while (<IN>)
 {
-         chomp;
-        my @line=split /\s+/, $_;
-       unless  ($#line >=2) { print LOGFILE"check format of the description file $_ \n"; exit;}
-        $linenum++;
-      if ($linenum ==1)
+         chomp; #?
+        my @line=split /\s+/, $_; #?
+       unless  ($#line >=2) { print LOGFILE"check format of the description file $_ \n"; exit;} #?
+        $linenum++; #?
+      if ($linenum ==1) #?
    {
          for (my $i=0; $i<=$#line; $i++)
     {
@@ -115,22 +148,25 @@ open (IN, "$descriptfile") or die " can not open description file $descriptfile 
   }
  }
 close IN;
+################################################################################
 
+################################check if enough sample for DeSeq################
 foreach (keys %pairs)
 {
 my $tmpgroup=$_;
 if ( (($test_method eq 'both') || ($test_method eq 'Deseq') ) && $#{$pairs{$tmpgroup}}<2)
  {
-   print LOGFILE"testing method using Deseq2 but the $tmpgroup has only $pairs{$tmpgroup} which is less than 3. please not using Deseq method or increase the number of dunplcates for $tmpgroup\n";
+   print LOGFILE"testing method using Deseq2 but the $tmpgroup has only $pairs{$tmpgroup} which is less than 3. please consider not using Deseq method or increase the number of replicates for $tmpgroup\n";
  exit;
  }
 }
+################################################################################
+
+
 
 my (@eukaryagff, @prokaryotegffi, %allgff);
-
-
+#####################create additional directories##############################
 unless (-d "$workdir/differential_gene/") {mkdir "$workdir/differential_gene/", 0777 or die "can not make dir  $workdir/differential_gene/ $!";}
-
 unless (-d "$workdir/sum_gene_count/tmp_count/") {mkdir "$workdir/sum_gene_count/tmp_count/", 0777 or die "can not make dir  $workdir/sum_gene_count/tmp_count/ $!";}
 unless (-d "$workdir/sum_gene_count/read_count/") {mkdir "$workdir/sum_gene_count/read_count/", 0777 or die "can not make dir  $workdir/sum_gene_count/read_count/ $!";}
 
@@ -139,7 +175,10 @@ unless (-d "$workdir/sum_gene_count/read_count/") {mkdir "$workdir/sum_gene_coun
 
 #unless (-d "$workdir/sum_gene_count/read_count/prokaryote/") {mkdir "$workdir/sum_gene_count/read_count/prokaryote/", 0777 or die "can not make dir  $workdir/sum_gene_count/read_count/prokaryote $!";}
 #unless (-d "$workdir/sum_gene_count/tmp_count/eukarya/") {mkdir "$workdir/sum_gene_count/tmp_count/eukarya/", 0777 or die "can not make dir  $workdir/sum_gene_count/tmp_count/eukarya $!";}
+################################################################################
 
+######################based on condition check if files are there###############
+#and if present run the index
 my %allcontigs;
 
 if ($test eq 'both' || $test eq 'eukarya' )
@@ -151,15 +190,17 @@ if ($eukarya_fasta)
      die "The eukarya_fast file $eukarya_fasta doesn't exist or empty.\n";
    } else {
    if (-e "$workdir/eukarya.fa") { `rm $workdir/eukarya.fa`;}
-    `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
-   `samtools faidx $workdir/eukarya.fa`;  
-    `/edge_dev/edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
+    #TODO: create a shortcut of eukarya fasta, but it might be better to copy it like i did for single processor version
+      `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
+      `samtools faidx $workdir/eukarya.fa`;
+    #TODO: install jbrowse and make sure this prepare-refseq.pl is in the path
+      `/edge_dev/edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
      my @contigs=&readfai("$workdir/eukarya.fa.fai");
-    foreach (@contigs) {$allcontigs{$_}++;} 
+    foreach (@contigs) {$allcontigs{$_}++;} #?
   } 
  }else {die "need eukarya sequence file\n";}
 }
-
+################################################################################
 if ($test eq 'both' || $test eq 'prokaryote' )
 {
 if ($prokaryote_fasta) 
@@ -170,19 +211,24 @@ if ($prokaryote_fasta)
     die "The prokaryote_fast file $prokaryote_fasta doesn't exist or empty.\n";
    } else {
    if (-e "$workdir/prokaryote.fa") {`rm $workdir/prokaryote.fa`;}
+    #TODO: see todos of eukaryotes
     `ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
-   `samtools faidx $workdir/prokaryote.fa`;   
-      `/edge_dev/edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
+    `samtools faidx $workdir/prokaryote.fa`;   
+    `/edge_dev/edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
        my @contigs=&readfai("$workdir/prokaryote.fa.fai");
     foreach (@contigs) {$allcontigs{$_}++;}
    } 
  }else  {die "need prokaryote sequence file\n";}
 } 
+################################################################################
+#?
+foreach (keys %allcontigs) {
+  if ($allcontigs{$_}>1) {
+    print LOGFILE"contig name $_ is duplicated, please make sure the name of contigs is unique in reference fasta files (prokaryout and eukarya references)\n"; exit;} }
 
+################################################################################
 
-
-foreach (keys %allcontigs) { if ($allcontigs{$_}>1) {print LOGFILE"contig name $_ is dubplicated, please make sure the name of contigs is unique in reference fasta files (prokaryout and eukarya references)\n"; exit;} }
-
+###########################coverage fasta#######################################
 my $pjcoverage="$workdir/coverage.fa";
 if (-e "$workdir/coverage.fa.fai") {`rm $workdir/coverage.fa.fai`;}
 if ($coverage_fasta)
@@ -191,13 +237,13 @@ if ($coverage_fasta)
    { die  "The coverage_fasta file $coverage_fasta doesn't exist or empty.\n";
    } else {
    if (-e $pjcoverage) {`rm $pjcoverage`;}
-   `ln -fs $coverage_fasta $pjcoverage`;
-   `samtools faidx $pjcoverage`;
+    `ln -fs $coverage_fasta $pjcoverage`;
+    `samtools faidx $pjcoverage`;
        my @contigs=&readfai("$workdir/prokaryote.fa.fai");
     foreach (@contigs) { unless ($allcontigs{$_}) {print LOGFILE"coverage contig $_ is not part of mapping index references, please make sure it is included in either prokaryout or eukarya reference\n"; exit;}}
    }
  } else {$pjcoverage='NA'}
-
+###########################coverage fasta#######################################
 
 if ($test eq 'both' || $test eq 'eukarya' )
 {
