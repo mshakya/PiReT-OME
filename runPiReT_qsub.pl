@@ -28,7 +28,7 @@ $ENV{PATH}
 &checkDependedPrograms();
 
 my $main_pid  = $$;
-my $version   = "0.3";
+my $version   = "develop";
 my $time      = time();
 my $scriptDir = "$Bin/scripts";
 my $jbBin = "$Bin/bin/JBrowse/bin"; 
@@ -51,40 +51,46 @@ my $rna_trimming_opt = 'yes';
 my $rna_mapping_opt  = 'yes';
 $gff_eukarya    = 'NONE';
 $gff_prokaryote = 'NONE';
+$eukarya_fasta = 'NONE';
+$prokaryote_fasta = 'NONE';
+$coverage_fasta = 'NONE';
+$workdir = 'NONE';
+$descriptfile = 'NONE';
 
 #------------------------------------------------------------------------------#
 GetOptions(
     'rna_mapping_opt=s'  => \$rna_mapping_opt,
     'rna_trimming_opt=s' => \$rna_trimming_opt,
-    'exp=s'                 => \$descriptfile,
-    'd=s'                   => \$workdir,
-    'cpu=i'                 => \$numCPU,             # bwa option
-    'eukarya_fasta=s'       => \$eukarya_fasta,
-    'prokaryote_fasta=s'    => \$prokaryote_fasta,
-    'index_ref_bt2=s'       => \$index_bt2,
-    'h_vmem=s'              => \$memlim,
-    'gff_eukarya=s'         => \$gff_eukarya,
-    'gff_prokaryote=s'      => \$gff_prokaryote,
-    'gene_coverage_fasta=s' => \$coverage_fasta,
-    'significant_pvalue=f'  => \$p_cutoff,
-    'pair_comparison=s'     => \$pairfile,
-    'geneopt=s'             => \$htseq
+    'E|exp=s'                 => \$descriptfile,
+    'W|dir=s'                   => \$workdir,
+    'P|cpu=i'                 => \$numCPU,             # bwa option
+    'U|eukarya_fasta=s'       => \$eukarya_fasta,
+    'R|prokaryote_fasta=s'    => \$prokaryote_fasta,
+    'I|index_ref_bt2=s'       => \$index_bt2,
+    'M|h_vmem=s'              => \$memlim,
+    'G|gff_eukarya=s'         => \$gff_eukarya,
+    'F|gff_prokaryote=s'      => \$gff_prokaryote,
+    'C|gene_coverage_fasta=s' => \$coverage_fasta,
+    'S|significant_pvalue=f'  => \$p_cutoff,
+    'N|pair_comparison=s'     => \$pairfile,
+    'A|geneopt=s'             => \$htseq
     , #count reads based on 'gene' or 'CDS' or 'tRNA' or 'mRNA' in annotation file, default ='gene';
       #  'BAM_ready=s' =>\$mapread,      #if mapping file are provided for samples by users
-    'test_kingdom=s' => \$test,
-    'test_method=s'  => \$test_method,
-    'help|?'         => sub { &Usage() }
+    'K|test_kingdom=s' => \$test,
+    'T|test_method=s'  => \$test_method,
+	'V|version'		 => sub{printVersion()},
+    'help|?'         => sub {&Usage()}
 );
 
 
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-if ( $eukarya_fasta eq 'NONE' )    { $eukarya_fasta    = ""; } else {$eukarya_fasta=Cwd::abs_path($eukarya_fasta)}
-if ( $prokaryote_fasta eq 'NONE' ) { $prokaryote_fasta = ""; } else {$prokaryote_fasta=Cwd::abs_path($prokaryote_fasta)}
-if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; } else {$gff_eukarya=Cwd::abs_path($gff_eukarya)}
-if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; } else {$gff_prokaryote=Cwd::abs_path($gff_prokaryote)}
-if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_fasta=Cwd::abs_path($coverage_fasta)}
+if ( $eukarya_fasta eq 'NONE' )    { $eukarya_fasta    = ""; } else {$eukarya_fasta=Cwd::abs_path($eukarya_fasta)};
+if ( $prokaryote_fasta eq 'NONE' ) { $prokaryote_fasta = ""; } else {$prokaryote_fasta=Cwd::abs_path($prokaryote_fasta)};
+if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; } else {$gff_eukarya=Cwd::abs_path($gff_eukarya)};
+if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; } else {$gff_prokaryote=Cwd::abs_path($gff_prokaryote)};
+if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_fasta=Cwd::abs_path($coverage_fasta)};
 
 #------------------------------------------------------------------------------#
 
@@ -481,9 +487,9 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         );
         `perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
         &lprint(
-            "python $scriptDir/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
+            "python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
         );
-        `python $scriptDir/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
+        `python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
         if (&file_check(
                 "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
             ) > 0
@@ -1240,58 +1246,80 @@ print CURRENTLOGFILE "All Done\n";
 close LOG;
 close CURRENTLOGFILE;
 
-sub Usage {
-
-#perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp ~/scratch/momo_Rnaseq/Analysis_BTT/DeRNA_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_new/ -prokaryote_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa  -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3.fa  -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa
-
-#perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp ~/scratch/momo_Rnaseq/Analysis_BTT_new/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015June/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015June/pair_comparision.txt
-
-#~/code/bin/rRNA_mapping_qsub.pl   -geneopt gene -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/EHC_bin/EHCExperimetal_descriptions.txt -d /users/203270/scratch/EHC_bin_hisat/ -test_kingdom both -eukarya_fasta /mnt/lustre/refdb/usrdb/human-GRCH38-2015-03-25/sequence/hs_ref_GRCh38.p2_combined.fa -prokaryote_fasta /users/203270/scratch/EHC_bin_hisat/YP_combined.fa -index_ref_bt2 /users/203270/scratch/EHC_bin_hisat/YP_human_bt2 -gff_eukarya /mnt/lustre/refdb/usrdb/human-GRCH38-2015-03-25/gff/ref_GRCh38.p2_top_level.gff3 -gff_prokaryote /users/203270/scratch/EHC_bin_hisat/YP_combined.gff -gene_coverage_fasta /users/203270/scratch/EHC_bin_hisat/YP_combined.fa
-
-#perl ~/code/bin/rRNA_mapping_qsub.pl   -geneopt gene -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/ATD_influ_shawn/ATDExperimetal_descriptions.txt -d /users/203270/scratch/ATD_influ_shawn/ -test_kingdom both -test_method EdgeR -eukarya_fasta /mnt/lustre/refdb/usrdb/human-GRCH38-2015-03-25/sequence/hs_ref_GRCh38.p2_combined.fa -prokaryote_fasta /users/203270/scratch/ATD_influ_shawn/refseq/IV_A_PR8_34.fna -index_ref_bt2 /users/203270/scratch/ATD_influ_shawn/IV_A_PR8_34_human_bt2 -gff_eukarya /mnt/lustre/refdb/usrdb/human-GRCH38-2015-03-25/gff/ref_GRCh38.p2_top_level.gff3 -gff_prokaryote /users/203270/scratch/ATD_influ_shawn/refseq/IV_A_PR8_34.gff
-
-#perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/pair_comparision.txt
-
-#perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom both  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/Influenza_momo/ref/expdesign.txt -d /users/203270/scratch/Influenza_momo/  -prokaryote_fasta /users/203270/scratch/Influenza_momo/ref/Influenza-A-California-07-2009.fna  -eukarya_fasta /users/203270/scratch/Influenza_momo/ref/canis.fna -index_ref_bt2  /users/203270/scratch/Influenza_momo/ref/canis_Influenza-A_hisat  -gff_eukarya /users/203270/scratch/Influenza_momo/ref/canis.gff -gff_prokaryote /users/203270/scratch/Influenza_momo/ref/Influenza-A-California-07-2009.gff  -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/Influenza_momo/ref/Influenza-A-California-07-2009.fna
-
-# perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/BIR_momo/ref/expdesign.txt -d /users/203270/scratch/BIR_momo/ -prokaryote_fasta /users/203270/scratch/BIR_momo/ref/Burk_E264-Ecoli_K-12.fna   -gene_coverage_fasta /users/203270/scratch/BIR_momo/ref/Burk_E264-Ecoli_K-12.fna  -gff_prokaryote /users/203270/scratch/BIR_momo/ref/Burk_E264.gff,/users/203270/scratch/BIR_momo/ref/Ecoli_K-12.gff -test_method EdgeR -pair_comparison /users/203270/scratch/BIR_momo/ref/group_comp.txt -index_ref_bt2 /users/203270/scratch/BIR_momo/ref/Burk_E264-Ecoli_K-12.fna
-
-# perl ~/code/bin/rRNA_mapping_qsub.pl  -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/OSI_rna1/OSIExperimetal_descriptions.txt -d /users/203270/scratch/OSI_rna1/ -prokaryote_fasta /users/203270/scratch/OSI_rna1/NC_004350.fna -gff_prokaryote /users/203270/scratch/OSI_rna1/differential_gene/prokaryote/NC_004350/prokaryote.gff -test_method both  -gene_coverage_fasta /users/203270/scratch/OSI_rna1/NC_004350.fna  -eukarya_fasta /users/203270/scratch/OSI_rna/host_Lactobacillus_casei.fa /users/203270/scratch/OSI_rna/Lac_casei-treptococcus_mutans_bt2 -index_ref_bt2   -significant_pvalue 0.001  -cpu 10
-
+sub Usage 
+{
     print <<"END";
- Usage: perl $0 [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
+
+DESCRIPTION\n
+	Pipeline that finds differentially expressed genes from raw fastq data.
+
+ 
+Usage: perl $0 [options] -exp experimental_description_file.txt -d pipeline_test_both -prokaryote_fasta test_prok.fa -eukarya_fasta eukarya_test.fa -index_ref_bt2 indexfile -gff_prokaryote test_prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
 
   example: 
                        
-perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/pair_comparision.txt 
+
+OPTIONS
+   Generic Program Information
+		--help Print a usage message briefly summarizing these command-line options, then exit.
+
+		-V, --version
+			Print the version number to the standard output stream.  This version number should be included in all bug reports.
 
  
-        -d            string, working directory where the whole project will be under,absolute path,  must have permission to be created. 
-        -gff_prokaryote string, absolute path, prokaryote annotation files in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)   (optional)                  
-        -gff_eukarya string, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
-        -eukarya_fasta: comma-separated list of files with ref sequences,  absolute path, eukarya nucleotide sequence in fasta format (for making bowtie2 mapping index file)  (optional) 
-        -prokaryote_fasta: comma-separated list of files with ref sequences, absolute path, prokaryote nucleotide sequence in fasta format, single file  (for making bowtie2 mapping index file)  (optional) 
-        -index_ref_bt2:     string, absolute path, bowtie2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
-        -h_vmem: memory limit per node, string, default 20G
-        -gene_coverage_fasta: string, absolute path,  fasta format, single file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence)  (optional) 
+       	-W, --workdir
+			Path to a directory where the whole analysis will be stored. Must have write permission.
 
-        -test_kingdom         desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default prokaryote));
-        -test_method          dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default both)); must have have at least 3 duplicates if using Deseq2.
-        -cpu          number of cpu to be used (default 1)
+		-F, --gff_prokaryote
+			(Optional) prokaryote annotation file(s) in gff format. Multiple files can be seperated by commas. Needed for diffrential gene analysis.
+
+        -G, --gff_eukarya
+			(Optional) eukarya annotation file(s) in gff format. Multiple files seperated by commas. Needed for diffrential gene analysis.
+
+		-U, --eukarya_fasta
+			(Optional) comma separated list of reference sequences.
+
+        -F, --prokaryote_fasta 
+			(Optional) comma separated list of reference sequences. 
+
+        -I, --index_ref_bt2
+			hisat2 mapping index file. If the mapping index is already generated, one can pass that as well.
+
+        -M, --h_vmem
+			memory limit per node, string, default 20G
+
+        -C, --gene_coverage_fasta
+			(Optional) single fasta file  (for directional coverage analysis, sequnce must be prokaryote mapping reference sequence) 
+
+        -K, --test_kingdom
+			comparison of differential gene expression. `both` (for eukarya and prokaryote), `prokaryote`, or `eukarya`. 
+			Default: prokaryote
+
+        -T, --test_method
+			R package/ method to use for differential gene expression analysis. `both` (for both EdgeR and Deseq2 method), EdgeR, or Deseq.
+ 			#TODO: change default to EdgeR
+			Default: both (must have have at least 3 duplicates if using Deseq2)
+
+        -P, --cpu
+			number of cpu to be used (default 1)
+		#TODO: check whats going on with this option
         -BAM_ready      #if mapping file are provided for samples by users (yes or no) default no
-        -significant_pvalue: floating number cutoff to define significant differentially express genes, (default =0.001)
+		
+        -S, --significant_pvalue
+			floating number cutoff to define significant differentially express genes.
+			Default: 0.001
 
-        master design text file:
-        -exp         tab delimited txt file descripting experiments that each row represents one sample.
-                      Each colomum is as:
+        -E, --exp
+			tab delimited txt file descripting experimental design. Each row represents one sample.
+                      Each coloumn is as:
                     (
                      ID:  uniq sample ID
                      Rawreads_file: absolute path, fastq format, pair reads seperated by colon, multiple datasets seprarate semicolon
                      group:    replicates group name for this project, each group must have uniqe name (without -pair_comparison option defined as below, all groups will be compared to each other in differential gene analysis)
-                     experimental condisitons such as clock time, CFU etc:  one condition per name per colomumm, can be multiple colomums, (for differentail gene analysis)
+                     experimental condiitons such as clock time, CFU etc:  one condition per name per coloumn, can be multiple colomuns, (for differentail gene analysis)
                      
                       Example: (the names and order of the first 3 colomums must be the exact the same as below) :  
-                      ID            Rawreads_files/BAM_file                      group 
+                      ID		Rawreads_files/BAM_file                 group 
                       exp1      read1p1:read1p2;read1p1a:read1p2a       time0
                       exp2      read2p1:read2p2                         time0
                       .
@@ -1301,7 +1329,8 @@ perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -si
                       exp22     read22p1:read22p2;read22p1a:read22p2a   timef                              
                     )
         differential gene analysis  design text file: 
-         -pair_comparison       tab delimited txt file descripting pairwise comparison. If this file does NOT exist, all groups defined in the master design text file will be compared to each other in differential gene analysis, 
+         -N, --pair_comparison
+			tab delimited file describing pairwise comparison. If this file does NOT exist, all groups defined in the experimental design file will be compared to each other for  differential gene analysis. 
                                Each colomum is as:
                               (
                                 group1:    first group name in pairwised comparison for this project (must be defined in the master design text file)
@@ -1313,7 +1342,11 @@ perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -si
                                  time0          timef
                                  time2          timef 
                                )
-                                 
+
+#TODO: change this example to one in test
+EXAMPLE:
+	perl runPiReT_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/pair_comparision.txt 
+
 END
     exit;
 }
@@ -1364,6 +1397,12 @@ sub readfai {
     return @tmpcontigs;
 }
 
+sub printVersion 
+{
+    print basename($0), " version: $version\n";
+    exit;
+}
+
 sub checkDependedPrograms
 
     #TODO: Also check for appropriate version
@@ -1377,7 +1416,9 @@ sub checkDependedPrograms
         || die "\nR is not in your PATH\n $ENV{PATH}\n";
     system("which hisat2-build 1>/dev/null") == 0
         || die "\nhisat2-build is not in your PATH\n $ENV{PATH}\n";
-    # system("which parse_eukarya_gfffile.pl 1>/dev/null") == 0
+	system("which qsub 1>/dev/null") == 0
+		|| die "qsub is not installed\n";   
+# system("which parse_eukarya_gfffile.pl 1>/dev/null") == 0
     #     || die
     #     "\nparse_eukarya_gfffile.pl is not in your PATH\n $ENV{PATH}\n";
 }
