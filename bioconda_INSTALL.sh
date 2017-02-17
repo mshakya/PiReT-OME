@@ -48,6 +48,7 @@ bedtools_VER=2.26.0
 R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
+jbrowse_VER=1.12.1
 
 # minimum required version of Scripting languages
 perl5_VER=5.8.0
@@ -327,11 +328,31 @@ git clone https://github.com/gpertea/gffread gffread_git
 cd gffread_git
 make
 cp gffread ../
-
 ln -sf $ROOTDIR/thirdParty/miniconda/bin/gffread $ROOTDIR/bin/gffread
+cd $ROOTDIR/thirdParty
 echo "
 --------------------------------------------------------------------------------
                            gffread installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_jbrowse()
+{
+echo "--------------------------------------------------------------------------
+                      installing Jbrowse
+--------------------------------------------------------------------------------
+"
+cd $ROOTDIR/thirdParty
+tar xvzf JBrowse-1.11.6.tar.gz
+cd JBrowse-1.11.6
+./setup.sh
+mkdir -p -m 775 data
+cd $ROOTDIR/thirdParty
+ln -sf $ROOTDIR/thirdParty/JBrowse-1.11.6 $ROOTDIR/bin/JBrowse
+echo "
+--------------------------------------------------------------------------------
+                      Jbrowse installed
 --------------------------------------------------------------------------------
 "
 }
@@ -734,6 +755,17 @@ else
   install_bedtools
 fi
 
+
+################################################################################
+#TODO: add a way to check version here as well
+if ( -x $ROOTDIR/thirdParty/JBrowse-1.11.6/bin/prepare-refseqs.pl )
+then
+  echo "JBrowse is found"
+else
+  echo "JBrowse is not found"
+  install_jbrowse
+fi
+
 ################################################################################
 if ( checkSystemInstallation cpanm )
 then
@@ -843,4 +875,4 @@ sh test_pipeline_linux.sh
 OR
 sh test_pipeline_MacOSX.sh
 Thanks!
-    "
+	"
