@@ -11,8 +11,7 @@ use POSIX qw(strftime);
 
 $| = 1;    #?
 $ENV{PATH}
-    = "$Bin:$Bin/../:$Bin/hisat-0.1.5-beta/:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/sge/2011.11p1/bin/linux-x64:$Bin/../../edge_ui/JBrowse/bin/";
-$ENV{PATH}     = "$Bin:$Bin/bin/:$Bin/scripts/:$ENV{PATH}";
+    = "$Bin/bin/:$ENV{PATH}";
 
 #NOTE: need these paths to find qsub binaries
 #TODO: change it so that its independent of the user system
@@ -334,9 +333,7 @@ if ($eukarya_fasta) {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         `samtools faidx $workdir/eukarya.fa`;
-        #TODO: fix path to Jbrowse directory here.
-        # `$Bin/../../edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
-
+        `$Bin/bin/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
         my @contigs = &readfai("$workdir/eukarya.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
     }
@@ -352,7 +349,7 @@ if ($prokaryote_fasta) {
         if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
         `ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
 		`samtools faidx $workdir/prokaryote.fa`;
-        #`$Bin/../../edge_ui/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
+        `$Bin/bin/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
 
         my @contigs = &readfai("$workdir/prokaryote.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
@@ -451,11 +448,10 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         }
         push @{ $allgff{eukarya} }, $tmpeukarya[-1];
 
-        #TODO: in the module, the whole path to edge_ui/JBrowse/bin/ will be added, so make changes which assumes flatfile-to-json.pl to be in the path
-       # `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
-       # `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
-       # `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
-       # `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
+       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
+       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
+       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
+       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
 
         unless (
             -d "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]" )
@@ -529,10 +525,10 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
         }
         push @{ $allgff{prokaryote} }, $tmpprokaryote[-1];
 
-        `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
-        `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
-        `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
-        `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
+        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
+        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
+        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
+        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
 
         unless (
             -d "$workdir/sum_gene_count/tmp_count/prokaryote/$tmpprokaryote[-1]"
