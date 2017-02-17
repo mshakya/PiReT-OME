@@ -31,7 +31,7 @@ my $main_pid  = $$;
 my $version   = "0.3";
 my $time      = time();
 my $scriptDir = "$Bin/scripts";
-my $jbBin = "$Bin/JBrowse/bin"; 
+my $jbBin = "$Bin/bin/JBrowse/bin"; 
 my ($descriptfile,     $test,      $splice_file_out,
     $splice_file_in,   $pairfile,  $diffdir,
     $workdir,          $numCPU,    $eukarya_fasta,
@@ -626,21 +626,21 @@ unless ( -s $checkIndexFile ) {
     #     `bowtie2-build -f $index_fasta1 $index_bt2`;
     if ( $eukarya_fasta && $prokaryote_fasta ) {
         &lprint(
-            "hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
+            "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
         );
-        `hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+        `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
     }
     elsif ($eukarya_fasta) {
         &lprint(
-            "hisat-build --large-index $eukarya_fasta  $index_bt2\n"
+            "hisat2-build --large-index $eukarya_fasta  $index_bt2\n"
         );
-        `hisat-build --large-index $eukarya_fasta  $index_bt2`;
+        `hisat2-build --large-index $eukarya_fasta  $index_bt2`;
     }
     elsif ($prokaryote_fasta) {
         &lprint(
-            "hisat-build --large-index $prokaryote_fasta $index_bt2\n"
+            "hisat2-build --large-index $prokaryote_fasta $index_bt2\n"
         );
-        `hisat-build --large-index $prokaryote_fasta  $index_bt2`;
+        `hisat2-build --large-index $prokaryote_fasta  $index_bt2`;
     }
     else { &lprint("failed: no INDEX files\n"); exit; }
 }
