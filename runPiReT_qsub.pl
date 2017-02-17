@@ -31,6 +31,7 @@ my $main_pid  = $$;
 my $version   = "0.3";
 my $time      = time();
 my $scriptDir = "$Bin/scripts";
+my $jbBin = "$Bin/JBrowse/bin"; 
 my ($descriptfile,     $test,      $splice_file_out,
     $splice_file_in,   $pairfile,  $diffdir,
     $workdir,          $numCPU,    $eukarya_fasta,
@@ -333,7 +334,7 @@ if ($eukarya_fasta) {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         `samtools faidx $workdir/eukarya.fa`;
-        `$Bin/bin/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
+        `$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
         my @contigs = &readfai("$workdir/eukarya.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
     }
@@ -349,7 +350,7 @@ if ($prokaryote_fasta) {
         if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
         `ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
 		`samtools faidx $workdir/prokaryote.fa`;
-        `$Bin/bin/JBrowse/bin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
+        `$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
 
         my @contigs = &readfai("$workdir/prokaryote.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
@@ -448,10 +449,10 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         }
         push @{ $allgff{eukarya} }, $tmpeukarya[-1];
 
-       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
-       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
-       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
-       `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
+       `$jbBin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
+       `$jbBin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
+       `$jbBin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
+       `$jbBin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
 
         unless (
             -d "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]" )
@@ -478,11 +479,11 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         &lprint(
             "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
         );
-        `perl $Bin/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
+        `perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
         &lprint(
-            "python $Bin/hisat-0.1.5-beta/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
+            "python $scriptDir/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
         );
-        `python $Bin/hisat-0.1.5-beta/scratch/hisat-master/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
+        `python $scriptDir/extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
         if (&file_check(
                 "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
             ) > 0
@@ -525,10 +526,10 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
         }
         push @{ $allgff{prokaryote} }, $tmpprokaryote[-1];
 
-        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
-        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
-        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
-        `$Bin/bin/JBrowse/bin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
+        `$jbBin/flatfile-to-json.pl --gff $tmpgff --type CDS  --tracklabel CDS --out $workdir/Jbrowse`;
+        `$jbBin/flatfile-to-json.pl --gff $tmpgff --type tRNA  --tracklabel tRNA --out $workdir/Jbrowse`;
+        `$jbBin/flatfile-to-json.pl --gff $tmpgff --type exon  --tracklabel exon --out $workdir/Jbrowse`;
+        `$jbBin/flatfile-to-json.pl --gff $tmpgff --type gene  --tracklabel gene --out $workdir/Jbrowse`;
 
         unless (
             -d "$workdir/sum_gene_count/tmp_count/prokaryote/$tmpprokaryote[-1]"
@@ -559,9 +560,9 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
                 "failed: can not make dir  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1] $!";
         }
         &lprint(
-            "perl $Bin/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai \n"
+            "perl $scriptDir/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai \n"
         );
-        `perl $Bin/parse_prokaryote_gfffile.pl $tmpgff $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai`;
+        `perl $scriptDir/parse_prokaryote_gfffile.pl $tmpgff $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai`;
     }
 }
 
@@ -625,21 +626,21 @@ unless ( -s $checkIndexFile ) {
     #     `bowtie2-build -f $index_fasta1 $index_bt2`;
     if ( $eukarya_fasta && $prokaryote_fasta ) {
         &lprint(
-            " $Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
+            "hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
         );
-        `$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+        `hisat-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
     }
     elsif ($eukarya_fasta) {
         &lprint(
-            "$Bin/hisat-0.1.5-beta/hisat-build --large-index $eukarya_fasta  $index_bt2\n"
+            "hisat-build --large-index $eukarya_fasta  $index_bt2\n"
         );
-        `$Bin/hisat-0.1.5-beta//hisat-build --large-index $eukarya_fasta  $index_bt2`;
+        `hisat-build --large-index $eukarya_fasta  $index_bt2`;
     }
     elsif ($prokaryote_fasta) {
         &lprint(
-            "$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta $index_bt2\n"
+            "hisat-build --large-index $prokaryote_fasta $index_bt2\n"
         );
-        `$Bin/hisat-0.1.5-beta/hisat-build --large-index $prokaryote_fasta  $index_bt2`;
+        `hisat-build --large-index $prokaryote_fasta  $index_bt2`;
     }
     else { &lprint("failed: no INDEX files\n"); exit; }
 }
@@ -674,10 +675,10 @@ foreach ( sort keys %description ) {
             if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
             #TODO: add a script to check for job id using `qstat -j` will tell you if the job is finished or not. 
             &lprint(
-                "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/trim_readmapping.sh \n\n"
+                "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
             );
 
-            `qsub -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/trim_readmapping.sh`;
+            `qsub -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
         }
         else {
 
@@ -705,20 +706,20 @@ foreach ( sort keys %description ) {
             }
 
             &lprint(
-                "qsub  -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/readmapping.sh \n\n"
+                "qsub  -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
 
-            `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/readmapping.sh`;
+            `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
         }
 
     }
     else {
 
         &lprint(
-            "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/parse_BAMfile.sh \n\n"
+            "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
         );
 
-        `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $Bin/parse_BAMfile.sh`;
+        `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
 
     }
 
@@ -755,9 +756,9 @@ foreach ( sort keys %description ) {
     my $sample = $_;
     if ($prokaryote_fasta) {
         &lprint(
-            "qsub  -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $Bin/prokaryote_rRNACoverageFold_plot.sh\n"
+            "qsub  -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
         );
-        `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $Bin/prokaryote_rRNACoverageFold_plot.sh`;
+        `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh`;
     }
 
     if ($eukarya_fasta) {
@@ -828,9 +829,9 @@ if ($prokaryote_fasta) {
 #&lprint ("qsub  -o $workdir/prokaryote_find_small_rna.log -v sample=$allsample  -v reffile=$prokaryote_fasta  -v workdir=$workdir -v gfffile=$gff_prokaryote $Bin/prokaryote_find_small_rna.sh\n");
 ##`qsub -o $workdir/prokaryote_find_small_rna.log  -v sample=$allsample -v reffile=$prokaryote_fasta  -v workdir=$workdir -v gfffile=$gff_prokaryote  $Bin/prokaryote_find_small_rna.sh`;
     &lprint(
-        "perl $Bin/prokaryote_find_small_rna.pl $workdir $prokaryote_fasta  $gff_prokaryote $allsample\n"
+        "perl $scriptDir/prokaryote_find_small_rna.pl $workdir $prokaryote_fasta  $gff_prokaryote $allsample\n"
     );
-    `perl $Bin/prokaryote_find_small_rna.pl $workdir $prokaryote_fasta  $gff_prokaryote $allsample`;
+    `perl $scriptDir/prokaryote_find_small_rna.pl $workdir $prokaryote_fasta  $gff_prokaryote $allsample`;
 
     while ($makegffdone) {
         if ( -e "$workdir/newprokaryotegffmade.txt" ) {
@@ -879,9 +880,9 @@ foreach ( sort keys %description ) {
     my $sample = $_;
 
     &lprint(
-        "qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $Bin/htseq-count.sh\n"
+        "qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh\n"
     );
-    `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $Bin/htseq-count.sh`;
+    `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh`;
 }
 
 $alldone = keys(%allsample);
@@ -914,16 +915,16 @@ foreach ( sort keys %description ) {
 
     my $tmpname
         = $sample . $description{$sample}{group} . 'prokaryote_forward';
-    `$Bin/../../edge_ui/JBrowse/bin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.forward.sorted.prokaryote_ref.bw --key $tmpname `;
+    `$jbBin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.forward.sorted.prokaryote_ref.bw --key $tmpname `;
 
     $tmpname = $sample . $description{$sample}{group} . 'prokaryote_backward';
-    `$Bin/../../edge_ui/JBrowse/bin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.backward.sorted.prokaryote_ref.bw --key $tmpname `;
+    `$jbBin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.backward.sorted.prokaryote_ref.bw --key $tmpname `;
 
     $tmpname = $sample . $description{$sample}{group} . 'eukarya_forward';
-    `$Bin/../../edge_ui/JBrowse/bin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.forward.sorted.eukarya_ref.bw --key $tmpname `;
+    `$jbBin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.forward.sorted.eukarya_ref.bw --key $tmpname `;
 
     $tmpname = $sample . $description{$sample}{group} . 'eukarya_backward';
-    `$Bin/../../edge_ui/JBrowse/bin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.backward.sorted.eukarya_ref.bw --key $tmpname `;
+    `$jbBin/add-bw-track.pl --in $workdir/Jbrowse/trackList.json --out $workdir/Jbrowse/trackList.json --plot --label $tmpname  --bw_url Jbrowse/BigWig/$sample.backward.sorted.eukarya_ref.bw --key $tmpname `;
 
 }
 
@@ -1169,7 +1170,7 @@ foreach ( sort keys %diffdir ) {
 
             `perl $Bin/Differential_stats_prokaryote.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene//$kingdom/$strain/prokaryote.NonrRNA.genedesc.txt $p_cutoff @goodsample`;
 
-            `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $workdir/sum_direction_prokaryote_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
+            `$jbBin/flatfile-to-json.pl --gff $workdir/sum_direction_prokaryote_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
 
         }
 
@@ -1180,7 +1181,7 @@ foreach ( sort keys %diffdir ) {
 
             `perl $Bin/Differential_stats_eukarya.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene/$kingdom/$strain/eukarya.genedesc.txt $p_cutoff @goodsample`;
 
-            `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $workdir/sum_direction_eukarya_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
+            `$jbBin/flatfile-to-json.pl --gff $workdir/sum_direction_eukarya_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
 
         }
         &lprint("done $kingdom\t$strain\n");
@@ -1200,10 +1201,11 @@ foreach ( sort keys %diffdir ) {
             $jbrowsed = $workdir[-3];
         }
 
-        `$Bin/../../edge_ui/JBrowse/bin/generate-names.pl --out  $workdir/Jbrowse`;
+        `$jbBin/generate-names.pl --out  $workdir/Jbrowse`;
 
 #if (-e "$Bin/../../edge_ui/JBrowse/data/$jbrowsed") {`unlink $Bin/../../edge_ui/JBrowse/data/$jbrowsed`;}
-        `ln -s  $workdir/Jbrowse/ $Bin/../../edge_ui/JBrowse/data/$jbrowsed`;
+        #NOTE: I dont understand this? how is this url created
+		`ln -s  $workdir/Jbrowse/ $Bin/bin/JBrowse/data/$jbrowsed`;
         &lprint(
             "Jbrowse link is at http://ergatis2.lanl.gov/jbrowse/?data=data/$jbrowsed\n"
         );
