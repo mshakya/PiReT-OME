@@ -9,10 +9,9 @@ use Cwd;
 use FindBin qw($Bin);
 use POSIX qw(strftime);
 
-$| = 1;    #?
 $ENV{PATH} = "$Bin/bin/:$ENV{PATH}";
 $ENV{PERL5LIB} = "$Bin/ext/lib/perl5:$ENV{PERL5LIB}"; 
-
+print @INC;
 #NOTE: need these paths to find qsub binaries
 #TODO: change it so that its independent of the user system
 #NOTE: also mention that qsub must be present
@@ -21,12 +20,12 @@ $ENV{PERL5LIB} = "$Bin/ext/lib/perl5:$ENV{PERL5LIB}";
 #$ENV{SGE_CELL}         = "default"; #?
 #$ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
 #TODO: remove this later, once the this thing works
-#foreach ( sort keys %ENV ) {
-#    print "$_  =  $ENV{$_}\n";
-#}
+foreach ( sort keys %ENV ) {
+    print "$_  =  $ENV{$_}\n";
+}
 
 &checkDependedPrograms();
-
+$| = 1;
 my $main_pid  = $$;
 my $version   = "develop";
 my $time      = time();
@@ -620,7 +619,7 @@ else {
     }
 }
 
-#my $command = "bowtie2-build -f $index_fasta $index_bt2";
+#TODO: find what i can replace.5.ht2l with
 my $checkIndexFile = join "", ( $index_bt2, '.5.ht2l' );
 unless ( -s $checkIndexFile ) {
 
@@ -681,10 +680,10 @@ foreach ( sort keys %description ) {
             if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
             #TODO: add a script to check for job id using `qstat -j` will tell you if the job is finished or not. 
             &lprint(
-                "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
+                "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
             );
 
-            `qsub -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+            `qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
         }
         else {
 
@@ -712,20 +711,20 @@ foreach ( sort keys %description ) {
             }
 
             &lprint(
-                "qsub  -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
+                "qsub  -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
 
-            `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+            `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
         }
 
     }
     else {
 
         &lprint(
-            "qsub -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
+            "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
         );
 
-        `qsub -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
+        `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
 
     }
 
@@ -762,9 +761,9 @@ foreach ( sort keys %description ) {
     my $sample = $_;
     if ($prokaryote_fasta) {
         &lprint(
-            "qsub  -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
+            "qsub -V -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
         );
-        `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh`;
+        `qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh`;
     }
 
     if ($eukarya_fasta) {
@@ -886,9 +885,9 @@ foreach ( sort keys %description ) {
     my $sample = $_;
 
     &lprint(
-        "qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh\n"
+        "qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh\n"
     );
-    `qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh`;
+    `qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh`;
 }
 
 $alldone = keys(%allsample);
