@@ -10,8 +10,8 @@ use FindBin qw($Bin);
 use POSIX qw(strftime);
 
 $| = 1;    #?
-$ENV{PATH}
-    = "$Bin/bin/:$ENV{PATH}";
+$ENV{PATH} = "$Bin/bin/:$ENV{PATH}";
+$ENV{PERL5LIB} = "$Bin/ext/lib/perl5:$ENV{PERL5LIB}"; 
 
 #NOTE: need these paths to find qsub binaries
 #TODO: change it so that its independent of the user system
