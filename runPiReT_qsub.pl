@@ -663,7 +663,7 @@ my $time1 = time();
 foreach ( sort keys %description ) {
     my $sample   = $_;
     my $rawreads = $description{$sample}{Rawreads_file};
-    my $jobname  = join '.', ( $sample, 'RNA_analyis' );
+    my $jobname  = join '.', ( $sample, 'RNA_analysis' );
 
     if ( $rna_mapping_opt eq 'yes' ) {
 
@@ -917,7 +917,7 @@ while ($alldone) {
 foreach ( sort keys %description ) {
     my $sample = $_;
 
-    my $jobname = join '.', ( $sample, 'RNA_analyis' );
+    my $jobname = join '.', ( $sample, 'RNA_analysis' );
 
     my $tmpname
         = $sample . $description{$sample}{group} . 'prokaryote_forward';
