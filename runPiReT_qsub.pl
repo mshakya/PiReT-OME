@@ -91,6 +91,10 @@ if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; } else {$gff_eukary
 if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; } else {$gff_prokaryote=Cwd::abs_path($gff_prokaryote)};
 if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_fasta=Cwd::abs_path($coverage_fasta)};
 
+#TODO: need to get the full path of the index file when its not created yet for trim_readmapping to work
+# reassinging the index file to have a full path now
+#if ($index_bt2 eq 'NONE') {$index_bt2 = "";} else {$index_bt2=Cwd::abs_path(index_bt2)};
+
 #------------------------------------------------------------------------------#
 
 my $start_time_string = &getTmpNameByTime;
