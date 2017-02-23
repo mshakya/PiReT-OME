@@ -90,10 +90,15 @@ if ( $prokaryote_fasta eq 'NONE' ) { $prokaryote_fasta = ""; } else {$prokaryote
 if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; } else {$gff_eukarya=Cwd::abs_path($gff_eukarya)};
 if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; } else {$gff_prokaryote=Cwd::abs_path($gff_prokaryote)};
 if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_fasta=Cwd::abs_path($coverage_fasta)};
-
 #TODO: need to get the full path of the index file when its not created yet for trim_readmapping to work
 # reassinging the index file to have a full path now
-#if ($index_bt2 eq 'NONE') {$index_bt2 = "";} else {$index_bt2=Cwd::abs_path(index_bt2)};
+
+if ($index_bt2 eq 'NONE') {
+	$index_bt2=join('.index', split(/\.*$/, $coverage_fasta))} 
+else {
+	`touch $index_bt2`;
+	$index_bt2 = Cwd::abs_path($index_bt2)
+	}
 
 #------------------------------------------------------------------------------#
 
@@ -887,11 +892,8 @@ my $time3 = time();
 
 foreach ( sort keys %description ) {
     my $sample = $_;
-
-    &lprint(
-        "qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh\n"
-    );
-    `qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/htseq.log -v scriptDir=$scriptDir   -v test=$test  -v sample=$sample  -v workdir=$workdir $scriptDir/htseq-count.sh`;
+	&lprint("$scriptDir/htseq-count.pl $workdir $sample $test\n");
+	`$scriptDir/htseq-count.pl $workdir $sample $test`;
 }
 
 $alldone = keys(%allsample);
