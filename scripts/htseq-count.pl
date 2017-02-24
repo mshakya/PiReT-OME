@@ -6,7 +6,7 @@ use File::Basename;
 use Term::ANSIColor;
 use FindBin qw($Bin);
 
-$ENV{PATH} = "$Bin:$Bin/../:$ENV{PATH}";
+$ENV{PATH} = "$Bin/../bin/:$ENV{PATH}";
 
 
 umask 000;
