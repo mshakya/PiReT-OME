@@ -1,7 +1,9 @@
 #!/bin/sh
 
+plib=cpan -D String::Approx | grep Approx.pm | sed 's/\/String\/Approx\.pm//g'
 #import Perl path
-export PERL5LIB="$ROOTDIR/ext/lib/perl5:$PERL5LIB"
+export PERL5LIB="$ROOTDIR/ext/lib/perl5:$plib:$PERL5LIB"
+
 
 #QC step
 echo "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -prefix $sample -d $workdir/$sample/trimming_results/ -p  $rawreads"
