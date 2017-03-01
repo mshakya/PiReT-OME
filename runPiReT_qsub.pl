@@ -723,7 +723,7 @@ foreach ( sort keys %description ) {
                 "qsub  -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
 
-            `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+            `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
         }
 
     }
@@ -733,7 +733,7 @@ foreach ( sort keys %description ) {
             "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
         );
 
-        `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
+        `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
 
     }
 
