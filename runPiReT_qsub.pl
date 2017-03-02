@@ -1275,7 +1275,7 @@ OPTIONS
        	-W, --workdir
 			Path to a directory where the whole analysis will be stored. Must have write permission.
 
-		-F, --gff_prokaryote
+		-R, --gff_prokaryote
 			(Optional) prokaryote annotation file(s) in gff format. Multiple files can be seperated by commas. Needed for diffrential gene analysis.
 
         -G, --gff_eukarya
