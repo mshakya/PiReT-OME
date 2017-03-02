@@ -33,7 +33,7 @@ my $jbBin = "$Bin/bin/JBrowse/bin";
 my ($descriptfile,     $test,      $splice_file_out,
     $splice_file_in,   $pairfile,  $diffdir,
     $workdir,          $numCPU,    $eukarya_fasta,
-    $prokaryote_fasta, $index_bt2, $gff_eukarya,
+    $prokaryote_fasta, $ref_index, $gff_eukarya,
     $gff_prokaryote,   $coverage_fasta
 );
 
@@ -54,7 +54,7 @@ $prokaryote_fasta = 'NONE';
 $coverage_fasta = 'NONE';
 $workdir = 'NONE';
 $descriptfile = 'NONE';
-$index_bt2 = 'NONE';
+$ref_index = 'NONE';
 #------------------------------------------------------------------------------#
 GetOptions(
     'rna_mapping_opt=s'  => \$rna_mapping_opt,
@@ -64,7 +64,7 @@ GetOptions(
     'P|cpu=i'                 => \$numCPU,             # bwa option
     'U|eukarya_fasta=s'       => \$eukarya_fasta,
     'R|prokaryote_fasta=s'    => \$prokaryote_fasta,
-    'I|index_ref_bt2=s'       => \$index_bt2,
+    'I|index_ref_bt2=s'       => \$ref_index,
     'M|h_vmem=s'              => \$memlim,
     'G|gff_eukarya=s'         => \$gff_eukarya,
     'F|gff_prokaryote=s'      => \$gff_prokaryote,
@@ -92,11 +92,11 @@ if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_f
 #TODO: need to get the full path of the index file when its not created yet for trim_readmapping to work
 # reassinging the index file to have a full path now
 
-if ($index_bt2 eq 'NONE') {
-	$index_bt2=join('.index', split(/\.*$/, $coverage_fasta))} 
+if ($ref_index eq 'NONE') {
+	$ref_index=join('.index', split(/\.*$/, $coverage_fasta))} 
 else {
-	`touch $index_bt2`;
-	$index_bt2 = Cwd::abs_path($index_bt2)
+	`touch $ref_index`;
+	$ref_index = Cwd::abs_path($ref_index)
 	}
 
 #------------------------------------------------------------------------------#
@@ -168,7 +168,7 @@ unless ( $descriptfile
     && $test
     && ( $gff_eukarya   || $gff_prokaryote )
     && ( $eukarya_fasta || $prokaryote_fasta )
-    && $index_bt2 )
+    && $ref_index )
 {
     &Usage
 }
@@ -628,7 +628,7 @@ else {
 }
 
 #TODO: find what i can replace.5.ht2l with
-my $checkIndexFile = join "", ( $index_bt2, '.5.ht2l' );
+my $checkIndexFile = join "", ( $ref_index, '.5.ht2l' );
 unless ( -s $checkIndexFile ) {
 
     #my $index_fasta1=join ',', ($prokaryote_fasta, $eukarya_fasta);
@@ -636,30 +636,30 @@ unless ( -s $checkIndexFile ) {
     &lprint( "Indexing the reference sequences", 'yellow', "\n" );
 
     #       &executeCommand($command);
-    #     `bowtie2-build -f $index_fasta1 $index_bt2`;
+    #     `bowtie2-build -f $index_fasta1 $ref_index`;
     if ( $eukarya_fasta && $prokaryote_fasta ) {
         &lprint(
-            "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2\n"
+            "hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $ref_index\n"
         );
-        `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $index_bt2`;
+        `hisat2-build --large-index $eukarya_fasta,$prokaryote_fasta  $ref_index`;
     }
     elsif ($eukarya_fasta) {
         &lprint(
-            "hisat2-build --large-index $eukarya_fasta  $index_bt2\n"
+            "hisat2-build --large-index $eukarya_fasta  $ref_index\n"
         );
-        `hisat2-build --large-index $eukarya_fasta  $index_bt2`;
+        `hisat2-build --large-index $eukarya_fasta  $ref_index`;
     }
     elsif ($prokaryote_fasta) {
         &lprint(
-            "hisat2-build --large-index $prokaryote_fasta $index_bt2\n"
+            "hisat2-build --large-index $prokaryote_fasta $ref_index\n"
         );
-        `hisat2-build --large-index $prokaryote_fasta  $index_bt2`;
+        `hisat2-build --large-index $prokaryote_fasta  $ref_index`;
     }
     else { &lprint("failed: no INDEX files\n"); exit; }
 }
 
-if   ( -s $checkIndexFile ) { &lprint("done INDEX $index_bt2\n"); }
-else                        { &lprint("failed: INDEX $index_bt2\n"); exit; }
+if   ( -s $checkIndexFile ) { &lprint("done INDEX $ref_index\n"); }
+else                        { &lprint("failed: INDEX $ref_index\n"); exit; }
 
 &printRunTime($time);
 &lprint("  Done Checking Files \n");
@@ -688,10 +688,10 @@ foreach ( sort keys %description ) {
             if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
             #TODO: add a script to check for job id using `qstat -j` will tell you if the job is finished or not. 
             &lprint(
-                "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
+                "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
             );
 
-            `qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+            `qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
         }
         else {
 
@@ -719,20 +719,20 @@ foreach ( sort keys %description ) {
             }
 
             &lprint(
-                "qsub  -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
+                "qsub  -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
 
-            `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+            `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
         }
 
     }
     else {
 
         &lprint(
-            "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$index_bt2 -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
+            "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
         );
 
-        `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads="$rawreads"  -v indexref=$index_bt2 -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
+        `qsub -V -pe smp $numCPU -l h_vmem=$memlim  -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
 
     }
 
