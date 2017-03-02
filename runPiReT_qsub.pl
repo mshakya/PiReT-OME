@@ -20,9 +20,9 @@ print @INC;
 #$ENV{SGE_CELL}         = "default"; #?
 #$ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
 #TODO: remove this later, once the this thing works
-foreach ( sort keys %ENV ) {
-    print "$_  =  $ENV{$_}\n";
-}
+#foreach ( sort keys %ENV ) {
+#    print "$_  =  $ENV{$_}\n";
+#}
 
 &checkDependedPrograms();
 $| = 1;
