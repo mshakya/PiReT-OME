@@ -11,7 +11,6 @@ use POSIX qw(strftime);
 
 $ENV{PATH} = "$Bin/bin/:$ENV{PATH}";
 $ENV{PERL5LIB} = "$Bin/ext/lib/perl5:$ENV{PERL5LIB}"; 
-print @INC;
 #NOTE: need these paths to find qsub binaries
 #TODO: change it so that its independent of the user system
 #NOTE: also mention that qsub must be present
@@ -55,7 +54,7 @@ $prokaryote_fasta = 'NONE';
 $coverage_fasta = 'NONE';
 $workdir = 'NONE';
 $descriptfile = 'NONE';
-
+$index_bt2 = 'NONE';
 #------------------------------------------------------------------------------#
 GetOptions(
     'rna_mapping_opt=s'  => \$rna_mapping_opt,
@@ -1259,7 +1258,7 @@ DESCRIPTION\n
 	Pipeline that finds differentially expressed genes from raw fastq data.
 
  
-Usage: perl $0 [options] -exp experimental_description_file.txt -d pipeline_test_both -prokaryote_fasta test_prok.fa -eukarya_fasta eukarya_test.fa -index_ref_bt2 indexfile -gff_prokaryote test_prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
+Usage: runPiReT_qsub.pl [options] -exp experimental_description_file.txt -d pipeline_test_both -prokaryote_fasta test_prok.fa -eukarya_fasta eukarya_test.fa -index_ref_bt2 indexfile -gff_prokaryote test_prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
 
   example: 
                        
@@ -1271,8 +1270,7 @@ OPTIONS
 		-V, --version
 			Print the version number to the standard output stream.  This version number should be included in all bug reports.
 
- 
-       	-W, --workdir
+		-W, --workdir
 			Path to a directory where the whole analysis will be stored. Must have write permission.
 
 		-R, --gff_prokaryote
@@ -1348,9 +1346,6 @@ OPTIONS
                                  time2          timef 
                                )
 
-#TODO: change this example to one in test
-EXAMPLE:
-	perl runPiReT_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/pair_comparision.txt 
 
 END
     exit;
