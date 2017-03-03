@@ -89,9 +89,8 @@ if ( $prokaryote_fasta eq 'NONE' ) { $prokaryote_fasta = ""; } else {$prokaryote
 if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; } else {$gff_eukarya=Cwd::abs_path($gff_eukarya)};
 if ( $gff_prokaryote eq 'NONE' )   { $gff_prokaryote   = ""; } else {$gff_prokaryote=Cwd::abs_path($gff_prokaryote)};
 if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_fasta=Cwd::abs_path($coverage_fasta)};
-#TODO: need to get the full path of the index file when its not created yet for trim_readmapping to work
-# reassinging the index file to have a full path now
 
+# reassinging the index file to have a full path now
 if ($ref_index eq 'NONE') {
 	$ref_index=join('.index', split(/\.*$/, $coverage_fasta))} 
 else {
@@ -662,7 +661,7 @@ if   ( -s $checkIndexFile ) { &lprint("done INDEX $ref_index\n"); }
 else                        { &lprint("failed: INDEX $ref_index\n"); exit; }
 
 &printRunTime($time);
-&lprint("  Done Checking Files \n");
+&lprint(" Done Checking Files \n");
 
 my $time1 = time();
 &lprint("[Trimming and Mapping Reads]\n\tRunning \n\n");
