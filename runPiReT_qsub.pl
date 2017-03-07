@@ -674,9 +674,11 @@ else {
 # need to find a way 
 my $checkIndexFile = join "", ( $ref_index, '.done' );
 
+print "motha fuka\n";
 &lprint("motha fuka\n\n");
 &lprint("$checkIndexFile");
 print $checkIndexFile;
+print "motha fuka2\n";
 
 &lprint("done file for index search $checkIndexFile\n");
 
