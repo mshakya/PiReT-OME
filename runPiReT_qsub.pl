@@ -674,7 +674,7 @@ else {
 # need to find a way 
 my $checkIndexFile = join "", ( $ref_index, '.done' );
 
-&lprint("motha fuka\n\n\");
+&lprint("motha fuka\n\n");
 &lprint("$checkIndexFile");
 print $checkIndexFile;
 
