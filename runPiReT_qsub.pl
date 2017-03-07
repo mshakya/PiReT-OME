@@ -14,10 +14,6 @@ $ENV{PERL5LIB} = "$Bin/ext/lib/perl5:$ENV{PERL5LIB}";
 #NOTE: need these paths to find qsub binaries
 #TODO: change it so that its independent of the user system
 #NOTE: also mention that qsub must be present
-#NOTE: these paths should be set for any server with qsub capabalities
-#$ENV{SGE_ROOT}         = "/cm/shared/apps/sge/2011.11p1"; #?
-#$ENV{SGE_CELL}         = "default"; #?
-#$ENV{SGE_CLUSTER_NAME} = "seqclust"; #?
 #TODO: remove this later, once the this thing works
 #foreach ( sort keys %ENV ) {
 #    print "$_  =  $ENV{$_}\n";
@@ -96,9 +92,10 @@ if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; } else {$coverage_f
 if ($ref_index eq 'NONE') {
 	$ref_index=join('.index', split(/\.*$/, $coverage_fasta))} 
 else {
-	`touch $ref_index`;
-	$ref_index = Cwd::abs_path($ref_index)
-	}
+	`echo "" > $ref_index`;
+	$ref_index = Cwd::abs_path($ref_index);
+	unlink $ref_index;	
+}
 
 #------------------------------------------------------------------------------#
 
@@ -125,12 +122,17 @@ my $process_log_file = "$workdir/process.log";
 # error log file
 my $error_log_file   = "$workdir/error.log";
 
+# qsub log file
+my $qsub_log_file = "$workdir/qsub.log";
+
 open( LOG, ">", $process_log_file )
     or die "failed: failed to write $process_log_file\n$!";
 open( STDERR, '>&', STDOUT )
     or die "failed: failed: Can't redirect stderr: $!";
 open( STDERR, '>', $error_log_file )
     or die "failed: failed: Can't redirect stderr: $!";
+open( QSUB_LOG, ">", $qsub_log_file )
+	or die "failed: fail to write $qsub_log_file\n$!";
 
 #------------------------------------------------------------------------------#
 
@@ -487,7 +489,7 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
             mkdir "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]",
                 0777
                 or die
-                "failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
+                "failed: cannot make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
         }
         unless (
             -d "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]" )
@@ -496,22 +498,39 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
                 "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]",
                 0777
                 or die
-                "failed: can not make dir  $workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1] $!";
+                "failed: cannot make dir  $workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1] $!";
         }
         unless ( -d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]" ) {
             mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777
                 or die
-                "failed: can not make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
+                "failed: cannot make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
         }
+
+
+		if (-s "$workdir/eukarya.fa.fai" > 0){
+			&lprint("$workdir/eukarya.fa.fai is already present\n");
+		}
+		else { 
         &lprint(
             "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
         );
         `perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
-        &lprint(
+        }
+
+
+
+		if (-s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0){
+			&lprint("$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt already present\n");
+		}
+		else {
+		&lprint(
             "python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
         );
         `python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
-        if (&file_check(
+        
+		}
+
+		if (&file_check(
                 "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
             ) > 0
             )
@@ -589,11 +608,17 @@ if ( $test eq 'both' || $test eq 'prokaryote' ) {
                 or die
                 "failed: can not make dir  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1] $!";
         }
+		
+		if ( -s "$workdir/prokaryote.fa.fai" > 0){
+			&lprint("$workdir/prokaryote.fa.fai is already created \n" )
+		}	
+		else {
         &lprint(
             "perl $scriptDir/parse_prokaryote_gfffile.pl $tmpgff  $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai \n"
         );
         `perl $scriptDir/parse_prokaryote_gfffile.pl $tmpgff $workdir/differential_gene/prokaryote/$tmpprokaryote[-1]/ $workdir/prokaryote.fa.fai`;
     }
+}
 }
 
 my ( %pair1, %pair2, %usedexp );
@@ -647,73 +672,83 @@ else {
 #TODO: This only works when generating index file with this script
 # need to find a way 
 my $checkIndexFile = join "", ( $ref_index, '.done' );
-unless ( -s $checkIndexFile ) {
 
-    #my $index_fasta1=join ',', ($prokaryote_fasta, $eukarya_fasta);
-    # $index_fasta1=~s/:/,/g;
-    &lprint( "Indexing the reference sequences\n", 'yellow', "\n" );
 
-    #       &executeCommand($command);
-    #     `bowtie2-build -f $index_fasta1 $ref_index`;
+if ( -e $checkIndexFile ) {
+	&lprint("\ndone INDEX $ref_index\n")}
+
+else
+	{
+    &lprint( "Indexing the reference sequences\n");
+
     if ( $eukarya_fasta && $prokaryote_fasta ) {
         &lprint(
     	"qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh" 
 			);
        
-		`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh` 
+		`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`; 
     
 		}
+
     elsif ($eukarya_fasta) {
-     &lprint(
-	"qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh"
-        );
-	`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`    
-    }
+		&lprint(
+		"qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh"
+        		);
+		`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`;
+    	}	
 
     elsif ($prokaryote_fasta) {
         &lprint(
 	"qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh"
         );
-	`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`
-}
+	`qsub -V -cwd -pe smp $numCPU -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`;
+		}
     else { &lprint("\nfailed: no INDEX files\n"); exit; }
 }
 
-if   ( -s $checkIndexFile ) { &lprint("\ndone INDEX $ref_index\n"); }
-else                        { &lprint("\nfailed: INDEX $ref_index\n"); exit; }
+#if   ( -e $checkIndexFile ) { &lprint("\ndone INDEX $ref_index\n"); }
+#else                        { &lprint("\nfailed: INDEX $ref_index\n"); exit; }
 
 &printRunTime($time);
-&lprint(" Done Checking Files \n");
-
+##################################################################################################################
 my $time1 = time();
 &lprint("[Trimming and Mapping Reads]\n\tRunning \n\n");
 
 foreach ( sort keys %description ) {
     my $sample   = $_;
     my $rawreads = $description{$sample}{Rawreads_file};
-    my $jobname  = join '.', ( $sample, 'RNA_analysis' );
+    my $jobname  = join '.', ( $sample, 'qc_map' );
 
     if ( $rna_mapping_opt eq 'yes' ) {
 
         if ( $rna_trimming_opt eq 'yes' ) {
+			
+            my $last_qc_file = join '/', ( $workdir, "$sample", 'trimming_results', "$sample", "_qc_report.pdf" );
 
-            $rawreads =~ s/---ppp---/ /g;
-            $rawreads =~ s/:/ /g;
+			if ( -e $last_qc_file){
+				&lprint("Trimming was aready done for this sample")
+				}
+			else {
 
-            my $outDir1 = join '/', ( $workdir, "$sample" );
-            mkdir $outDir1 if ( !-e $outDir1 );
-            if ( !-e $outDir1 ) { print "can not make dir $outDir1\n"; }
+            	$rawreads =~ s/---ppp---/ /g;
+           		$rawreads =~ s/:/ /g;
 
-            my $troutDir = join '/', ( $outDir1, 'trimming_results' );
-            mkdir $troutDir if ( !-e $troutDir );
-            if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
-            #TODO: add a script to check for job id using `qstat -j` will tell you if the job is finished or not. 
-            &lprint(
-                "qsub -V -pe smp $numCPU   -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
-            );
+            	my $outDir1 = join '/', ( $workdir, "$sample" );
+            	mkdir $outDir1 if ( !-e $outDir1 );
+            	if ( !-e $outDir1 ) { print "can not make dir $outDir1\n"; }
 
-            `qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
-        }
+            	my $troutDir = join '/', ( $outDir1, 'trimming_results' );
+            	mkdir $troutDir if ( !-e $troutDir );
+            	if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
+            
+			
+				&lprint(
+                	"qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
+            	);
+
+            		`qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+        			}	
+ 										}
         else {
 
             my $outDir1 = join '/', ( $workdir, "$sample" );
@@ -768,7 +803,7 @@ while ($alldone) {
             $alldone--;
             print LOG"done samples : $alldone\n";
         }
-        else { print "$tmpfile not done\n"; print LOG "$tmpfile not done\n"; }
+        else { print QSUB_LOG "$tmpfile not done\n"; }
     }
     if ( $alldone > 0 ) {
         print LOG"sample unfinished : $alldone\n";
@@ -817,7 +852,7 @@ while ($alldone) {
                 print LOG"done samples : $alldone\n";
             }
             else {
-                print LOG
+                print QSUB_LOG
                     "eukarya and  prokaryote rRNACoverageFold $sample not done\n";
             }
         }
@@ -828,7 +863,7 @@ while ($alldone) {
                 print LOG"done samples : $alldone\n";
             }
             else {
-                print LOG "prokaryote rRNACoverageFold $sample not done\n";
+                print QSUB_LOG "prokaryote rRNACoverageFold $sample not done\n";
             }
 
         }
@@ -838,7 +873,7 @@ while ($alldone) {
                 $alldone--;
                 print LOG"done samples : $alldone\n";
             }
-            else { print LOG "eukarya rRNACoverageFold $sample not done\n"; }
+            else { print QSUB_LOG "eukarya rRNACoverageFold $sample not done\n"; }
         }
     }
     if ( $alldone > 0 ) {
@@ -927,7 +962,7 @@ while ($alldone) {
             $alldone--;
             print LOG"done htseq-count samples : $alldone\n";
         }
-        else { print LOG "htseq-count $sample not done\n"; }
+        else { print QSUB_LOG "htseq-count $sample not done\n"; }
     }
     if ( $alldone > 0 ) {
         print LOG"htseq-count sample unfinished : $alldone\n";
