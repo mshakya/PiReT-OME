@@ -354,7 +354,9 @@ if ($eukarya_fasta) {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         `samtools faidx $workdir/eukarya.fa`;
-        if ($jbrowse eq 1){
+        
+		&lprint("test euk2\n");
+		if ($jbrowse eq 1){
 		
 		`$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
         
@@ -363,27 +365,40 @@ if ($eukarya_fasta) {
         foreach (@contigs) { $allcontigs{$_}++; }
     }
 }    #else {die "failed:  need eukarya sequence file\n";}
+&lprint("test 1\n");
 #------------------------------------------------------------------------------#
+print $prokaryote_fasta;
 if ($prokaryote_fasta) {
 
+&lprint("test 2\n");
+
     if ( &file_check($prokaryote_fasta) < 0 ) {
-        die
-            "failed: failed: The prokaryote_fast file $prokaryote_fasta doesn't exist or empty.\n";
+        
+		die
+            "failed: The prokaryote fasta file $prokaryote_fasta doesn't exist or empty.\n";
     }
     else {
-        if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
-        `ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
+	
+		&lprint("test 3\n");
+        #if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
+        &lprint("test 4\n");
+		`ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
+		&lprint("test 4A\n");
 		`samtools faidx $workdir/prokaryote.fa`;
-        if ($jbrowse eq 1){
+        print "migun";
+		&lprint("test 5\n");
+		print "shakya";
+		if ( $jbrowse eq 1 ){
 
 		`$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
 
 		}
         my @contigs = &readfai("$workdir/prokaryote.fa.fai");
-        foreach (@contigs) { $allcontigs{$_}++; }
-    }
+        &lprint("test 5A\n");
+		foreach (@contigs) { $allcontigs{$_}++; }
+    	&lprint("test 6\n");
+	}
 }    #else  {die "failed: failed: need prokaryote sequence file\n";}
-
 #------------------------------------------------------------------------------#
 &lprint(
     "[Copying and creating indices of reference fasta files]\n Finished\n\n");
@@ -489,7 +504,7 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
             mkdir "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]",
                 0777
                 or die
-                "failed: cannot make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
+                "failed: cannot make directory $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
         }
         unless (
             -d "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]" )
@@ -503,12 +518,12 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         unless ( -d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]" ) {
             mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777
                 or die
-                "failed: cannot make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
+                "failed: cannot make directory  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
         }
 
 
 		if ( -s "$workdir/eukarya.fa.fai" > 0 ){
-			&lprint("$workdir/eukarya.fa.fai is already present\n");
+			&lprint("\n$workdir/eukarya.fa.fai is already present\n");
 		}
 		else { 
         &lprint(
@@ -518,27 +533,33 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         }
 
 
-
 		if (-s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
-			&lprint("$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt already present\n");
+			&lprint("\n$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt already present\n");
 		}
 		else {
-		&lprint(
-            "python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
+			&lprint(
+            	"\npython $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gff > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt\n"
         );
-        `python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
+        	`python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt`;
         
 		}
 
-		if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
-         	&lprint(
-            "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n"
-            		);
-            `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
-        }
-    }
+	# NOTE: there is some problem here with parenthesis that is causing the problem
+	#	if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
+    #     	&lprint(
+    #        "\ncat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n");
+    #        `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
+#			&lprint("test print1\n");
+#		}
+	&lprint("test print2\n");
+	}
+
+&lprint("test print3\n");
 }
 
+&lprint("test print\n");
+print "done done done";
+#################################################################################
 if ( $test eq 'both' || $test eq 'prokaryote' ) {
     unless ( -d "$workdir/sum_gene_count/tmp_count/prokaryote" ) {
         mkdir "$workdir/sum_gene_count/tmp_count/prokaryote", 0777
@@ -674,25 +695,15 @@ else {
 # need to find a way 
 my $checkIndexFile = join "", ( $ref_index, '.done' );
 
-print "motha fuka\n";
-&lprint("motha fuka\n\n");
-&lprint("$checkIndexFile");
-print $checkIndexFile;
-print "motha fuka2\n";
+print LOG "$checkIndexFile\n";
 
-&lprint("done file for index search $checkIndexFile\n");
+print LOG "done file for index search $checkIndexFile\n";
 
-if ( -e $checkIndexFile ) {
-	&lprint("\ndone INDEX $ref_index\n");
-						  }
+print "done";
 
-else
-	{
-    &lprint( "Indexing reference sequences\n");
-
-    if ( $eukarya_fasta && $prokaryote_fasta ) {
-        
-		
+if ( -e $checkIndexFile ) {&lprint("\ndone INDEX $ref_index\n");}
+else { &lprint( "Indexing reference sequences\n");
+	if ( $eukarya_fasta && $prokaryote_fasta ) {	
 	&lprint(
     	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh" 
 			);       
@@ -740,6 +751,7 @@ foreach ( sort keys %description ) {
 			&lprint("$last_qc_file\n");	
 			if ( -e $last_qc_file ){
 				&lprint("Trimming was aready done for this sample name $sample\n");
+				#TODO:I think i need o add the mapping step here, since trimming was already done.
 				}
 			else {
             	$rawreads =~ s/---ppp---/ /g;
@@ -815,7 +827,7 @@ while ($alldone) {
         my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
         if ( &file_check($tmpfile) > 0 ) {
             $alldone--;
-            print LOG"done samples : $alldone\n";
+            &lprint("done samples : $alldone\n");
         }
         else { print QSUB_LOG "$tmpfile not done\n"; }
     }
@@ -1465,6 +1477,7 @@ sub printRunTime {
 sub lprint {
     my ($line) = @_;
     print LOG $line;
+	print $line;
 }
 
 sub readfai {
