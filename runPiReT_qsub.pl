@@ -748,7 +748,6 @@ foreach ( sort keys %description ) {
 			my $qc_folder = join '/', ( $workdir, $sample, 'trimming_results', $sample); 
 			my $last_qc_file = join '', ( $qc_folder, "_qc_report.pdf" );
 			
-			&lprint("$last_qc_file\n");	
 			if ( -e $last_qc_file ){
 				&lprint("Trimming was aready done for this sample name $sample\n");
 				#TODO:I think i need o add the mapping step here, since trimming was already done.
