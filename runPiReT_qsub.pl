@@ -52,6 +52,7 @@ $workdir = 'NONE';
 $descriptfile = 'NONE';
 $ref_index = 'NONE';
 $jbrowse='';
+#TODO: need to add options on SAM files and different types of BAM files as well
 $bam_file='';
 #------------------------------------------------------------------------------#
 GetOptions(
@@ -93,6 +94,7 @@ if ($ref_index eq 'NONE') {
 	$ref_index=join('.index', split(/\.*$/, $coverage_fasta))} 
 else {
 	`echo "" > $ref_index`;
+	print "migun";
 	$ref_index = Cwd::abs_path($ref_index);
 	unlink $ref_index;	
 }
@@ -355,7 +357,6 @@ if ($eukarya_fasta) {
         `ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         `samtools faidx $workdir/eukarya.fa`;
         
-		&lprint("test euk2\n");
 		if ($jbrowse eq 1){
 		
 		`$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/eukarya.fa --out  $workdir/Jbrowse/`;
@@ -365,12 +366,10 @@ if ($eukarya_fasta) {
         foreach (@contigs) { $allcontigs{$_}++; }
     }
 }    #else {die "failed:  need eukarya sequence file\n";}
-&lprint("test 1\n");
 #------------------------------------------------------------------------------#
 print $prokaryote_fasta;
 if ($prokaryote_fasta) {
 
-&lprint("test 2\n");
 
     if ( &file_check($prokaryote_fasta) < 0 ) {
         
@@ -379,24 +378,16 @@ if ($prokaryote_fasta) {
     }
     else {
 	
-		&lprint("test 3\n");
         #if ( -e "$workdir/prokaryote.fa" ) { `rm $workdir/prokaryote.fa`; }
-        &lprint("test 4\n");
 		`ln -fs $prokaryote_fasta $workdir/prokaryote.fa`;
-		&lprint("test 4A\n");
 		`samtools faidx $workdir/prokaryote.fa`;
-        print "migun";
-		&lprint("test 5\n");
-		print "shakya";
 		if ( $jbrowse eq 1 ){
 
 		`$jbBin/prepare-refseqs.pl --trackLabel  DNA --seqType dna --key 'DNA+protein' --fasta  $workdir/prokaryote.fa --out  $workdir/Jbrowse/`;
 
 		}
         my @contigs = &readfai("$workdir/prokaryote.fa.fai");
-        &lprint("test 5A\n");
 		foreach (@contigs) { $allcontigs{$_}++; }
-    	&lprint("test 6\n");
 	}
 }    #else  {die "failed: failed: need prokaryote sequence file\n";}
 #------------------------------------------------------------------------------#
@@ -453,7 +444,6 @@ else { $pjcoverage = 'NA' }
     "[Creating additional directories based on type of analysis]\n Running\n\n"
 );
 #------------------------------------------------------------------------------#
-
 if ( $test eq 'both' || $test eq 'eukarya' ) {
     unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya" ) {
         mkdir "$workdir/sum_gene_count/tmp_count/eukarya", 0777
@@ -473,13 +463,10 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
     &lprint(
         "[Creating additional directories based on type of analysis]\n Finished\n\n"
     );
-
 #------------------------------------------------------------------------------#
     &lprint("Parsing gff files]\n Running\n\n");
 #------------------------------------------------------------------------------#
-
     my @tmpgff = split /,/, $gff_eukarya;
-
     foreach (@tmpgff) {
         my $tmpgff = $_;
         my @tmpeukarya = split '/', $tmpgff;
@@ -521,19 +508,18 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
                 "failed: cannot make directory  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
         }
 
-
-		if ( -s "$workdir/eukarya.fa.fai" > 0 ){
-			&lprint("\n$workdir/eukarya.fa.fai is already present\n");
+		if ( &file_check("$workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf") > 0) {
+            &lprint("\n found $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf\n");
 		}
 		else { 
-        &lprint(
-            "perl parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
+        	&lprint(
+            "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
         		);
         	`perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai`;
         }
 
 
-		if (-s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
+		if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
 			&lprint("\n$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt already present\n");
 		}
 		else {
@@ -544,22 +530,16 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         
 		}
 
-	# NOTE: there is some problem here with parenthesis that is causing the problem
-	#	if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
-    #     	&lprint(
-    #        "\ncat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n");
-    #        `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
-#			&lprint("test print1\n");
-#		}
-	&lprint("test print2\n");
+		if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
+         	&lprint(
+            "\ncat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n");
+            `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
+		}
 	}
-
-&lprint("test print3\n");
 }
-
-&lprint("test print\n");
-print "done done done";
-#################################################################################
+#------------------------------------------------------------------------------#
+	&lprint("[Parsing gff files]\n Eukaryotic done\n\n");
+#------------------------------------------------------------------------------#
 if ( $test eq 'both' || $test eq 'prokaryote' ) {
     unless ( -d "$workdir/sum_gene_count/tmp_count/prokaryote" ) {
         mkdir "$workdir/sum_gene_count/tmp_count/prokaryote", 0777
@@ -734,44 +714,64 @@ else { &lprint( "Indexing reference sequences\n");
 ##################################################################################################################
 my $time1 = time();
 &lprint("[Trimming and Mapping Reads]\n\tRunning \n\n");
+##################################################################################################################
 
 foreach ( sort keys %description ) {
     my $sample   = $_;
     my $rawreads = $description{$sample}{Rawreads_file};
     my $jobname  = join '.', ( $sample, 'qc_map' );
+    if ( $rna_trimming_opt eq 'yes' ) {
+		# check if the qc has already been done
+		my $qc_folder = join '/', ( $workdir, $sample, 'trimming_results', $sample); 
+		my $last_qc_file = join '', ( $qc_folder, "_qc_report.pdf" );
+		if ( -e $last_qc_file ){
+			&lprint("Trimming was aready done for $sample\n");
+			# also check to see if mapping was already done
+			if ( -e "$workdir/$sample/mapping_results/$sample.stats.text" ) { 				
+				open STATS_FILE, "<$workdir/$sample/mapping_results/$sample.stats.text";
+				my $first_line = <STATS_FILE>;
+				close STATS_FILE;
+				my $total_reads = (split /\t/, $first_line)[1];
+				print "$total_reads\n";
+				if ( $total_reads > 0 ){
+					&lprint("Trimming, Mapping, and parsing BAM files is complete for $sample\n\n")
+					}
+				else {
+					&lprint("Mapping was not completed for  $sample\n");
+					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
+					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+				
 
-    if ( $rna_mapping_opt eq 'yes' ) {
 
-        if ( $rna_trimming_opt eq 'yes' ) {
-			
-            # check if the qc has already been done
-			my $qc_folder = join '/', ( $workdir, $sample, 'trimming_results', $sample); 
-			my $last_qc_file = join '', ( $qc_folder, "_qc_report.pdf" );
-			
-			if ( -e $last_qc_file ){
-				&lprint("Trimming was aready done for this sample name $sample\n");
-				#TODO:I think i need o add the mapping step here, since trimming was already done.
+	
+
 				}
-			else {
-            	$rawreads =~ s/---ppp---/ /g;
-           		$rawreads =~ s/:/ /g;
-				# create directory of sample name
-            	my $outDir1 = join '/', ( $workdir, "$sample" );
-            	mkdir $outDir1 if ( !-e $outDir1 );
-            	if ( !-e $outDir1 ) { print "cannot make dir $outDir1\n"; }
-				# create directory trimming_results within sample directory
-            	my $troutDir = join '/', ( $outDir1, 'trimming_results' );
-            	mkdir $troutDir if ( !-e $troutDir );
-            	if ( !-e $troutDir ) { print "can notmake dir $troutDir\n"; }
-            	# print in the log file and submit the trimmming and readmapping job
+		}
+	 		else {
+					&lprint("Mapping was not started for $sample\n\n");
+					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
+					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+			}
+			}
+		else {
+           	$rawreads =~ s/---ppp---/ /g;
+         	$rawreads =~ s/:/ /g;
+			# create directory of sample name
+            my $outDir1 = join '/', ( $workdir, "$sample" );
+            mkdir $outDir1 if ( !-e $outDir1 );
+            if ( !-e $outDir1 ) { print "cannot make dir $outDir1\n"; }
+			# create directory trimming_results within sample directory
+            my $troutDir = join '/', ( $outDir1, 'trimming_results' );
+            mkdir $troutDir if ( !-e $troutDir );
+            if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
+            # print in the log file and submit the trimmming and readmapping job
 				&lprint(
-                	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
+                	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
             	);
-            		`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
-        		}	
- 										}
+            	`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+        	}
+		}
         else {
-			
 			# make directory with sample name
             my $outDir1 = join '/', ( $workdir, "$sample" );
             mkdir $outDir1 if ( !-e $outDir1 );
@@ -780,11 +780,9 @@ foreach ( sort keys %description ) {
             my $troutDir = join '/', ( $outDir1, 'trimming_results' );
             mkdir $troutDir if ( !-e $troutDir );
             if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
-            #
 			&lprint("Raw reads will not be trimmed as per user selection\n");
             my $tmptrname1 = join '.', ( $sample, '1.trimmed.fastq' );
             my $tmptrname2 = join '.', ( $sample, '2.trimmed.fastq' );
-			
 			# creating symlink 
             if ( $#{ $allrawreads1{$sample} } == 0 ) {
                 `ln -sf $allrawreads1{$sample}[0] $troutDir/$tmptrname1`;
@@ -796,29 +794,16 @@ foreach ( sort keys %description ) {
                 `cat $tmpreads1 > $troutDir/$tmptrname1`;
                 `cat $tmpreads2 > $troutDir/$tmptrname2`;
             }
-			
-			# submit the job to map reads
-            &lprint(
+            #TODO: this part of code is not tested yet
+			&lprint(
                 "qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
-
              	`qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
-        	}
+        }
 
-    						}
-	# this is when BAM file is given
-    else {
-
-        &lprint(
-            "qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh \n\n"
-        );
-
-        	`qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/parse_BAMfile.sh`;
-
-    }
-
-}
-
+#NOTE: need to turn this to a subroutine that is run after every qsub runs
+#TODO: for march 13, turn this into a subroutine and add it to after every qsub submission
+# obviously the expected file should be different
 my $alldone = keys(%allsample);
 while ($alldone) {
     foreach ( sort keys %description ) {
@@ -831,7 +816,7 @@ while ($alldone) {
         else { print QSUB_LOG "$tmpfile not done\n"; }
     }
     if ( $alldone > 0 ) {
-        print LOG"sample unfinished : $alldone\n";
+        print QSUB_LOG"sample unfinished : $alldone\n";
         sleep(60);
         $alldone = keys(%allsample);
     }
@@ -839,10 +824,14 @@ while ($alldone) {
         last;
     }
 }
-
+}
 &printRunTime($time1);
-&lprint("  Done Trimming and Mapping Reads \n");
+&lprint("Done Trimming, Mapping, and Parsing Reads \n");
+#################
 
+
+
+#########################################################################################################################
 my $time2 = time();
 &lprint("[De Novo Detection of small RNAs]\n\tRunning\n\n");
 
@@ -850,19 +839,21 @@ foreach ( sort keys %description ) {
     my $sample = $_;
     if ($prokaryote_fasta) {
         &lprint(
-            "qsub -V -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
+		"qsub -V -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
         );
         `qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh`;
     }
 
     if ($eukarya_fasta) {
-
-#&lprint ( "qsub -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $Bin/eukaryote_rRNACoverageFold_plot.sh\n");
-#`qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $Bin/eukaryote_rRNACoverageFold_plot.sh`;
-    }
+		&lprint ( "qsub -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/eukaryote_rRNACoverageFold_plot.sh\n");
+		`qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/eukaryote_rRNACoverageFold_plot.sh`;
+	}
 }
-$alldone = keys(%allsample);
-print LOG "total $alldone samples\n";
+
+print "does this get here";
+
+my $alldone = keys(%allsample);
+&lprint("total $alldone samples\n");
 while ($alldone) {
     foreach ( sort keys %description ) {
         my $sample   = $_;
@@ -874,7 +865,7 @@ while ($alldone) {
         if ( $eukarya_fasta && $prokaryote_fasta ) {
             if ( &file_check($tmpfile1) > 0 && &file_check($tmpfile2) > 0 ) {
                 $alldone--;
-                print LOG"done samples : $alldone\n";
+                &lprint("done samples : $alldone\n");
             }
             else {
                 print QSUB_LOG
@@ -885,7 +876,7 @@ while ($alldone) {
 
             if ( &file_check($tmpfile2) > 0 ) {
                 $alldone--;
-                print LOG"done samples : $alldone\n";
+                &lprint("done samples : $alldone\n");
             }
             else {
                 print QSUB_LOG "prokaryote rRNACoverageFold $sample not done\n";
@@ -896,13 +887,13 @@ while ($alldone) {
 
             if ( &file_check($tmpfile1) > 0 ) {
                 $alldone--;
-                print LOG"done samples : $alldone\n";
+                &lprint("done samples : $alldone\n");
             }
             else { print QSUB_LOG "eukarya rRNACoverageFold $sample not done\n"; }
         }
     }
     if ( $alldone > 0 ) {
-        print LOG"sample unfinished : $alldone\n";
+        &lprint("sample unfinished : $alldone\n");
         sleep(60);
         $alldone = keys(%allsample);
     }
@@ -911,6 +902,8 @@ while ($alldone) {
     }
 
 }
+
+#######################
 
 my $allsample = join ',', @allsample;
 my $makegffdone = 1;
@@ -934,7 +927,7 @@ if ($prokaryote_fasta) {
         }
         else {
             sleep(60);
-            print LOG "doing prokaryote_find_small_rna\n";
+            &lprint("doing prokaryote_find_small_rna\n");
         }
     }
 }
