@@ -15,6 +15,11 @@ perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -p
 #map to reference
 echo "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir"
 perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU -p1 $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref -o $workdir
+# parse BAM files
+echo "perl $scriptDir/parse_BAMfile.pl -bamfile $rawreads -sample $sample -o $workdir"
+perl $scriptDir/parse_BAMfile.pl -bamfile $rawreads -sample $sample -o $workdir
+
+
 
 
 #
