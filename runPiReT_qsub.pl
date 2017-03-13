@@ -740,17 +740,14 @@ foreach ( sort keys %description ) {
 					&lprint("Mapping was not completed for  $sample\n");
 					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
 					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
-				
-
-
-	
-
+					&check_map(%allsample, %description, $workdir, $sample);
 				}
 		}
 	 		else {
 					&lprint("Mapping was not started for $sample\n\n");
 					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
 					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+					&check_map(%allsample, %description, $workdir, $sample);
 			}
 			}
 		else {
@@ -769,6 +766,8 @@ foreach ( sort keys %description ) {
                 	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
             	);
             	`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+				#TODO: add another function here that checks for status of qc
+				&check_map(%allsample, %description, $workdir, $sample);
         	}
 		}
         else {
@@ -799,32 +798,44 @@ foreach ( sort keys %description ) {
                 "qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
             );
              	`qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
-        }
+				&check_map(%allsample, %description, $workdir, $sample);
+		}
 
-#NOTE: need to turn this to a subroutine that is run after every qsub runs
-#TODO: for march 13, turn this into a subroutine and add it to after every qsub submission
-# obviously the expected file should be different
-my $alldone = keys(%allsample);
-while ($alldone) {
-    foreach ( sort keys %description ) {
-        my $sample  = $_;
-        my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
-        if ( &file_check($tmpfile) > 0 ) {
-            $alldone--;
-            &lprint("done samples : $alldone\n");
-        }
-        else { print QSUB_LOG "$tmpfile not done\n"; }
+}
+
+###############################################################
+sub check_map (%allsample, %description, $workdir, $sample) 
+## A function to check if the submitted job is completed or not
+{
+	my $alldone = keys(%allsample);
+	while ($alldone) {
+		foreach ( sort keys %description ) {
+			my $sample  = $_;
+			my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
+			if ( &file_check($tmpfile) > 0 ) {
+            	open STATS_FILE, "<$tmpfile";
+				my $first_line = <STATS_FILE>;
+				my $total_reads = (split /\t/, $first_line)[1];
+				if ( $total_reads > 0 ){
+					$alldone--;
+            		&lprint("mapping step is finsished for : $alldone\n");
+				}
+			}
+        	else { print QSUB_LOG "$tmpfile is running ....... \n"; }
     }
-    if ( $alldone > 0 ) {
-        print QSUB_LOG"sample unfinished : $alldone\n";
-        sleep(60);
-        $alldone = keys(%allsample);
+    	if ( $alldone > 0 ) {
+        	print QSUB_LOG"sample unfinished : $alldone\n";
+			sleep(60);
+			$alldone = keys(%allsample);
     }
     else {
         last;
     }
 }
 }
+
+###############################################################
+#################
 &printRunTime($time1);
 &lprint("Done Trimming, Mapping, and Parsing Reads \n");
 #################
