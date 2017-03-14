@@ -519,7 +519,7 @@ if ( $test eq 'both' || $test eq 'eukarya' ) {
         }
 
 
-		if ( -s "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt" > 0 ){
+		if ( &file_check("$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt") > 0 ){
 			&lprint("\n$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt already present\n");
 		}
 		else {
