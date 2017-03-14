@@ -684,25 +684,19 @@ print "done";
 if ( -e $checkIndexFile ) {&lprint("\ndone INDEX $ref_index\n");}
 else { &lprint( "Indexing reference sequences\n");
 	if ( $eukarya_fasta && $prokaryote_fasta ) {	
-	&lprint(
+	&exec_print(
     	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh" 
 			);       
-		`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`; 
-    
 		}
 
     elsif ($eukarya_fasta) {
-		&lprint(
-		"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh"
-        		);
-		`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`;
+		&exec_print(
+		"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v eukarya_fasta=$eukarya_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh");
     	}	
 
     elsif ($prokaryote_fasta) {
-        &lprint(
-	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh"
-        );
-	`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh`;
+        &exec_print(
+	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v numCPU=$numCPU -v prokaryote_fasta=$prokaryote_fasta -v ref_index=$ref_index  $scriptDir/hisat2_index.sh");
 		}
     else { &lprint("\nfailed: no INDEX files\n"); exit; }
 }
@@ -738,15 +732,14 @@ foreach ( sort keys %description ) {
 					}
 				else {
 					&lprint("Mapping was not completed for  $sample\n");
-					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
-					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
+				print "test: it gtes past qsub submission line";	
 					&check_map(%allsample, %description, $workdir, $sample);
 				}
 		}
 	 		else {
 					&lprint("Mapping was not started for $sample\n\n");
-					&lprint("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh\n\n");	
-					`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
 					&check_map(%allsample, %description, $workdir, $sample);
 			}
 			}
@@ -762,10 +755,7 @@ foreach ( sort keys %description ) {
             mkdir $troutDir if ( !-e $troutDir );
             if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
             # print in the log file and submit the trimmming and readmapping job
-				&lprint(
-                	"qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh \n\n"
-            	);
-            	`qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh`;
+				&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh");
 				#TODO: add another function here that checks for status of qc
 				&check_map(%allsample, %description, $workdir, $sample);
         	}
@@ -794,10 +784,8 @@ foreach ( sort keys %description ) {
                 `cat $tmpreads2 > $troutDir/$tmptrname2`;
             }
             #TODO: this part of code is not tested yet
-			&lprint(
-                "qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh \n\n"
-            );
-             	`qsub -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir  -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads="$rawreads"  -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh`;
+               &exec_print("qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");
+				print "test: it gtes past qsub submission line";
 				&check_map(%allsample, %description, $workdir, $sample);
 		}
 
@@ -807,7 +795,11 @@ foreach ( sort keys %description ) {
 sub check_map (%allsample, %description, $workdir, $sample) 
 ## A function to check if the submitted job is completed or not
 {
+	print "test: it executes the first line from subroutine";
+	print %allsample;
+	#TODO: something going on here
 	my $alldone = keys(%allsample);
+	#print $alldone;
 	while ($alldone) {
 		foreach ( sort keys %description ) {
 			my $sample  = $_;
@@ -818,10 +810,13 @@ sub check_map (%allsample, %description, $workdir, $sample)
 				my $total_reads = (split /\t/, $first_line)[1];
 				if ( $total_reads > 0 ){
 					$alldone--;
-            		&lprint("mapping step is finsished for : $alldone\n");
+					&lprint("mapping step is finsished for : $alldone\n");
 				}
 			}
-        	else { print QSUB_LOG "$tmpfile is running ....... \n"; }
+        	else { 
+				print QSUB_LOG "$tmpfile is running ....... \n"; 
+				print "testing print when mapping";
+			}
     }
     	if ( $alldone > 0 ) {
         	print QSUB_LOG"sample unfinished : $alldone\n";
@@ -833,6 +828,25 @@ sub check_map (%allsample, %description, $workdir, $sample)
     }
 }
 }
+
+#################################################################
+sub exec_print 
+{
+#
+# A function to execute a given command and then print in the log
+#
+my ($command) = @_;
+# assign line breaks
+my $print_command = join(" ", "\n", $command, "\n");
+# print in the log file
+print LOG $print_command;
+# print in the screen
+print $print_command;
+# run the command
+`$command`;
+}
+#################################################################
+
 
 ###############################################################
 #################
@@ -849,15 +863,13 @@ my $time2 = time();
 foreach ( sort keys %description ) {
     my $sample = $_;
     if ($prokaryote_fasta) {
-        &lprint(
+        &exec_print(
 		"qsub -V -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh\n"
         );
-        `qsub -V -l h_vmem=$memlim -o $workdir/$sample/mapping_results/prokaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/prokaryote_rRNACoverageFold_plot.sh`;
     }
 
     if ($eukarya_fasta) {
-		&lprint ( "qsub -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/eukaryote_rRNACoverageFold_plot.sh\n");
-		`qsub -l h_vmem=$memlim -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir -v sample=$sample  -v workdir=$workdir  $scriptDir/eukaryote_rRNACoverageFold_plot.sh`;
+		&exec_print( "qsub -l h_vmem=$memlim  -o $workdir/$sample/mapping_results/eukaryote_rRNACoverageFold_plot.log  -v scriptDir=$scriptDir  -v sample=$sample  -v workdir=$workdir  $scriptDir/eukaryote_rRNACoverageFold_plot.sh\n");
 	}
 }
 
