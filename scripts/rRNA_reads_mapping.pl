@@ -13,7 +13,7 @@ $ENV{PATH} = "$Bin:$Bin/bin/:$ENV{PATH}";
 umask 000;
 
 
-my ($pairedReadsFile1, $indexFile, $pairedReadsFile2, $unpairedReadsFile, $outDir1, $outDir, $outDir2,  $ref);
+my ($pairedReadsFile1, $indexFile, $pairedReadsFile2, $unpairedReadsFile, $workdir, $sampleDir, $mapDir,  $ref);
 my $Bowtie2Opts="--fast"; 
 my $numCPU=4; #number of threads [4]
 my $prefix="Unmapped_reads";
@@ -39,30 +39,28 @@ GetOptions(
             'fasta' 	=> \$outFasta,
             'cpu=i'   	=> \$numCPU, # bwa option
             'Bowtie2Opts=s'   => \$Bowtie2Opts,    # bwa mem options
-            'o=s'   	=> \$outDir2,
+            'o=s'   	=> \$workdir,
 #            'geneopt=s' =>\$htseq,       #count reads based on 'gene' or 'CDS' or 'tRNA' or 'mRNA' in annotation file, default ='gene';
             'help|?'   	=> sub{&Usage(1)}
 );
 
 
 # First, check if the working directory exists
-if ( ! -e $outDir2) {print "no working dir $outDir2 found\n";}
+if ( ! -e $workdir) {print "no working dir $workdir found\n";}
 
 # Second, make directories based on sample name within working dir
-$outDir1=join '/', ($outDir2, "$prefix");
-mkdir $outDir1 if ( ! -e $outDir1);
+$sampleDir=join '/', ($workdir, "$prefix");
+mkdir $sampleDir if ( ! -e $sampleDir);
 
 # Third, throw, a complain, if cant make directory
-if ( ! -e $outDir1) {print "cannot make dir $outDir1\n";}
+if ( ! -e $sampleDir) {print "cannot make dir $sampleDir\n";}
 
 # Fourth, make directory for adding the mapping results
-$outDir=join '/', ($outDir1, 'mapping_results');
-mkdir $outDir if ( ! -e $outDir);
-if ( ! -e $outDir) {print "cannot make dir $outDir\n";}
+$mapDir=join '/', ($sampleDir, 'mapping_results');
+mkdir $mapDir if ( ! -e $mapDir);
+if ( ! -e $mapDir) {print "cannot make dir $mapDir\n";}
 
 
-# reassign outDir2 to workdir
-my $workdir=$outDir2;
 my $headfile="$workdir/prokaryote.fa.fai";
 my %seqln;
 
@@ -174,12 +172,16 @@ exit;
 
 # create the outDir,
 #TODO: why is working directory being created here?
-mkdir $outDir if ( ! -e $outDir);
+# mkdir $outDir if ( ! -e $outDir);
 
 
 #run the mapping subroutine and exit
-&runMapping($indexFile,$pairedReadsFile1,$pairedReadsFile2,$unpairedReadsFile,$outDir);
+&runMapping($indexFile,$pairedReadsFile1,$pairedReadsFile2,$unpairedReadsFile,$mapDir);
+print "mapping is run and donw";
 exit(0);
+
+
+
 
 # subroutine for checking if all files exist
 sub checkFiles
@@ -223,7 +225,7 @@ sub checkFiles
     } 
 }
 
-
+##############################################################################
 #subroutine for running mapping
 sub runMapping 
 {
@@ -302,7 +304,7 @@ sub runMapping
                 chomp;
                 next if (/^\@/);
                 my @samFields=split /\t/,$_;
-                my $samline=$_;
+                my $samline = $_;
                 if ($samFields[10] eq "*" and !$outFasta) {
                     $samFields[10] = "f" x length($samFields[9]);
                 }
@@ -380,8 +382,8 @@ sub runMapping
 	my $trimmedreads = $numTotalReadsUnpaired + $numTotalReadsPaired*2;
 	my $totalrawreads = $trimmedreads;
 
- 	if (-e "$outDir1/../trimming_results/$prefix.stats.txt"){
-		$totalrawreads = &parsetrimmingfile("$outDir1/../trimming_results/$prefix.stats.txt");
+ 	if (-e "$sampleDir/trimming_results/$prefix.stats.txt"){
+		$totalrawreads = &parsetrimmingfile("$sampleDir/trimming_results/$prefix.stats.txt");
 	}	
 
 	my $unmappedreads = $numTotalUnmappedReadsUnpaired + $numTotalUnmappedReadsPaired*2;
@@ -396,8 +398,7 @@ sub runMapping
 		print OUTSTAT "proper_paried_reads_in_prokaryote_chromos:\t$_\t$pair_prokaryote_reads{$_}\n";
 	}
 	foreach (sort keys %pair_eukarya_reads) {
-		print OUTSTAT "proper_paried_reads_in_eukarya_chromos:\t$_\t$pair_eukarya_reads{$_}\n";
-	}
+		print OUTSTAT "proper_paried_reads_in_eukarya_chromos:\t$_\t$pair_eukarya_reads{$_}\n"}
 	close OUTSTAT;
 }
 ############################################################
