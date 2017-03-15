@@ -22,8 +22,6 @@ my $outsam=0;
 my $ref;#="/users/218819/scratch/data/databases/human_chromosomes/all_chromosome.fasta";
 my $outFasta=0;
 my $test='prokaryote';
-my $htseq='gene';
-
 my $testcoverage=2;
 
 
@@ -40,8 +38,7 @@ GetOptions(
             'cpu=i'   	=> \$numCPU, # bwa option
             'Bowtie2Opts=s'   => \$Bowtie2Opts,    # bwa mem options
             'o=s'   	=> \$workdir,
-#            'geneopt=s' =>\$htseq,       #count reads based on 'gene' or 'CDS' or 'tRNA' or 'mRNA' in annotation file, default ='gene';
-            'help|?'   	=> sub{&Usage(1)}
+            'help|?'   	=> sub{&Usage()}
 );
 
 
@@ -83,9 +80,8 @@ open (GENOIN, "$headfile") or die "$headfile does not exist $!";
     }
 close GENOIN;
 
-# reassining prefix to sample variables
+# reassigning prefix to sample variables
 my $sample=$prefix;
-
 
 # Run the subroutine checkfiles
 &checkFiles($indexFile, $pairedReadsFile1,$pairedReadsFile2,$unpairedReadsFile);
@@ -95,8 +91,14 @@ my $sample=$prefix;
 sub Usage
 {
      my $Bowtie2op=shift;
+
      print <<"END";
- Usage: perl $0 [options] -p1 reads1.fastq -p2 reads2.fastq -u reads.fa -ref reference.fa -index reference  -o out_directory
+
+	DESCRIPTION\n
+
+			This script maps the reads using hisat2. The mapped reads in SAM file is then further divided into different categories.
+ 
+Usage: perl $0 [options] -p1 reads1.fastq -p2 reads2.fastq -u reads.fa -ref reference.fa -index reference  -o out_directory
         Input File:
         -ref          reference sequences in fasta  
 
