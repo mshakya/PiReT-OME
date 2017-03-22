@@ -71,6 +71,31 @@ sub open_files {
     open( $fh, ">$fn" )
         or die "$! cannot open $fn\n";
 }
+
+################################################################################
+
+sub createHisatIndex {
+    my %args      = @_;
+    my $fasta1    = $args{f1};
+    my $fasta2    = $args{f2};
+    my $numCPU    = $args{numCPU} || 1;
+    my $out_index = $args{out_index};
+
+    if ( -e $fasta2 ) {
+        $command
+            = "hisat2-build -p $numCPU "
+            . "--large-index -q "
+            . "$fasta1 $out_index";
+    }
+    else {
+        $command
+            = "$hisat2-build -p $numCPU "
+            . "--large-index -q "
+            . "$fasta1, $fasta2 $out_index";
+    }
+    &executeCommand($command);
+}
+
 ################################################################################
 sub runMapping {
     my %args               = @_;
@@ -128,17 +153,52 @@ sub executeCommand {
 sub sam2fastq {
 
     # takes a samfile line and converts to fastq
+    # reverse complements if its reported mapped in samfile
     my $fh          = shift;
     my $pair_type   = shift;
     my (@samFields) = @_;
 
     my $header = @samFields[0];
     $header =~ s/\/\d$//;
-    my $seq  = @samFields[9];
-    my $qual = @samFields[10];
+    my $seq      = @samFields[9];
+    my $qual     = @samFields[10];
+    my $ref      = $samFields[2];
+    my $map_qual = $samFields[4];
 
-    print $fh "@" . $header . "/$pair_type\n" . $seq . "\n+\n" . $qual . "\n";
+    if ( $pair_type eq 1 ) {
+        print $fh "@"
+            . $header
+            . "/$pair_type\n"
+            . $seq . "\n+\n"
+            . $qual . "\n";
+    }
+    elsif ( ( $pair_type eq 2 ) and ( $ref eq '*' ) ) {
+        print $fh "@"
+            . $header
+            . "/$pair_type\n"
+            . $seq . "\n+\n"
+            . $qual . "\n";
+    }
+    elsif ( ( $pair_type eq 2 ) and ( $ref ne '*' ) ) {
+        if ( $map_qual eq 0 ) {
+            print $fh "@"
+                . $header
+                . "/$pair_type\n"
+                . $seq . "\n+\n"
+                . $qual . "\n";
+        }
+        else {
+            my $rc_seq = rev_comp($seq);
+            print $fh "@"
+                . $header
+                . "/$pair_type\n"
+                . $rc_seq . "\n+\n"
+                . $qual . "\n";
+        }
+    }
+
 }
+
 ################################################################################
 
 sub parsePairedUnmapped {
@@ -165,52 +225,40 @@ sub parsePairedUnmapped {
 
 ################################################################################
 
-sub parseSingleUnMapped {
+sub parseSingles {
 
     # Single reads that are unmapped
     my %args               = @_;
     my $samline            = $args{samline};
     my $unMappedForward_fh = $args{unMapFwd};
     my $unMappedReverse_fh = $args{unMapRev};
+    my $MappedForward_fh   = $args{MapFwd};
+    my $MappedReverse_fh   = $args{MapRev};
 
     my @samFields = split /\t/, $samline;
 
-    if ( ( $samFields[1] & 4 ) and ( ( $samFields[1] & 8) eq 0 ) ) {
+    if ( ( $samFields[1] & 4 ) and ( ( $samFields[1] & 8 ) eq 0 ) ) {
         if ( $samFields[1] & 64 ) {
             &sam2fastq( $unMappedForward_fh, 1, @samFields );
         }
+
         # if given segment is reverse read
         elsif ( $samFields[1] & 128 ) {
-                &sam2fastq( $unMappedReverse_fh, 2, @samFields );
-            }
-    }
-    
-    if ( ( $samFields[1] & 8 ) and ( ($samFields[1] & 4 eq 0 ) ) ) {
-        if ( $samFields[1] & 64 ) {
-            &sam2fastq( $unMappedForward_fh, 1, @samFields );
+            &sam2fastq( $unMappedReverse_fh, 2, @samFields );
         }
+    }
+
+    if ( ( $samFields[1] & 8 ) and ( ( $samFields[1] & 4 ) eq 0 ) ) {
+        if ( $samFields[1] & 64 ) {
+            print $MappedForward_fh "$samline\n";
+        }
+
         # if given segment is reverse read
         elsif ( $samFields[1] & 128 ) {
-                &sam2fastq( $unMappedReverse_fh, 2, @samFields );
+            print $MappedReverse_fh "$samline\n";
         }
     }
 
-}
-################################################################################
-
-sub parseSingleMapped {
-    my $samFields               = shift;
-    my $unMappedNonPairMate1_fh = shift;
-    my $unMappedNonPairMate2_fh = shift;
-
-    if ( $samFields[1] & 4 ) {
-        if ( $samFields[1] & 64 ) {
-            &sam2fastq( $samFields, $unMappedNonPairMate1_fh );
-            if ( $samFields[1] & 128 ) {
-                &sam2fastq( $samFields, $unMappedNonPairMate2_fh );
-            }
-        }
-    }
 }
 
 ################################################################################
@@ -218,33 +266,32 @@ sub parseSingleMapped {
 sub parsePairedMapped {
 
     # reads (both) that are correctly mapped (correct insertion size ~500)
-    my %args      = @_;
-    my $samline   = $args{samline};
-    my $paired_fh = $args{paired_out};
+    my %args         = @_;
+    my $samline      = $args{samline};
+    my $paired_fh    = $args{paired_out};
+    my $nonproper_fh = $args{nonproper};
 
     my @samFields = split /\t/, $samline;
-    if ( $samFields[1] & 2 ) {
-
-        #mapped within the correct insert size
-        if ( $samFields[1] & 16 ) {
-            if ( $samFields[1] & 64 ) {
-                print $paired_fh "$samline\n";
-            }
-            elsif ( $samFields[1] & 128 ) {
+    if ( $samFields[1] & 2 ) { # read mapped in proper pair
+        if ( $samFields[1] & 32 ) { # other mate is reverse complemented
+            if ( $samFields[1] & 64 ) { # first read
                 print $paired_fh "$samline\n";
             }
         }
-        elsif ( $samFields[1] & 32 ) {
-            if ( $samFields[1] & 64 ) {
-                print $paired_fh "$samline\n";
-            }
-            elsif ( $samFields[1] & 128 ) {
+        elsif ( $samFields[1] & 16 ) { # reverse complemented
+            if ( $samFields[1] & 128 ) { # second read
                 print $paired_fh "$samline\n";
             }
         }
     }
-}
+    elsif ( ( ( $samFields[1] & 2 ) eq 0 ) # read not mapped in proper pair
+        and ( ( $samFields[1] & 4 ) eq 0 ) # first read mapped
+        and ( ( $samFields[1] & 8 ) eq 0 ) )  # second read mapped
+    {
+        print $nonproper_fh "$samline\n";
 
+    }
+}
 ################################################################################
 
 sub countParsedFiles {
@@ -311,4 +358,14 @@ sub parseMapping {
         );
     }
     close $fh;
+}
+
+################################################################################
+# Function to reverse complement DNA
+sub rev_comp {
+    my $DNA = shift;
+
+    my $revcom = reverse $DNA;
+    $revcom =~ tr/ACGTacgt/TGCAtgca/;
+    return $revcom;
 }
