@@ -272,21 +272,23 @@ sub parsePairedMapped {
     my $nonproper_fh = $args{nonproper};
 
     my @samFields = split /\t/, $samline;
-    if ( $samFields[1] & 2 ) { # read mapped in proper pair
-        if ( $samFields[1] & 32 ) { # other mate is reverse complemented
-            if ( $samFields[1] & 64 ) { # first read
+    if ( $samFields[1] & 2 ) {    # read mapped in proper pair
+        if ( $samFields[1] & 32 ) {    # other mate is reverse complemented
+            if ( $samFields[1] & 64 ) {    # first read
                 print $paired_fh "$samline\n";
             }
         }
-        elsif ( $samFields[1] & 16 ) { # reverse complemented
-            if ( $samFields[1] & 128 ) { # second read
+        elsif ( $samFields[1] & 16 ) {     # reverse complemented
+            if ( $samFields[1] & 128 ) {    # second read
                 print $paired_fh "$samline\n";
             }
         }
     }
-    elsif ( ( ( $samFields[1] & 2 ) eq 0 ) # read not mapped in proper pair
-        and ( ( $samFields[1] & 4 ) eq 0 ) # first read mapped
-        and ( ( $samFields[1] & 8 ) eq 0 ) )  # second read mapped
+    elsif (
+        ( ( $samFields[1] & 2 ) eq 0 )      # read not mapped in proper pair
+        and ( ( $samFields[1] & 4 ) eq 0 )  # first read mapped
+        and ( ( $samFields[1] & 8 ) eq 0 )
+        )                                   # second read mapped
     {
         print $nonproper_fh "$samline\n";
 
@@ -368,4 +370,13 @@ sub rev_comp {
     my $revcom = reverse $DNA;
     $revcom =~ tr/ACGTacgt/TGCAtgca/;
     return $revcom;
+}
+
+################################################################################
+
+sub sumMaps {
+    my %args         = @_;
+    my $pro_paired   = $args{pp};
+    my $nopro_paired = $args{np};
+
 }
