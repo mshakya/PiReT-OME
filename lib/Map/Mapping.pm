@@ -81,17 +81,17 @@ sub createHisatIndex {
     my $numCPU    = $args{numCPU} || 1;
     my $out_index = $args{out_index};
 
-    if ( -e $fasta2 ) {
+    if ( not defined $fasta2 ) {
         $command
             = "hisat2-build -p $numCPU "
             . "--large-index -q "
-            . "$fasta1 $out_index";
+            . "$fasta1 $out_index \n";
     }
     else {
         $command
-            = "$hisat2-build -p $numCPU "
+            = "hisat2-build -p $numCPU "
             . "--large-index -q "
-            . "$fasta1, $fasta2 $out_index";
+            . "$fasta1,$fasta2 $out_index \n";
     }
     &executeCommand($command);
 }
@@ -129,13 +129,12 @@ sub runMapping {
             &executeCommand($command);
         }
         else {
-            $command = "hisat2 $hisat2options ",
-                "-p $numCPU -x $IndexFile ",
-                "-1 $queryPairedFile1 ",
-                "-2 $queryPairedFile2 ",
-                "2>$mappingLogFile > ",
-                "$outsam \n";
-            print $command;
+            $command = "hisat2 $hisat2options "
+                        ."-p $numCPU -x $IndexFile "
+                        ."-1 $queryPairedFile1 "
+                        ."-2 $queryPairedFile2 "
+                        ."2>$mappingLogFile > "
+                        ."$outsam \n";
             &executeCommand($command);
         }
 
@@ -294,11 +293,6 @@ sub parsePairedMapped {
 
     }
 }
-################################################################################
-
-sub countParsedFiles {
-
-}
 
 ################################################################################
 
@@ -376,7 +370,88 @@ sub rev_comp {
 
 sub sumMaps {
     my %args         = @_;
-    my $pro_paired   = $args{pp};
-    my $nopro_paired = $args{np};
+    my $fq           = $args{fastq};
+    my $pro_paired   = $args{ppm};
+    my $nopro_paired = $args{npm};
+    my $fwd_map      = $args{fm};
+    my $rev_map      = $args{rm};
+    my $unmap        = $args{um};
+    my $out_table    = $args{out};
 
+    my $fq_reads   = &count_lines($fq);
+    my $ppm_count  = &count_lines($pro_paired);
+    my $npm_count  = &count_samreads($nopro_paired);
+    my $fwd_count  = &count_lines($fwd_map);
+    my $rev_count  = &count_lines($rev_map);
+    my $un_count   = &count_lines($unmap);
+    my %pair_reads = &parseMappedChromo($pro_paired);
+
+    open( OUTSTAT, ">$out_table" ) or die "$! cannot open $out_table\n";
+    print OUTSTAT "total_trimmed_reads\t" . int( $fq_reads / 4 ) . "\n";
+    print OUTSTAT "total_unmapped_reads\t" . int( $un_count / 4 ) . "\n";
+    print OUTSTAT "forward_only_mapped_reads\t" . int($fwd_count) . "\n";
+    print OUTSTAT "reverse_only_mapped_reads\t" . int($rev_count) . "\n";
+    print OUTSTAT "total_Mapped_reads\t"
+        . int( $ppm_count + $fwd_count + $rev_count ) . "\n";
+    print OUTSTAT "Not_proper_reads\t" . "$npm_count" . "\n";
+    print OUTSTAT "proper_paired_reads\t" . int( $ppm_count / 2 ) . "\n";
+    foreach ( sort keys %pair_reads ) {
+        print OUTSTAT
+            "proper_paried_reads_in_chromos:\t$_\t$pair_reads{$_}\n";
+    }
+    close OUTSTAT;
+}
+
+################################################################################
+sub parseMappedChromo {
+    my $fn         = shift;
+    my $pair_reads = 0;
+    my %pair_reads;
+    open( FH, "$fn" ) or die "Damn. $!";
+    while (< FH >) {
+        $pair_reads++;
+        my $samline = $_;
+        my @samFields = split /\t/, $samline;
+        $pair_reads{ $samFields[2] }++;
+    }
+    close FH;
+    return %pair_reads;
+}
+
+################################################################################
+sub parseFAI {
+    # makes hash from fai files
+    my $fai = shift;
+    my %seqln;
+    open( GENOIN, "$fai" ) or die "$headfile does not exist $!";
+    # Process
+    while (<GENOIN>) {
+    chomp;
+    my @line = split /\s+/, $_;
+    for ( my $i = 1; $i <= $line[1]; $i++ ) {
+        $seqln{ $line[0] } = $line[1];
+    }
+    }
+    close GENOIN;
+    return %seqln;
+}
+
+################################################################################
+sub count_samreads {
+    my $fn = shift;
+    my $npr;
+    my $command = "awk -F'\\t' '{print \$1}'" . "< $fn | uniq | wc -l \n";
+    $npr = executeCommand($command);
+    return chomp($npr);
+}
+
+################################################################################
+# Function to count lines
+sub count_lines {
+    my $fn = shift;
+    my $cnt;
+    open( FH, $fn ) or die "Damn. $!";
+    $cnt++ while <FH>;
+    close FH;
+    return $cnt;
 }
