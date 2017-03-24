@@ -129,12 +129,13 @@ sub runMapping {
             &executeCommand($command);
         }
         else {
-            $command = "hisat2 $hisat2options "
-                        ."-p $numCPU -x $IndexFile "
-                        ."-1 $queryPairedFile1 "
-                        ."-2 $queryPairedFile2 "
-                        ."2>$mappingLogFile > "
-                        ."$outsam \n";
+            $command
+                = "hisat2 $hisat2options "
+                . "-p $numCPU -x $IndexFile "
+                . "-1 $queryPairedFile1 "
+                . "-2 $queryPairedFile2 "
+                . "2>$mappingLogFile > "
+                . "$outsam \n";
             &executeCommand($command);
         }
 
@@ -395,6 +396,7 @@ sub sumMaps {
         . int( $ppm_count + $fwd_count + $rev_count ) . "\n";
     print OUTSTAT "Not_proper_reads\t" . "$npm_count" . "\n";
     print OUTSTAT "proper_paired_reads\t" . int( $ppm_count / 2 ) . "\n";
+
     foreach ( sort keys %pair_reads ) {
         print OUTSTAT
             "proper_paried_reads_in_chromos:\t$_\t$pair_reads{$_}\n";
@@ -420,17 +422,18 @@ sub parseMappedChromo {
 
 ################################################################################
 sub parseFAI {
+
     # makes hash from fai files
     my $fai = shift;
     my %seqln;
-    open( GENOIN, "$fai" ) or die "$headfile does not exist $!";
+    open( GENOIN, $fai ) or die "$fai does not exist $!";
     # Process
     while (<GENOIN>) {
-    chomp;
-    my @line = split /\s+/, $_;
-    for ( my $i = 1; $i <= $line[1]; $i++ ) {
-        $seqln{ $line[0] } = $line[1];
-    }
+        chomp;
+        my @line = split /\s+/, $_;
+        for ( my $i = 1; $i <= $line[1]; $i++ ) {
+            $seqln{ $line[0] } = $line[1];
+        }
     }
     close GENOIN;
     return %seqln;
