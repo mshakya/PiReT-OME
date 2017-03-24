@@ -4,7 +4,7 @@
 Pipeline for Reference based Transcriptomics.
 
 [![Build Status](https://travis-ci.com/mshakya/PiReT.svg?token=xwcWcg2wroskmENQQapz&branch=master)](https://travis-ci.com/mshakya/PiReT)
-
+[![codecov](https://codecov.io/gh/mshakya/PiReT/branch/master/graph/badge.svg?token=B0PzdxRcdj)](https://codecov.io/gh/mshakya/PiReT)
 
 #Overview
 
