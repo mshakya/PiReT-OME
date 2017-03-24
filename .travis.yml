@@ -1,14 +1,14 @@
 sudo: false
 language: r
 
-r: bioc-release
+# r: bioc-release
 
 # python:
 #   - 2.7.8
 #   - 2.7.12
 
-# perl:
-#  - 5.16.3
+perl:
+ - 5.16.3
 
 cache:
   apt: true
@@ -22,6 +22,7 @@ before_install:
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda
   - conda info -a
+  - pip install --user codecov
 
 r_packages:
   - edgeR
@@ -43,4 +44,5 @@ script:
   - ./bioconda_INSTALL.sh
   - cd test_data && sh test_pipeline_linux.sh
 
-
+after_success:
+  - codecov

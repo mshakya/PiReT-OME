@@ -1,5 +1,7 @@
-test_data/pipeline_test/
+test_data/pipeline_test_both/*
 test_data/test_experimental_design.txt
+bin/*.*
+bin/*
 sftp-config.json
 PiReT.sublime-project
 PiReT.sublime-workspace

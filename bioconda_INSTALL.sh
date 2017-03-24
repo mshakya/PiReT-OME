@@ -18,7 +18,7 @@ cd thirdParty
 # create a directory to add short cuts to dependencies
 mkdir -p $ROOTDIR/bin
 export "PATH=$PATH:$ROOTDIR/bin/"
-
+printenv
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
@@ -30,6 +30,7 @@ else
 export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$PERL5LIB"
 }
 fi
+printenv
 
 # Add pythonpath
 # export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
@@ -48,6 +49,7 @@ bedtools_VER=2.26.0
 R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
+jbrowse_VER=1.12.1
 
 # minimum required version of Scripting languages
 perl5_VER=5.8.0
@@ -327,11 +329,31 @@ git clone https://github.com/gpertea/gffread gffread_git
 cd gffread_git
 make
 cp gffread ../
-
 ln -sf $ROOTDIR/thirdParty/miniconda/bin/gffread $ROOTDIR/bin/gffread
+cd $ROOTDIR/thirdParty
 echo "
 --------------------------------------------------------------------------------
                            gffread installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_jbrowse()
+{
+echo "--------------------------------------------------------------------------
+                      installing Jbrowse
+--------------------------------------------------------------------------------
+"
+cd $ROOTDIR/thirdParty
+tar xvzf JBrowse-1.11.6.tar.gz
+cd JBrowse-1.11.6
+./setup.sh
+mkdir -p -m 775 data
+cd $ROOTDIR/thirdParty
+ln -sf $ROOTDIR/thirdParty/JBrowse-1.11.6 $ROOTDIR/bin/JBrowse
+echo "
+--------------------------------------------------------------------------------
+                      Jbrowse installed
 --------------------------------------------------------------------------------
 "
 }
@@ -632,7 +654,7 @@ fi
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
-  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  hisat2_installed_VER=`hisat2 --version 2>&1 | grep 'hisat2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
   if ( echo $hisat2_installed_VER $hisat2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then 
     echo " - found hisat2 $hisat2_installed_VER"
@@ -676,7 +698,7 @@ fi
 ################################################################################
 if ( checkSystemInstallation bowtie2 )
 then
-bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'bowtie2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
   if (echo $bowtie2_installed_VER $bowtie2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
   then
     echo " - found bowtie2 $bowtie2_installed_VER"
@@ -734,6 +756,17 @@ else
   install_bedtools
 fi
 
+
+################################################################################
+#TODO: add a way to check version here as well
+if ( -x $ROOTDIR/bin/JBrowse/bin/prepare-refseqs.pl )
+then
+  echo "JBrowse is found"
+else
+  echo "JBrowse is not found"
+  install_jbrowse
+fi
+
 ################################################################################
 if ( checkSystemInstallation cpanm )
 then
@@ -750,13 +783,15 @@ else
   install_cpanm
 fi
 
-if ( checkSystemInstallation gffread )
-then
-  echo "gffread is found"
-else
-  echo "gffread is not found"
-  install_gffread
-fi
+
+# commenting this out until i figure out what is this actually used for
+#if ( checkSystemInstallation gffread )
+#then
+#  echo "gffread is found"
+#else
+#  echo "gffread is not found"
+#  install_gffread
+#fi
 
 ################################################################################
 #                        Perl Modules
@@ -841,4 +876,4 @@ sh test_pipeline_linux.sh
 OR
 sh test_pipeline_MacOSX.sh
 Thanks!
-    "
+	"
