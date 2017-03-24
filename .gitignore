@@ -12,3 +12,12 @@ README.html
 test_data/*.ht2l
 thirdParty/miniconda/*
 thirdParty/miniconda/*.*
+thirdParty/String-Approx-3.27/
+test_data/processsed_data/
+test_data/pipeline_test_both_011617/
+test_data/pipeline_test_both0123/
+test_data/pipeline_test_both012217/
+test_data/pipeline_test_both6/
+t/results/stats_table.tab
+t/results/samp1/
+t/results/reverse.unmapped.fastq
