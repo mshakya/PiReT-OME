@@ -4,11 +4,7 @@ language: perl
 # r: bioc-release
 
 perl:
-  - "5.22"
-  - "5.20"
-  - "5.18"
-  - "5.16"
-  - "5.14"
+  - "5.18.2"
 
 cache:
   apt: true
