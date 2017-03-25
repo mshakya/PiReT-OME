@@ -5,20 +5,20 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
-# use Map::Mapping;
+# use PiReT::Map;
 # use Test::Simple tests =>1;
 use Test::More;
 
 # use Test::File;
 
 # Verify module can be included via "use" pragma
-BEGIN { use_ok('Map::Mapping') }
+BEGIN { use_ok('PiReT::Map') }
 
 # Verify module can be included via "require" pragma
-require_ok('Map::Mapping');
+require_ok('PiReT::Map');
 
 # Verify if indexes are created correctly
-Mapping::createHisatIndex(
+Map::createHisatIndex(
     f1        => "data/euk_test.fna",
     f2        => "data/prok_test.fna",
     numCPU    => 1,
@@ -29,7 +29,7 @@ my $in_cnt = count_lines("results/euk_prok_index.6.ht2l");
 is( $in_cnt, 2195, "createHisatIndex() IS test" );
 
 # Verify if mapping produces an expected sam file
-Mapping::runMapping(
+Map::runMapping(
     r1             => "data/1.trimmed.fastq",
     r2             => "data/2.trimmed.fastq",
     hisat2options  => "--fast",
@@ -51,7 +51,7 @@ while (<FH>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
-    Mapping::parsePairedUnmapped( $samline, $unmap1, $unmap2 );
+    Map::parsePairedUnmapped( $samline, $unmap1, $unmap2 );
 }
 close $unmap1;
 close $unmap2;
@@ -71,7 +71,7 @@ while (<FH1>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
-    Mapping::parsePairedMapped(
+    Map::parsePairedMapped(
         samline    => $samline,
         paired_out => $Pmap,
         nonproper  => $Nmap
@@ -94,7 +94,7 @@ while (<FH1>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
-    Mapping::parseSingles(
+    Map::parseSingles(
         samline  => $samline,
         unMapFwd => $FR,
         unMapRev => $RR,
@@ -118,7 +118,7 @@ is( $fwdM_cnt, 4,  "parseSingles() test" );
 is( $revM_cnt, 1,  "parseSingles() test" );
 
 # Verify if counting function works
-Mapping::sumMaps(
+Map::sumMaps(
     fastq => "data/1.trimmed.fastq",
     ppm   => "results/paired.mapped.sam",
     npm   => "results/Nonproper.mapped.sam",
@@ -131,7 +131,7 @@ my $stat_cnt = &count_lines("results/stats_table.tab");
 is( $stat_cnt, 8, "sumMaps() IS test" );
 
 # Verify if the parseFAI function is working as it should
-my %fai_dic = Mapping::parseFAI("data/prokaryote.fa.fai");
+my %fai_dic = Map::parseFAI("data/prokaryote.fa.fai");
 my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
 is( $ind, '5227419', "parseFAI() IS test" );
 
