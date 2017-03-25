@@ -1,5 +1,5 @@
 sudo: false
-language: r
+language: perl
 
 # r: bioc-release
 
@@ -40,9 +40,13 @@ install:
   - conda install --yes -c bioconda perl-app-cpanminus
   - conda install --yes -c bioconda bedtools=2.26.0
 
+before_script:
+  - cpanm --quiet --notest --skip-satisfied Devel::Cover Devel::Cover::Report::Codecov
+
 script:
   - ./bioconda_INSTALL.sh
-  - cd test_data && sh test_pipeline_linux.sh
+# - cd test_data && sh test_pipeline_linux.sh
+  - cover -test
 
 after_success:
-  - codecov
+  - cover -report codecov
