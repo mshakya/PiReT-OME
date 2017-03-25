@@ -7,7 +7,6 @@ WriteMakefile(
     NAME             => 'PiReT',
     AUTHOR           => q{Migun Shakya <migun@lanl.gov>},
     VERSION_FROM     => 'lib/PiReT/Map.pm',
-    ABSTRACT_FROM    => 'lib/PiReT/Map.pm',
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
