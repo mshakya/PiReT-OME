@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package Mapping;
+package Map;
 use Exporter;
 @ISA    = ('Exporter');
 @EXPORT = ('runMapping');
