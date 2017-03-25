@@ -46,6 +46,9 @@ before_script:
 script:
   - ./bioconda_INSTALL.sh
 # - cd test_data && sh test_pipeline_linux.sh
+  - perl Makefile.PL
+  - make
+  - make test
   - cover -test
 
 after_success:
