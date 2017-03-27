@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
-use Map::Mapping;
+use PiReT::Map;
 use Getopt::Long;
 use File::Basename;
 
@@ -93,8 +93,11 @@ OPTIONS
         -T, --splicesite
             tab delimited file with information on splice sites
 
-        -X, --samindex
-            tab delimited file generated from samtools faidx
+        -XP, --samindex_prok
+            tab delimited file (for prok) generated from samtools faidx
+
+        -XE, --samindex_euk
+            tab delimited file (for euk) generated from samtools faidx
 
 END
     exit;
@@ -114,7 +117,7 @@ if ( $kingdom eq 'both' ) {
         print "Index already exists";
     }
     else {
-        Mapping::createHisatIndex(
+        Map::createHisatIndex(
             f1        => $euk_ref,
             f2        => $prok_ref,
             numCPU    => $numCPU,
@@ -126,7 +129,7 @@ elsif ( $kingdom eq 'eukarya' ) {
     if ( -e $indexFile . ".ht2l" ) {
         print "Index already exists";
     }
-    Mapping::createHisatIndex(
+    Map::createHisatIndex(
         f1        => $euk_ref,
         numCPU    => $numCPU,
         out_index => $indexFile
@@ -136,7 +139,7 @@ elsif ( $kingdom eq 'prokaryote' ) {
     if ( -e $indexFile . ".ht2l" ) {
         print "Index already exists";
     }
-    Mapping::createHisatIndex(
+    Map::createHisatIndex(
         f1        => $prok_ref,
         numCPU    => $numCPU,
         out_index => $indexFile
@@ -162,7 +165,7 @@ $mapDir = join '/', ( $sampleDir, 'mapping_results' );
 mkdir $mapDir if ( !-e $mapDir );
 if ( !-e $mapDir ) { print "cannot make dir $mapDir\n"; }
 
-Mapping::runMapping(
+Map::runMapping(
     r1             => $pairedReadsFile1,
     r2             => $pairedReadsFile2,
     hisat2options  => "--fast",
@@ -206,16 +209,16 @@ if ( $kingdom eq 'both' ) {
         my $samline = $_;
         my @samFields = split /\t/, $samline;
 
-        Mapping::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
-        my %prok_id = Mapping::parseFAI($samindex_prok);
-        my %euk_id  = Mapping::parseFAI($samindex_euk);
+        Map::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+        my %prok_id = Map::parseFAI($samindex_prok);
+        my %euk_id  = Map::parseFAI($samindex_euk);
         if ( $euk_id{ $samFields[2] } ) {
-            Mapping::parsePairedMapped(
+            Map::parsePairedMapped(
                 samline    => $samline,
                 paired_out => $PR_PROK,
                 nonproper  => $NP_PROK
             );
-            Mapping::parseSingles(
+            Map::parseSingles(
                 samline  => $samline,
                 unMapFwd => $FW_EUK_FQ,
                 unMapRev => $RV_EUK_FQ,
@@ -224,12 +227,12 @@ if ( $kingdom eq 'both' ) {
             );
         }
         elsif ( $prok_id{ $samFields[2] } ) {
-            Mapping::parsePairedMapped(
+            Map::parsePairedMapped(
                 samline    => $samline,
                 paired_out => $PR_EUK,
                 nonproper  => $NP_EUK
             );
-            Mapping::parseSingles(
+            Map::parseSingles(
                 samline  => $samline,
                 unMapFwd => $FW_PROK_FQ,
                 unMapRev => $RV_PROK_FQ,
@@ -260,13 +263,13 @@ elsif ( $kingdom eq 'prokaryote' ) {
         chomp;
         next if (/^\@/);
         my $samline = $_;
-        Mapping::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
-        Mapping::parsePairedMapped(
+        Map::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+        Map::parsePairedMapped(
             samline    => $samline,
             paired_out => $PR_PROK,
             nonproper  => $NP_PROK
         );
-        Mapping::parseSingles(
+        Map::parseSingles(
             samline  => $samline,
             unMapFwd => $FW_PROK_FQ,
             unMapRev => $RV_PROK_FQ,
@@ -290,13 +293,13 @@ elsif ( $kingdom eq 'eukarya' ) {
         chomp;
         next if (/^\@/);
         my $samline = $_;
-        Mapping::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
-        Mapping::parsePairedMapped(
+        Map::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+        Map::parsePairedMapped(
             samline    => $samline,
             paired_out => $PR_EUK,
             nonproper  => $NP_EUK
         );
-        Mapping::parseSingles(
+        Map::parseSingles(
             samline  => $samline,
             unMapFwd => $FW_EUK_FQ,
             unMapRev => $RV_EUK_FQ,
