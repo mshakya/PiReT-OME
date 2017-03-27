@@ -490,6 +490,13 @@ sub count_lines {
     return $cnt;
 }
 
+################################################################################
+sub createFAI {
+    my $fn = shift;
+    $command = "samtools faidx $fn";
+    &executeCommand($command)
+}
+
 =head1 AUTHOR
 
 Migun Shakya, C<< <migun at lanl.gov> >>
