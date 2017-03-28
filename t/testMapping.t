@@ -4,9 +4,6 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
-
-# use PiReT::Map;
-# use Test::Simple tests =>1;
 use Test::More;
 
 # use Test::File;
