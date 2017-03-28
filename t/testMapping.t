@@ -133,8 +133,8 @@ my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
 is( $ind, '5227419', "parseFAI() IS test" );
 
 #Verify if thr createFAI is working
-Map::createFAI("t/data/euk_test.fna");
-Map::createFAI("t/data/prok_test.fna");
+Map::createFAI("t/data/euk_test.fna\n");
+Map::createFAI("t/data/prok_test.fn\n");
 my $fai_euk = &count_lines("t/data/euk_test.fna.fai");
 my $fai_prok = &count_lines("t/data/prok_test.fna.fai");
 is ($fai_euk, 8, "createFAI() IS test with euk\n" );
