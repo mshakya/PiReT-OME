@@ -17,12 +17,12 @@ my $command
     = 'perl scripts/illumina_fastq_QC.pl '
     . '-min_L 60 -n 5 -q 15 -lc 0.7 '
     . '-t 1 -prefix samp1 -d t/results/samp1/trimming_results '
-    . '-p t/data/1.fastq t/data/2.fastq';
-Map::executeCommand("mkdir -p t/results/samp1/trimming_results");
+    . "-p t/data/1.fastq t/data/2.fastq\n";
+Map::executeCommand("mkdir -p t/results/samp1/trimming_results\n");
 Map::executeCommand($command);
 
 my $q_count = &count_lines('t/results/samp1/trimming_results/fastqCount.txt');
-is( $q_count, 2, 'test for illumina_fastq_QC.pl' );
+is( $q_count, 2, 'test for illumina_fastq_QC' );
 
 # verify if reads_mapping.pl compiles
 script_compiles('scripts/reads_mapping.pl');
@@ -42,7 +42,7 @@ my @arg = [
 ];
 
 # verify if script runs without error
-script_runs( [ 'scripts/reads_mapping.pl', $arg ], 'test reads_mapping.pl' );
+script_runs( [ 'scripts/reads_mapping.pl', $arg ], 'test reads_mapping_pl' );
 
 my $map_command
     = 'perl scripts/reads_mapping.pl '
@@ -51,8 +51,8 @@ my $map_command
     .'-I t/data/euk_prok_index '
     .'-K both -E t/data/euk_test.fna '
     .'-B t/data/prok_test.fna '
-    .'-W t/results -S samp1';
-# Map::executeCommand("mkdir -p t/results/samp1/trimming_results");
+    ."-W t/results -S samp1\n";
+    
 Map::executeCommand($map_command);
 
 my $pro_prk = &count_lines('t/results/samp1/mapping_results/paired_prok.sam');
