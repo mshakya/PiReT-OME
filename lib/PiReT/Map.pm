@@ -29,8 +29,6 @@ Perhaps a little code snippet.
 
 =cut
 
-
-
 package Map;
 use Exporter;
 @ISA    = ('Exporter');
@@ -328,7 +326,7 @@ sub parsePairedMapped {
 
 ################################################################################
 
-sub parseMapping {
+sub parseMapProk {
 
     ############################################################################
   #------------------------------FOR REFERENCE-------------------------------#
@@ -360,32 +358,172 @@ sub parseMapping {
   # 1024    PCR or optical duplicate
   # 2048    supplementary alignment
     ############################################################################
-    my $workdir = shift;
-    my $sample  = shift;
-    &open_files( fh, "$workdir/$sample/mapping_results/mapped.sam" );
-    while (<$fh>) {
+    my %args    = @_;
+    my $mapDir  = $args{mapDir};
+    my $sam = $args{samFile};
+
+    open( my $UMAP1, ">", "$mapDir/unmap_1.fastq" ) or die "Damn. $!";
+    open( my $UMAP2, ">", "$mapDir/unmap_2.fastq" ) or die "Damn. $!";
+    open( my $PR_PROK, ">", "$mapDir/paired_prok.sam" )
+        or die "Damn. $!";
+    open( my $NP_PROK, ">", "$mapDir/notproper_prok.sam" )
+        or die "Damn. $!";
+    open( my $FW_PROK, ">", "$mapDir/fwd_prok.sam" )
+        or die "Damn. $!";
+    open( my $RV_PROK, ">", "$mapDir/rev_prok.sam" )
+        or die "Damn. $!";
+    open( my $FW_PROK_FQ, ">", "$mapDir/fwd_prok_unmapped.fastq" )
+        or die "Damn. $!";
+    open( my $RV_PROK_FQ, ">", "$mapDir/rev_prok_unmapped.fastq" )
+        or die "Damn. $!";
+    open( FH, "$sam" ) or die "Damn. $!";
+
+    while (<FH>) {
         chomp;
         next if (/^\@/);
-        my @samFields = split /\t/, $_;
         my $samline = $_;
-
-        # when no quality information is stored
-        if ( $samFields[10] eq "*" and !$outFasta ) {
-            $samFields[10] = "f" x length( $samFields[9] );
-        }
-
-        &parsePairedUnmapped( $samFields, $unMappedMate1_fh,
-            $unMappedMate2_fh );
-
-        &parseNonPairedUnMapped( $samFields, $unMappedNonPairMate1_fh,
-            $unMappedNonPairMate2_fh );
-
-        &parsePairedMapped(
-            $samFields,    $paired_fh,  $unpaired_fh,
-            $testcoverage, $forward_fh, $reverse_fh
+        Map::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+        Map::parsePairedMapped(
+            samline    => $samline,
+            paired_out => $PR_PROK,
+            nonproper  => $NP_PROK
+        );
+        Map::parseSingles(
+            samline  => $samline,
+            unMapFwd => $FW_PROK_FQ,
+            unMapRev => $RV_PROK_FQ,
+            MapFwd   => $FW_PROK,
+            MapRev   => $RV_PROK
         );
     }
-    close $fh;
+
+}
+
+################################################################################
+sub parseMapEuk {
+    my %args    = @_;
+    my $mapDir  = $args{mapDir};
+    my $sam = $args{samFile};
+ 
+    open( my $UMAP1,  ">", "$mapDir/unmap_1.fastq" )  or die "Damn. $!";
+    open( my $UMAP2,  ">", "$mapDir/unmap_2.fastq" )  or die "Damn. $!";
+    open( my $PR_EUK, ">", "$mapDir/paired_euk.sam" ) or die "Damn. $!";
+    open( my $NP_EUK, ">", "$mapDir/notproper_euk.sam" )
+        or die "Damn. $!";
+    open( my $FW_EUK, ">", "$mapDir/fwd_prok.sam" ) or die "Damn. $!";
+    open( my $RV_EUK, ">", "$mapDir/rev_euk.sam" )  or die "Damn. $!";
+    open( my $FW_EUK_FQ, ">", "$mapDir/fwd_euk_unmapped.fastq" )
+        or die "Damn. $!";
+    open( my $RV_EUK_FQ, ">", "$mapDir/rev_euk_unmapped.fastq" )
+        or die "Damn. $!";
+    open( FH, "$sam" ) or die "Damn. $!";
+
+    while (<FH>) {
+        chomp;
+        next if (/^\@/);
+        my $samline = $_;
+        &parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+        &parsePairedMapped(
+            samline    => $samline,
+            paired_out => $PR_EUK,
+            nonproper  => $NP_EUK
+        );
+        &parseSingles(
+            samline  => $samline,
+            unMapFwd => $FW_EUK_FQ,
+            unMapRev => $RV_EUK_FQ,
+            MapFwd   => $FW_EUK,
+            MapRev   => $RV_EUK
+        );
+    }
+}
+################################################################################
+sub parseMapBoth {
+    my %args    = @_;
+    my $sam = $args{samFile};
+    my $mapDir  = $args{mapDir};
+    my $prok_ref = $args{ref_prok};
+    my $euk_ref = $args{ref_euk};
+
+    open( my $UMAP1,  ">", "$mapDir/unmap_1.fastq" )  or die "Damn. $!";
+    open( my $UMAP2,  ">", "$mapDir/unmap_2.fastq" )  or die "Damn. $!";
+    open( my $PR_EUK, ">", "$mapDir/paired_euk.sam" ) or die "Damn. $!";
+    open( my $PR_PROK, ">", "$mapDir/paired_prok.sam" )
+        or die "Damn. $!";
+    open( my $NP_EUK, ">", "$mapDir/notproper_euk.sam" )
+        or die "Damn. $!";
+    open( my $NP_PROK, ">", "$mapDir/notproper_prok.sam" )
+        or die "Damn. $!";
+    open( my $FW_PROK, ">", "$mapDir/fwd_prok.sam" )
+        or die "Damn. $!";
+    open( my $RV_PROK, ">", "$mapDir/rev_prok.sam" )
+        or die "Damn. $!";
+    open( my $FW_EUK, ">", "$mapDir/fwd_euk.sam" ) or die "Damn. $!";
+    open( my $RV_EUK, ">", "$mapDir/rev_euk.sam" ) or die "Damn. $!";
+    open( my $FW_EUK_FQ, ">", "$mapDir/fwd_euk_unmapped.fastq" )
+        or die "Damn. $!";
+    open( my $RV_EUK_FQ, ">", "$mapDir/rev_euk_unmapped.fastq" )
+        or die "Damn. $!";
+    open( my $FW_PROK_FQ, ">", "$mapDir/fwd_prok_unmapped.fastq" )
+        or die "Damn. $!";
+    open( my $RV_PROK_FQ, ">", "$mapDir/rev_prok_unmapped.fastq" )
+        or die "Damn. $!";
+    open( FH, "$sam" ) or die "Damn. $!";
+
+    while (<FH>) {
+        chomp;
+        next if (/^\@/);
+        my $samline = $_;
+        my @samFields = split /\t/, $samline;
+
+        &parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+
+        $samindex_euk = join( '.', $euk_ref, 'fai' );
+        if ( !-e $samindex_euk ) {
+            &createFAI($samindex_euk);
+            if ( !-e $samindex_euk ) { die "Cannot create $samindex_euk $!" }
+        }
+
+        $samindex_prok = join( '.', $prok_ref, 'fai' );
+        if ( !-e $samindex_prok ) {
+            &createFAI($samindex_prok);
+            if ( !-e $samindex_prok ) {
+                die "Cannot create $samindex_prok $!";
+            }
+        }
+
+        my %prok_id = Map::parseFAI($samindex_prok);
+        my %euk_id  = Map::parseFAI($samindex_euk);
+        if ( $euk_id{ $samFields[2] } ) {
+            &parsePairedMapped(
+                samline    => $samline,
+                paired_out => $PR_PROK,
+                nonproper  => $NP_PROK
+            );
+            &parseSingles(
+                samline  => $samline,
+                unMapFwd => $FW_EUK_FQ,
+                unMapRev => $RV_EUK_FQ,
+                MapFwd   => $FW_EUK,
+                MapRev   => $RV_EUK
+            );
+        }
+        elsif ( $prok_id{ $samFields[2] } ) {
+            &parsePairedMapped(
+                samline    => $samline,
+                paired_out => $PR_EUK,
+                nonproper  => $NP_EUK
+            );
+            &parseSingles(
+                samline  => $samline,
+                unMapFwd => $FW_PROK_FQ,
+                unMapRev => $RV_PROK_FQ,
+                MapFwd   => $FW_PROK,
+                MapRev   => $RV_PROK
+            );
+        }
+    }
+
 }
 
 ################################################################################
@@ -458,6 +596,7 @@ sub parseFAI {
     my $fai = shift;
     my %seqln;
     open( GENOIN, $fai ) or die "$fai does not exist $!";
+
     # Process
     while (<GENOIN>) {
         chomp;
@@ -494,7 +633,7 @@ sub count_lines {
 sub createFAI {
     my $fn = shift;
     $command = "samtools faidx $fn";
-    &executeCommand($command)
+    &executeCommand($command);
 }
 
 =head1 AUTHOR
@@ -586,4 +725,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of PiReT::Map
+1;    # End of PiReT::Map
