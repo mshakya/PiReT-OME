@@ -135,10 +135,41 @@ is( $ind, '5227419', "parseFAI() IS test" );
 #Verify if thr createFAI is working
 Map::createFAI("t/data/euk_test.fna\n");
 Map::createFAI("t/data/prok_test.fn\n");
-my $fai_euk = &count_lines("t/data/euk_test.fna.fai");
+my $fai_euk  = &count_lines("t/data/euk_test.fna.fai");
 my $fai_prok = &count_lines("t/data/prok_test.fna.fai");
-is ($fai_euk, 8, "createFAI() IS test with euk\n" );
-is ($fai_prok, 2, "createFAI() IS test with prok" );
+is( $fai_euk,  8, "createFAI() IS test with euk\n" );
+is( $fai_prok, 2, "createFAI() IS test with prok" );
+
+# Verify if parseMapProk is working
+Map::executeCommand("mkdir -p t/results/prok_map_test\n");
+Map::parseMapProk(
+    mapDir  => "t/results/prok_map_test",
+    samFile => "t/results/mapped.sam"
+);
+my $pp_prok = &count_lines("t/results/prok_map_test/paired_prok.sam");
+is( $pp_prok, 14, "parseMapProk() IS test" );
+
+# Verify if parseMapEuk is working
+Map::executeCommand("mkdir -p t/results/euk_map_test\n");
+Map::parseMapEuk(
+    mapDir  => "t/results/euk_map_test",
+    samFile => "t/results/mapped.sam"
+);
+my $pp_euk = &count_lines("t/results/euk_map_test/paired_euk.sam");
+is( $pp_euk, 14, "parseMapEuk() IS test" );
+
+# Verify if parseMapBoth is working
+Map::executeCommand("mkdir -p t/results/both_map_test\n");
+Map::parseMapEuk(
+    mapDir  => "t/results/both_map_test",
+    samFile => "t/results/mapped.sam",
+    ref_prok => "t/data/prok_test.fna",
+    ref_euk=> "t/data/euk_test.fna"
+);
+
+my $pp_euk_both = &count_lines("t/results/both_map_test/paired_euk.sam");
+is( $pp_euk_both, 14, "parseMapBoth() IS test" );
+
 
 # Function to count lines
 sub count_lines {
