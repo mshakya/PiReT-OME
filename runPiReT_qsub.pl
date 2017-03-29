@@ -734,13 +734,13 @@ foreach ( sort keys %description ) {
 					&lprint("Mapping was not completed for  $sample\n");
 					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
 				print "test: it gtes past qsub submission line";	
-					&check_map(%allsample, %description, $workdir, $sample);
+					# &check_map(%allsample, %description, $workdir, $sample);
 				}
 		}
 	 		else {
 					&lprint("Mapping was not started for $sample\n\n");
 					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
-					&check_map(%allsample, %description, $workdir, $sample);
+					# &check_map(%allsample, %description, $workdir, $sample);
 			}
 			}
 		else {
@@ -757,7 +757,7 @@ foreach ( sort keys %description ) {
             # print in the log file and submit the trimmming and readmapping job
 				&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads'  -v indexref=$ref_index  -o $workdir/logdir/$sample -N $jobname $scriptDir/trim_readmapping.sh");
 				#TODO: add another function here that checks for status of qc
-				&check_map(%allsample, %description, $workdir, $sample);
+				# &check_map(%allsample, %description, $workdir, $sample);
         	}
 		}
         else {
@@ -786,7 +786,7 @@ foreach ( sort keys %description ) {
             #TODO: this part of code is not tested yet
                &exec_print("qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");
 				print "test: it gtes past qsub submission line";
-				&check_map(%allsample, %description, $workdir, $sample);
+				# &check_map(%allsample, %description, $workdir, $sample);
 		}
 
 }
