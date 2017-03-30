@@ -31,8 +31,6 @@ GetOptions(
     'E|euk_ref=s'        => \$euk_ref,
     'B|prok_ref=s'       => \$prok_ref,
     'T|splicesite=s'     => \$splicesite,
-    'XP|samin_prok=s'      => \$samindex_prok,
-    'XE|samin_euk=s'       => \$samindex_euk,
     'V|version'          => sub { printVersion() },
     'help|h|?'           => sub { &Usage() }
 );
@@ -93,11 +91,6 @@ OPTIONS
         -T, --splicesite
             tab delimited file with information on splice sites
 
-        -XP, --samindex_prok
-            tab delimited file (for prok) generated from samtools faidx
-
-        -XE, --samindex_euk
-            tab delimited file (for euk) generated from samtools faidx
 
 END
     exit;
@@ -210,6 +203,19 @@ if ( $kingdom eq 'both' ) {
         my @samFields = split /\t/, $samline;
 
         Map::parsePairedUnmapped( $samline, $UMAP1, $UMAP2 );
+
+        $samindex_euk = join('.', $euk_ref, 'fai');
+        if ( !-e $samindex_euk ){
+            Map::createFAI($samindex_euk);
+            if ( !-e $samindex_euk) {die "Cannot create $samindex_euk $!"};
+        }
+
+        $samindex_prok = join('.', $prok_ref, 'fai');
+        if ( !-e $samindex_prok){
+            Map::createFAI($samindex_prok);
+            if ( !-e $samindex_prok) {die "Cannot create $samindex_prok $!"};
+        }
+
         my %prok_id = Map::parseFAI($samindex_prok);
         my %euk_id  = Map::parseFAI($samindex_euk);
         if ( $euk_id{ $samFields[2] } ) {
