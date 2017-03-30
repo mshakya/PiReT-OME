@@ -732,14 +732,38 @@ foreach ( sort keys %description ) {
 					}
 				else {
 					&lprint("Mapping was not completed for  $sample\n");
-					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
-				print "test: it gtes past qsub submission line";	
+					&exec_print("qsub -V -cwd -pe smp"
+                                ." $numCPU -l h_vmem=$memlim"
+                                ." -v scriptDir=$scriptDir"
+                                ." -v test=$test -v numCPU=$numCPU"
+                                ." -v workdir=$workdir -v htseq=$htseq"
+                                ." -v sample=$sample -v rawreads='$rawreads'" 
+                                ." -v indexref=$ref_index"
+                                ." -v descriptfile=$descriptfile"
+                                ." -v kingdom=$test"
+                                ." -v eukarya_fasta=$eukarya_fasta"
+                                ." -v prokaryote_fasta=$prokaryote_fasta"
+                                ." -o $workdir/logdir/$sample"
+                                ." -N $jobname $scriptDir/readmapping.sh");
 					# &check_map(%allsample, %description, $workdir, $sample);
 				}
 		}
 	 		else {
 					&lprint("Mapping was not started for $sample\n\n");
-					&exec_print("qsub -V -cwd -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir -v htseq=$htseq -v sample=$sample -v rawreads='$rawreads' -v indexref=$ref_index -v  descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");	
+					&exec_print("qsub -V -cwd -pe smp"
+                                ." $numCPU -l h_vmem=$memlim"
+                                ." -v scriptDir=$scriptDir"
+                                ." -v test=$test -v numCPU=$numCPU"
+                                ." -v workdir=$workdir -v htseq=$htseq"
+                                ." -v sample=$sample -v rawreads='$rawreads'" 
+                                ." -v indexref=$ref_index"
+                                ." -v descriptfile=$descriptfile"
+                                ." -v kingdom=$test"
+                                ." -v eukarya_fasta=$eukarya_fasta"
+                                ." -v prokaryote_fasta=$prokaryote_fasta"
+                                ." -o $workdir/logdir/$sample"
+                                ." -N $jobname $scriptDir/readmapping.sh");
+
 					# &check_map(%allsample, %description, $workdir, $sample);
 			}
 			}
@@ -747,7 +771,7 @@ foreach ( sort keys %description ) {
            	$rawreads =~ s/---ppp---/ /g;
          	$rawreads =~ s/:/ /g;
 			# create directory of sample name
-            my $outDir1 = join '/', ( $workdir, "$sample" );
+            my $outDir1 = join '/', ( $workdir, $sample );
             mkdir $outDir1 if ( !-e $outDir1 );
             if ( !-e $outDir1 ) { print "cannot make dir $outDir1\n"; }
 			# create directory trimming_results within sample directory
@@ -762,7 +786,7 @@ foreach ( sort keys %description ) {
 		}
         else {
 			# make directory with sample name
-            my $outDir1 = join '/', ( $workdir, "$sample" );
+            my $outDir1 = join '/', ( $workdir, $sample );
             mkdir $outDir1 if ( !-e $outDir1 );
             if ( !-e $outDir1 ) { print "cannot make dir $outDir1\n"; }
 			# make directory named trimming_results
