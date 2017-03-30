@@ -105,44 +105,6 @@ unless ( $indexFile
     &Usage;
 }
 
-if ( $kingdom eq 'both' ) {
-    if ( -e $indexFile . ".ht2l" ) {
-        print "Index already exists";
-    }
-    else {
-        Map::createHisatIndex(
-            f1        => $euk_ref,
-            f2        => $prok_ref,
-            numCPU    => $numCPU,
-            out_index => $indexFile
-        );
-    }
-}
-elsif ( $kingdom eq 'eukarya' ) {
-    if ( -e $indexFile . ".ht2l" ) {
-        print "Index already exists";
-    }
-    Map::createHisatIndex(
-        f1        => $euk_ref,
-        numCPU    => $numCPU,
-        out_index => $indexFile
-    );
-}
-elsif ( $kingdom eq 'prokaryote' ) {
-    if ( -e $indexFile . ".ht2l" ) {
-        print "Index already exists";
-    }
-    Map::createHisatIndex(
-        f1        => $prok_ref,
-        numCPU    => $numCPU,
-        out_index => $indexFile
-    );
-}
-else {
-    print "Error!, not the correct option for kingdom"
-        . "The correct options are: both, eukarya, and prokaryote";
-}
-
 # First, check if the working directory exists
 if ( !-e $workdir ) { print "no working dir $workdir found\n"; }
 
