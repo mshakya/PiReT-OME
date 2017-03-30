@@ -808,7 +808,20 @@ foreach ( sort keys %description ) {
                 `cat $tmpreads2 > $troutDir/$tmptrname2`;
             }
             #TODO: this part of code is not tested yet
-               &exec_print("qsub  -V -pe smp $numCPU -l h_vmem=$memlim -v scriptDir=$scriptDir -v test=$test -v numCPU=$numCPU -v workdir=$workdir  -v sample=$sample -v rawreads=$rawreads  -v indexref=$ref_index -v descriptfile=$descriptfile  -o $workdir/logdir/$sample -N $jobname $scriptDir/readmapping.sh");
+                &exec_print("qsub -V -cwd -pe smp"
+                                ." $numCPU -l h_vmem=$memlim"
+                                ." -v scriptDir=$scriptDir"
+                                ." -v test=$test -v numCPU=$numCPU"
+                                ." -v workdir=$workdir -v htseq=$htseq"
+                                ." -v sample=$sample -v rawreads='$rawreads'" 
+                                ." -v indexref=$ref_index"
+                                ." -v descriptfile=$descriptfile"
+                                ." -v kingdom=$test"
+                                ." -v eukarya_fasta=$eukarya_fasta"
+                                ." -v prokaryote_fasta=$prokaryote_fasta"
+                                ." -o $workdir/logdir/$sample"
+                                ." -N $jobname $scriptDir/readmapping.sh");
+
 				print "test: it gtes past qsub submission line";
 				# &check_map(%allsample, %description, $workdir, $sample);
 		}

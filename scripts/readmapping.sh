@@ -6,14 +6,14 @@ date
 echo "perl $scriptDir/reads_mapping.pl \
 -P1 $workdir/$sample/trimming_results/$sample.1.trimmed.fastq \
 -P2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq \
--I $indexref -K $test -E $eukarya_fasta -B $prokaryote_fasta \
--W $workdir"
+-I $indexref -K $kingdom -E $eukarya_fasta -B $prokaryote_fasta \
+-S $sample -W $workdir"
 
 perl $scriptDir/reads_mapping.pl \
 -P1 $workdir/$sample/trimming_results/$sample.1.trimmed.fastq \
 -P2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq \
--I $indexref -K $test -E $eukarya_fasta -B $prokaryote_fasta \
--W $workdir
+-I $indexref -K $kingdom -E $eukarya_fasta -B $prokaryote_fasta \
+-S $sample -W $workdir
  
 #parse BAM files
 # echo "perl $scriptDir/parse_BAMfile.pl  -bamfile $rawreads -sample $sample -o $workdir"
