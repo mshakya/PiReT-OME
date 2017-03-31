@@ -829,42 +829,42 @@ foreach ( sort keys %description ) {
 }
 
 ###############################################################
-sub check_map (%allsample, %description, $workdir, $sample) 
-## A function to check if the submitted job is completed or not
-{
-	print "test: it executes the first line from subroutine";
-	print %allsample;
-	#TODO: something going on here
-	my $alldone = keys(%allsample);
-	#print $alldone;
-	while ($alldone) {
-		foreach ( sort keys %description ) {
-			my $sample  = $_;
-			my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
-			if ( &file_check($tmpfile) > 0 ) {
-            	open STATS_FILE, "<$tmpfile";
-				my $first_line = <STATS_FILE>;
-				my $total_reads = (split /\t/, $first_line)[1];
-				if ( $total_reads > 0 ){
-					$alldone--;
-					&lprint("mapping step is finsished for : $alldone\n");
-				}
-			}
-        	else { 
-				print QSUB_LOG "$tmpfile is running ....... \n"; 
-				print "testing print when mapping";
-			}
-    }
-    	if ( $alldone > 0 ) {
-        	print QSUB_LOG"sample unfinished : $alldone\n";
-			sleep(60);
-			$alldone = keys(%allsample);
-    }
-    else {
-        last;
-    }
-}
-}
+# sub check_map (%allsample, %description, $workdir, $sample) 
+# ## A function to check if the submitted job is completed or not
+# {
+# 	print "test: it executes the first line from subroutine";
+# 	print %allsample;
+# 	#TODO: something going on here
+# 	my $alldone = keys(%allsample);
+# 	#print $alldone;
+# 	while ($alldone) {
+# 		foreach ( sort keys %description ) {
+# 			my $sample  = $_;
+# 			my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
+# 			if ( &file_check($tmpfile) > 0 ) {
+#             	open STATS_FILE, "<$tmpfile";
+# 				my $first_line = <STATS_FILE>;
+# 				my $total_reads = (split /\t/, $first_line)[1];
+# 				if ( $total_reads > 0 ){
+# 					$alldone--;
+# 					&lprint("mapping step is finsished for : $alldone\n");
+# 				}
+# 			}
+#         	else { 
+# 				print QSUB_LOG "$tmpfile is running ....... \n"; 
+# 				print "testing print when mapping";
+# 			}
+#     }
+#     	if ( $alldone > 0 ) {
+#         	print QSUB_LOG"sample unfinished : $alldone\n";
+# 			sleep(60);
+# 			$alldone = keys(%allsample);
+#     }
+#     else {
+#         last;
+#     }
+# }
+# }
 
 #################################################################
 sub exec_print 
