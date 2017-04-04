@@ -42,7 +42,7 @@ export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
 bowtie2_VER=2.2.8
 bwa_VER=0.7.15
 cpanm_VER=1.7039
-miniconda_VER=4.2.12
+miniconda_VER=4.3.16
 samtools_VER=1.3.1
 jellyfish_VER=2.2.6
 bedtools_VER=2.26.0
@@ -50,6 +50,7 @@ R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
 jbrowse_VER=1.12.1
+stringtie_VER=1.3.3
 
 # minimum required version of Scripting languages
 perl5_VER=5.8.0
@@ -58,9 +59,10 @@ python2_VER=2.7.12
 #minimum required version of Perl modules
 perl_String_Approx_VER=3.27
 perl_Parllel_ForkManager_VER=1.17
+perl_test_script_VER=1.16
 
 #minimum required version of Python modules
-python_numpy_VER=1.1.12
+python_numpy_VER=1.11.3
 python_matplotlib_VER=1.5.3
 
 #minimum required version of Python modules
@@ -127,6 +129,21 @@ echo "
 "
 }
 
+install_stringtie()
+{
+echo "--------------------------------------------------------------------------
+                      installing StringTie v$stringtie_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda stringtie=$stringtie_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/stringtie $ROOTDIR/bin/stringtie
+echo "
+------------------------------------------------------------------------------
+                      StringTie v$stringtie_VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_perl_Parallel_ForkManager()
 {
 echo "--------------------------------------------------------------------------
@@ -139,6 +156,22 @@ cpanm Parallel::ForkManager@$perl_Parllel_ForkManager_VER -l $ROOTDIR/ext
 echo "
 --------------------------------------------------------------------------------
       Parallel-ForkManager-$perl_Parllel_ForkManager_VER Installed
+--------------------------------------------------------------------------------
+"
+}
+
+install_perl_test_script()
+{
+echo "--------------------------------------------------------------------------
+          Installing Perl Module Test-Script v$perl_test_script_VER
+--------------------------------------------------------------------------------
+"
+
+cpanm Test::Script@$perl_test_script_VER -l $ROOTDIR/ext
+# conda install --yes -c bioconda perl-Test-Script=$perl_Parllel_ForkManager_VER
+echo "
+--------------------------------------------------------------------------------
+          Test-Script-$perl_test_script_VER Installed
 --------------------------------------------------------------------------------
 "
 }
@@ -682,6 +715,20 @@ else
   install_htseq
 fi
 ################################################################################
+if ( checkSystemInstallation stringtie )
+then
+  stringtie_installed_ver=`stringtie --version`
+  if ( echo $stringtie_installed_ver $stringtie_VER | awk '{if($2>=$3) exit 0; else exit 1}')
+  then
+    echo " - found StringTie v$stringtie_installed_ver"
+  else
+    echo "Required version of StringTie was not found"
+  fi
+else
+  echo "StringTie was not found"
+  install_stringtie
+fi
+################################################################################
 if ( checkSystemInstallation jellyfish )
 then
   jellyfish_installed_VER=`jellyfish --version | perl -nle 'print $& if m{jellyfish \d+\.\d+\.\d+}'`
@@ -783,15 +830,15 @@ else
   install_cpanm
 fi
 
+################################################################################
 
-# commenting this out until i figure out what is this actually used for
-#if ( checkSystemInstallation gffread )
-#then
-#  echo "gffread is found"
-#else
-#  echo "gffread is not found"
-#  install_gffread
-#fi
+if ( checkSystemInstallation gffread )
+then
+ echo "gffread is found"
+else
+ echo "gffread is not found"
+ install_gffread
+fi
 
 ################################################################################
 #                        Perl Modules
@@ -828,6 +875,23 @@ else
   echo "Perl String::Approx was not found"
   install_perl_string_approx
 fi
+################################################################################
+if ( checkPerlModule Test::Script )
+then
+  perl_test_script_installed_VER=`cpan -D Test::Script 2>&1 | grep 'Installed' | perl -nle 'print $& if m{Installed: \d+\.\d+}'`
+  if ( echo $perl_test_script_installed_VER $perl_test_script_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found Perl module Test::Script $perl_test_script_installed_VER"
+  else
+    echo "Required version of Test::Script $perl_test_script_VER was not found"
+    install_perl_test_script
+  fi
+else
+  echo "Perl Test::Script was not found"
+  install_perl_test_script
+fi
+
+
 ################################################################################
 #                        Python Modules
 ################################################################################
@@ -867,7 +931,7 @@ fi
 echo "
 All done! Please Restart the Terminal Session.
 Run
-./runPiReT.pl
+runPiReT-OME
 for usage.
 Read the README for more information!
 To run a test data set
