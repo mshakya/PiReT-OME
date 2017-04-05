@@ -176,51 +176,6 @@ echo "
 "
 }
 
-install_bowtie2()
-{
-echo "--------------------------------------------------------------------------
-                           installing bowtie2 v$bowtie2_VER
---------------------------------------------------------------------------------
-"
-conda install --yes -c bioconda bowtie2=$bowtie2_VER -p $ROOTDIR/thirdParty/miniconda
-ln -sf $ROOTDIR/thirdParty/miniconda/bin/bowtie2 $ROOTDIR/bin/bowtie2
-echo "
-------------------------------------------------------------------------------
-                           bowtie2 v$bowtie2_VER installed
-------------------------------------------------------------------------------
-"
-}
-
-install_bwa()
-{
-echo "--------------------------------------------------------------------------
-                           Downloading bwa v$bwa_VER
---------------------------------------------------------------------------------
-"
-conda install --yes -c bioconda bwa=$bwa_VER -p $ROOTDIR/thirdParty/miniconda
-ln -sf $ROOTDIR/thirdParty/miniconda/bin/bwa $ROOTDIR/bin/bwa
-echo "
---------------------------------------------------------------------------------
-                           bwa v$bwa_VER installed
---------------------------------------------------------------------------------
-"
-}
-
-install_htseq()
-{
-echo "------------------------------------------------------------------------------
-                           downloading htseq v $htseq_VER
-------------------------------------------------------------------------------
-"
-conda install --yes -c bioconda htseq=$htseq_VER -p $ROOTDIR/thirdParty/miniconda
-ln -sf $ROOTDIR/thirdParty/miniconda/bin/htseq-count $ROOTDIR/bin/htseq-count
-echo "
-------------------------------------------------------------------------------
-                           htseq v $htseq_VER installed
-------------------------------------------------------------------------------
-"
-}
-
 install_samtools()
 {
 echo "--------------------------------------------------------------------------
@@ -329,9 +284,6 @@ echo "--------------------------------------------------------------------------
                  Installing Perl Module String-Approx-3.27
 ------------------------------------------------------------------------------
 "
-#TODO: Figure out how to download this using curl
-# curl -k -l http://search.cpan.org/CPAN/authors/id/J/JH/JHI/String-Approx-3.27.tar.gz -o String-Approx-3.27.tar.gz
-
 cd $ROOTDIR/thirdParty
 tar xvzf String-Approx-3.27.tar.gz
 cd String-Approx-3.27
@@ -367,86 +319,6 @@ cd $ROOTDIR/thirdParty
 echo "
 --------------------------------------------------------------------------------
                            gffread installed
---------------------------------------------------------------------------------
-"
-}
-
-install_jbrowse()
-{
-echo "--------------------------------------------------------------------------
-                      installing Jbrowse
---------------------------------------------------------------------------------
-"
-cd $ROOTDIR/thirdParty
-tar xvzf JBrowse-1.11.6.tar.gz
-cd JBrowse-1.11.6
-./setup.sh
-mkdir -p -m 775 data
-cd $ROOTDIR/thirdParty
-ln -sf $ROOTDIR/thirdParty/JBrowse-1.11.6 $ROOTDIR/bin/JBrowse
-echo "
---------------------------------------------------------------------------------
-                      Jbrowse installed
---------------------------------------------------------------------------------
-"
-}
-
-install_python_numpy()
-{
-echo "--------------------------------------------------------------------------
-                installing Python module numpy $python_numpy_VER
---------------------------------------------------------------------------------
-"
-conda install --yes -c anaconda numpy=$python_numpy_VER
-echo "
---------------------------------------------------------------------------------
-                           numpy installed
---------------------------------------------------------------------------------
-"
-}
-
-install_python_matplotlib()
-{
-echo "--------------------------------------------------------------------------
-                installing Python module matplotlib $python_matplotlib_VER
---------------------------------------------------------------------------------
-"
-conda install --yes -c anaconda matplotlib=$python_matplotlib_VER
-echo "
---------------------------------------------------------------------------------
-                           matplotlib installed
---------------------------------------------------------------------------------
-"
-}
-
-install_R_edgeR()
-{
-echo "--------------------------------------------------------------------------
-                installing latest R package edgeR $R_edgeR_VER
---------------------------------------------------------------------------------
-"
-mkdir -p $ROOTDIR/ext/lib/R
-echo "source('https://bioconductor.org/biocLite.R') 
-      biocLite('edgeR', lib='$ROOTDIR/ext/lib/R')" | Rscript -
-echo "
---------------------------------------------------------------------------------
-                           latest version of edgeR installed
---------------------------------------------------------------------------------
-"
-}
-
-install_R_DESeq2()
-{
-echo "--------------------------------------------------------------------------
-                installing latest R package DESeq2 $R_DESeq2_VER
---------------------------------------------------------------------------------
-"
-mkdir -p $ROOTDIR/ext/lib/R
-echo "source('https://bioconductor.org/biocLite.R') 
-      biocLite('DESeq2', lib='$ROOTDIR/ext/lib/R')" | Rscript -
-echo "
---------------------------------------------------------------------------------
-                           DESeq2 installed
 --------------------------------------------------------------------------------
 "
 }
