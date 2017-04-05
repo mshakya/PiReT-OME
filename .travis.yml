@@ -19,8 +19,6 @@ before_script:
   - cpanm --quiet --notest --skip-satisfied Devel::Cover Devel::Cover::Report::Codecov
 
 script:
-  - ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
-  - ls $HOME/ext/lib/perl5
   - echo $PATH
   - source $HOME/.bashrc
   - echo $PATH
