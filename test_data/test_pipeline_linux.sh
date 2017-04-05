@@ -16,13 +16,13 @@ rm test_ed.txt
 #
 printf "running pipeline now"
 
-printf "runPiReT-OME \
+printf "../bin/runPiReT-OME \
 -exp test_experimental_design.txt \
 -d pipeline_test_euk \
 -eukarya_fasta data/eukarya_test.fa -index_ref_bt2 test_index \
 -gff_eukarya data/eukarya_test.gff3"
 
-runPiReT-OME \
+../bin/runPiReT-OME \
 -exp test_experimental_design.txt \
 -d pipeline_test_euk \
 -eukarya_fasta data/eukarya_test.fa -index_ref_ht2 test_index \
