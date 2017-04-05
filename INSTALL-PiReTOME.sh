@@ -15,7 +15,7 @@ cd thirdParty
 
 # create a directory to add short cuts to dependencies
 mkdir -p $ROOTDIR/bin
-export "PATH=$PATH:$ROOTDIR/bin/"
+export PATH="$PATH:$ROOTDIR/bin/"
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
@@ -239,9 +239,9 @@ then
   curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.2.12-MacOSX-x86_64.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
-  # export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/pip $ROOTDIR/bin/pip
+  export PATH=$PATH:$ROOTDIR/bin/
 
 }
 else
@@ -250,9 +250,9 @@ else
   wget https://repo.continuum.io/miniconda/Miniconda2-4.2.12-Linux-x86_64.sh -O miniconda.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
-  # export PATH=$ROOTDIR/thirdParty/miniconda/bin:$PATH
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/pip $ROOTDIR/bin/pip
+  export PATH=$PATH:$ROOTDIR/bin/
 
 }
 fi
