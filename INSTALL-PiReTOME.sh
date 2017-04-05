@@ -515,47 +515,6 @@ if ( checkSystemInstallation R )
       install_R
 fi
 
-
-################################################################################
-# check if required bioconductor R packages are installed
-################################################################################
-
-if ( checkRpackages edgeR )
-  then
-  R_edgeR_installed_VER=`echo "cat(unname(installed.packages()[,3][\"edgeR\"]))" | Rscript - | sed "s/\"//g"`;
-  echo $R_edgeR_installed_VER 
-  if (echo $R_edgeR_installed_VER $R_edgeR_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-  echo " - found edgeR $R_edgeR_installed_VER"
-  else
-    echo "Required version of edgeR $R_edgeR_VER was not found"
-    install_R_edgeR
-  fi
-else
-  echo "edgeR is not found"
-    install_R_edgeR
-fi
-
-#------------------------------------------------------------------------------#
-
-if ( checkRpackages DESeq2 )
-  then
-  R_DESeq2_installed_VER=`echo "cat(unname(installed.packages()[,3][\"DESeq2\"]))" | Rscript - | sed 's/\"//g'`;
-  echo $R_DESeq2_installed_VER 
-  if (echo $R_DESeq2_installed_VER $R_DESeq2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-  echo " - found DESeq2 $R_DESeq2_installed_VER"
-  else
-    echo "Required version of DESeq2 $R_DESeq2_VER was not found"
-    install_R_DESeq2
-  fi
-else
-  echo "DESeq2 is not found"
-    install_R_DESeq2
-fi
-
-
-
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
@@ -570,21 +529,6 @@ then
 else
   echo "hisat2 was not found"
   install_hisat2
-fi
-################################################################################
-if ( checkSystemInstallation htseq-count )
-then
-  htseq_installed_VER=`htseq-count -h | grep 'version'| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`
-  if ( echo $htseq_installed_VER $htseq_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-    echo " - found htseq $htseq_installed_VER"
-  else
-    echo "Required version of htseq was not found"
-    install_htseq
-  fi
-else
-  echo "htseq was not found"
-  install_htseq
 fi
 ################################################################################
 if ( checkSystemInstallation stringtie )
@@ -613,35 +557,6 @@ then
 else
   echo "jellyfish was not found"
   install_jellyfish
-fi
-################################################################################
-if ( checkSystemInstallation bowtie2 )
-then
-bowtie2_installed_VER=`bowtie2 --version 2>&1 | grep 'bowtie2-align-s version' | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-  if (echo $bowtie2_installed_VER $bowtie2_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-    echo " - found bowtie2 $bowtie2_installed_VER"
-  else
-    echo "Required version of bowtie2 $bowtie2_VER was not found"
-    install_bowtie2
-  fi
-else
-  echo "bowtie2 is not found"
-  install_bowtie2
-fi
-################################################################################
-if ( checkSystemInstallation bwa )
-then
-bwa_installed_VER=`bwa 2>&1| grep 'Version'  | perl -nle 'print $& if m{Version: \d+\.\d+\.\d+}'`;
-  if  ( echo $bwa_installed_VER $bwa_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-  then
-    echo " - found BWA $bwa_installed_VER"
-  else
-    install_bwa
-  fi
-else
-  echo "bwa is not found"
-  install_bwa
 fi
 ################################################################################
 if ( checkSystemInstallation samtools )
@@ -673,17 +588,6 @@ then
 else
   echo "bedtools is not found"
   install_bedtools
-fi
-
-
-################################################################################
-#TODO: add a way to check version here as well
-if ( -x $ROOTDIR/bin/JBrowse/bin/prepare-refseqs.pl )
-then
-  echo "JBrowse is found"
-else
-  echo "JBrowse is not found"
-  install_jbrowse
 fi
 
 ################################################################################
@@ -767,41 +671,9 @@ fi
 ################################################################################
 #                        Python Modules
 ################################################################################
-if ( checkPythonModule numpy)
-  then
-  python_numpy_installed_VER=`python -c "import numpy; print numpy.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
-  if (echo $python_numpy_installed_VER $python_numpy_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
-  then
-    echo " - found Python module numpy $python_numpy_installed_VER"
-  else
-    echo "Required version of numpy $python_numpy_VER was not found" 
-    install_python_numpy
-  fi
-else
-    echo "numpy was not found"
-    install_python_numpy
-fi
-
-################################################################################
-
-if ( checkPythonModule matplotlib)
-  then
-  python_matplotlib_installed_VER=`python -c "import matplotlib; print matplotlib.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
-  if (echo $python_matplotlib_installed_VER $python_matplotlib_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
-  then
-    echo " - found Python module matplotlib $python_matplotlib_installed_VER"
-  else
-    echo "Required version of matplotlib $python_matplotlib_VER was not found" 
-    install_python_matplotlib
-  fi
-else
-    echo "matplotlib was not found"
-    install_python_matplotlib
-fi
-
 
 echo "
-All done! Please Restart the Terminal Session.
+All done!
 Run
 runPiReT-OME
 for usage.
