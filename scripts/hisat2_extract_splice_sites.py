@@ -1,4 +1,4 @@
-#!/Users/migunshakya/Desktop/PiReT/thirdParty/miniconda/bin/python
+
 
 #
 # Copyright 2015, Daehwan Kim <infphilo@gmail.com>
