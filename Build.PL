@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Module::Build;
+use lib 'ext/lib/perl5';
 
 my $v=1;
 

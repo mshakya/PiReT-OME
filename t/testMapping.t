@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use lib "$Bin/../ext/lib/perl5";
 use Test::More;
 
 # use Test::File;
