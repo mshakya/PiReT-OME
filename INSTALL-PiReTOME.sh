@@ -33,7 +33,7 @@ fi
 # export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
 
 #Add R path
-export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
+# export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
 
 # Minimum Required versions of dependencies
 cpanm_VER=1.7039
@@ -41,7 +41,6 @@ miniconda_VER=4.3.16
 samtools_VER=1.3.1
 jellyfish_VER=2.2.6
 bedtools_VER=2.26.0
-R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
 stringtie_VER=1.3.3
@@ -209,21 +208,6 @@ echo "
 "
 }
 
-install_R()
-{
-echo "--------------------------------------------------------------------------
-                           Installing R v $R_VER
---------------------------------------------------------------------------------
-"
-conda install --yes -c r r-base=$R_VER -p $ROOTDIR/thirdParty/miniconda
-ln -sf $ROOTDIR/thirdParty/miniconda/bin/R $ROOTDIR/bin/R
-ln -sf $ROOTDIR/thirdParty/miniconda/bin/Rscript $ROOTDIR/bin/Rscript
-echo "
---------------------------------------------------------------------------------
-                           R v $R_VER installed
---------------------------------------------------------------------------------
-"
-}
 
 install_miniconda()
 {
@@ -483,22 +467,6 @@ then
 else
   echo "Python was not found"
   install_python
-fi
-
-###############################################################################
-if ( checkSystemInstallation R )
-    then
-      R_installed_VER=`R --version 2>&1 | grep "version"| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-      if ( echo $R_installed_VER $R_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
-      then 
-        echo " - found R $R_installed_VER"
-      else
-        echo "Required version of R version $R_VER was not found"
-        install_R
-      fi
-    else
-      echo "R was not found"
-      install_R
 fi
 
 ################################################################################
