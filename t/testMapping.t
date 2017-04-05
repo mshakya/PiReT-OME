@@ -15,16 +15,16 @@ BEGIN { use_ok('PiReT::Map') }
 # Verify module can be included via "require" pragma
 require_ok('PiReT::Map');
 
-# # Verify if indexes are created correctly
-# Map::createHisatIndex(
-#     f1        => "t/data/euk_test.fna",
-#     f2        => "t/data/prok_test.fna",
-#     numCPU    => 1,
-#     out_index => "t/results/euk_prok_index"
-# );
+# Verify if indexes are created correctly
+Map::createHisatIndex(
+    f1        => "t/data/euk_test.fna",
+    f2        => "t/data/prok_test.fna",
+    numCPU    => 1,
+    out_index => "t/results/euk_prok_index"
+);
 
-# my $in_cnt = count_lines("t/results/euk_prok_index.6.ht2l");
-# is( $in_cnt, 2195, "createHisatIndex() IS test" );
+my $in_cnt = count_lines("t/results/euk_prok_index.6.ht2l");
+is( $in_cnt, 2195, "createHisatIndex() IS test" );
 
 # # Verify if mapping produces an expected sam file
 # Map::runMapping(

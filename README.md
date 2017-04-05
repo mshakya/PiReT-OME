@@ -1,7 +1,7 @@
 
 #PiReT
 
-Pipeline for Reference based Transcriptomics - for VIOME.
+Pipeline for Reference based Transcriptomics - OME.
 
 [![Build Status](https://travis-ci.org/mshakya/PiReT-OME.svg?branch=master)](https://travis-ci.org/mshakya/PiReT-OME)
 [![codecov](https://codecov.io/gh/mshakya/PiReT/branch/master/graph/badge.svg?token=B0PzdxRcdj)](https://codecov.io/gh/mshakya/PiReT)
@@ -14,23 +14,25 @@ Before installing PiReT-OME, user must have following installed. These normally 
 - make
 - git
 
-## Installing PiReT-OME
+## Getting PiReT-OME
 Use `git clone` from command line.
 
 ```
 git clone https://github.com/mshakya/PiReT.git
 ```
 
+## Installing PiReT-OME
+
+PiReT-OME is a wrapper of RNA seq tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT-OME` we have provided a script `INSTALL-PiReTOME.sh` that first checks for required dependencies (including their versions) are installed and in your `PATH`. If not found, dependencies will be installed in `thirdParty` directories within `PiReT`. `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
 `cd` into the `PiReT` directory
 
 ```
 cd PiReT
 ./INSTALL-PiReTOME.sh
 ```
+Please restart the terminal after installation.
 
-PiReT-OME is a wrapper of RNA seq tools, many of which are available in [bioconda](https://bioconda.github.io). For installing `PiReT` we have provided a script `INSTALL-PiReTOME.sh` that first checks for required dependencies (including their versions) are installed and in your `PATH`. If not found, dependencies will be installed in `thirdParty` directories within `PiReT`. `sudo` privileges are not needed for installation. A log of all installation can be found in `install.log`
-
-##Test
+##Testing PiReT-OME
 We have provided test data set to check if the installation was successful or not. `fastq` files can be found in `test_data/fastqs` and corresponding reference fasta files are found in `test_data/data`. To run the test, from within `PiReT` directory:
 
 ```
