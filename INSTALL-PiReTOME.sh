@@ -236,7 +236,7 @@ if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
 
-  curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.3.16-MacOSX-x86_64.sh
+  curl -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda2-4.3.11-MacOSX-x86_64.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
@@ -247,7 +247,7 @@ then
 else
 {  
 
-  wget https://repo.continuum.io/miniconda/Miniconda2-4.3.16-Linux-x86_64.sh -O miniconda.sh
+  wget https://repo.continuum.io/miniconda/Miniconda2-4.3.11-Linux-x86_64.sh -O miniconda.sh
   chmod +x miniconda.sh
   ./miniconda.sh -b -p $ROOTDIR/thirdParty/miniconda -f
   ln -sf $ROOTDIR/thirdParty/miniconda/bin/conda $ROOTDIR/bin/conda
