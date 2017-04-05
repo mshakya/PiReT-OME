@@ -3,7 +3,7 @@
 
 Pipeline for Reference based Transcriptomics - for VIOME.
 
-[![Build Status](https://travis-ci.com/mshakya/PiReT.svg?token=xwcWcg2wroskmENQQapz&branch=master)](https://travis-ci.com/mshakya/PiReT)
+[![Build Status](https://travis-ci.org/mshakya/PiReT-OME.svg?branch=master)](https://travis-ci.org/mshakya/PiReT-OME)
 [![codecov](https://codecov.io/gh/mshakya/PiReT/branch/master/graph/badge.svg?token=B0PzdxRcdj)](https://codecov.io/gh/mshakya/PiReT)
 
 #Overview
