@@ -8,12 +8,13 @@ Pipeline for Reference based Transcriptomics - for VIOME.
 
 #Overview
 
-## Installing PiReT
+## Requirements
+Before installing PiReT-OME, user must have following installed. These normally come pre-installed as part of a unix machine. 
+- curl/wget
+- make
+- git
 
-**If you DO NOT HAVE git installed in your machine**
-Please download PiReT directly from the [github](https://github.com/mshakya/PiReT). However, we recommend that a user install `git`, which is required for obtaining dependencies that are not yet available in bioconda.
-
-**If you HAVE git installed in your machine**
+## Installing PiReT-OME
 Use `git clone` from command line.
 
 ```
@@ -46,8 +47,8 @@ These shell script automatically creates `experimental_design.txt` and runs the 
 Pipeline run status can be checked in either `process.log` or `error.log`.
 
 
-##Dependencies
-PiReT-OME requires following dependencies, all of which should be installed and in the PATH. All of the dependencies should be installed by `INSTALL-PiReTOME.sh`. However, some manual work may require depending on your system configuration.
+## Installed Dependencies
+PiReT-OME requires following dependencies, all of which should be installed and added to PATH. All of the dependencies should be installed by `INSTALL-PiReTOME.sh`. However, some manual work may require depending on your system configuration.
 
 ### Programming/Scripting languages
 - [Python >=v2.7](https://www.python.org/downloads/release/python-2712/)
@@ -57,16 +58,7 @@ PiReT-OME requires following dependencies, all of which should be installed and 
 - [R >=v3.3.1](https://www.r-project.org)
 
 
-### Unix
-- sed
-- awk
-- find
-- curl/wget
-- make
-- git
-
-
-### Installing dependencies
+### Required dependencies
 This is the core list of dependencies. However, there are secondary dependencies for many of the listed tools, which will also be installed by `bioconda`.
 - [conda v4.3.11](http://conda.pydata.org/docs/index.html)
     If [anaconda](https://www.continuum.io/downloads) is not installed, `INSTALL-PiReTOME.sh` will download and install [miniconda](http://conda.pydata.org/miniconda.html), a "mini" version of `conda` that only installs handful of packages compared to [anaconda](https://docs.continuum.io/anaconda/pkg-docs). However, we strongly recommend that users install anaconda as it comes with many packages that one will eventually use for other bioinformatic analyses.
