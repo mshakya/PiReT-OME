@@ -661,12 +661,14 @@ then
   echo "#Added by PiReT-OME installation" >> $HOME/.bashrc
   echo "export PiReT-OME_HOME=$ROOTDIR" >> $HOME/.bashrc
   echo "export PATH=$ROOTDIR/bin/" >> $HOME/.bashrc
+  source $HOME/.bashrc
 }
 else
 {
   echo "#Added by PiReT-OME pipeline installation" >> $HOME/.bash_profile
   echo "export PiReT-OME_HOME=$ROOTDIR" >> $HOME/.bash_profile
   echo "export PATH=$ROOTDIR/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
+  source $HOME/.bash_profile
 }
 fi
 
