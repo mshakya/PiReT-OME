@@ -116,70 +116,93 @@ The pipeline can be run in a multiprocessor server with the ability to submit jo
 
 ## What is in the working directory (-d)?
 
-Here are the list of directories that will be in `working directory`.
+Here are the list of directories that you should expect in `working directory` from test run
+in `test_data`.
 
 ```
 ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
 
-|-differential_gene
-   |---prokaryote
-   |-----test_prok
-   |-------Deseq
-   |-------EdgeR
-   |-------figures
-   |-------significant_gene
-   |---------pathway
+   |---eukarya
+   |-----eukarya_test3
    |-logdir
+   |-merged_gtfs
+   |---samp1
+   |---samp2
+   |---samp3
+   |---samp4
+   |---samp5
+   |---samp6
+   |-samp1
+   |---mapping_results
+   |---trimming_results
    |-samp2
    |---mapping_results
    |---trimming_results
    |-samp3
    |---mapping_results
    |---trimming_results
+   |-samp4
+   |---mapping_results
+   |---trimming_results
+   |-samp5
+   |---mapping_results
+   |---trimming_results
+   |-samp6
+   |---mapping_results
+   |---trimming_results
    |-sum_gene_count
    |---read_count
-   |-----prokaryote
-   |-------test_prok
+   |-----eukarya
+   |-------eukarya_test3
    |---tmp_count
-   |-----prokaryote
-   |-------test_prok
+   |-----eukarya
+   |-------eukarya_test3
+   |---process.log
+   |---error.log
+   |---splice_sites_gff.txt
+   |---eukarya.fa.fai
+   |---eukarya.gtf
+   |---
 
 ```
 
-`differential_gene`: contains sub-folders with `EdgeR` and `DeSeq` results (when provided) for `prokaryote` and `eukaryote` or `both`. Direct sub-directory of `differential_gene` can be either `prokaryote`, `eukarya`, or both of those. The folder within it are then named based on the given `gff` files corresponding usually to one organism. The file and directory structure within each folder are mostly similar with few differences, all of which are listed and described below.
-
-- `eukarya/splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script part of *HISAT*.
-- `sum_exp_stats.txt`: Summary table of number of reads after each major processing (filtering and mapping) of files.
-- `RPKM_all_gene.txt`: A table of RPKM calculated per features for each samples.
-- `reads.table.txt` : A table of reads mapped to features for each samples.
-- `prokaryote.genedesc.rRNA.txt`: subset of `gff` files only containing `rRNA` features.
-- `prokaryote.gff`: the whole `gff` file.
-- `prokaryote.NonrRNA.genedesc.txt`: subset of `gff` files that only has gene description.
-- `prokaryote.NonrRNA.gff`: `gff` file with no rRNA.
-- `readcounts.experiment.txt`: table similar to experimental design file with location of `htseq-count` results full path.
+- `splice_sites_gff.txt`: contains known splice sites, generated using `scripts/extract_splice_sites.py`, a python script provided with *HISAT*.
 
 `process.log`: report of all the commands/scripts/ that were ran as part of the pipeline.
 
 `error.log`: any error are reported here.
 
-`samp2`: The name of this directory corresponds to sample name. Within this folder there are two sub-folders:
+`samp1-samp6`: The name of this directory corresponds to sample name (as given in experimental design file). Within this folder there are two sub-folders:
+
+- `trimming_results`
+            This folder contains results of quality trimming or filtering. This folder was generated using the same script that filters reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline. It contains following files:
+            
+            - `fastqCount.txt`: summary (read length, count and nt content) of input fastq.
+            - `samp1.1.trimmed.fastq`: QCed read1s of a pair.
+            - `samp1.2.trimmed.fastq`: QCed read2s of a pair.
+            - `samp1_qc_report.pdf: summary of QC run with figures.
+            - `samp1.stats.txt: summary of QC run.
+            - `samp1.unpaired.trimmed.fastq : unpaired reads from the QC.
 
 - `mapping_results`
-    This folder contains reads mapped using *HISAT2* in following formats. If `splice_sites_gff.txt` is present, **HISAT2** aligns based on known splice sites (`splice_sites_gff.txt`).
-        - `.sam`: outputs of *HISAT2* (`forward`, `backward`, `paired`, `Notproperpaired`) and sorted `.sam` files
-        - `.bam`: generated from `.sam` with `samtools view -bt index_file .sam < .bam`
-        - `.bedgraph`: bedgraph summaries of feature coverage produced using`genomeCoverageBed -split -bg -ibam`
-        - `.mapping.log`: Alignment summary file from `HISAT2`
+    This folder contains reads mapped using *HISAT2* in following formats. I
+        - `mapped.sam`: output of *HISAT2*.
+        - `samp1.alns.sorted.bam`: ordered `mapped.sam` file.
+        - `mapped.log`: Alignment summary file from `HISAT2`
+        - `samp1.summary.gtf`: A `GTF` style file with information of coverage (`cov`) , FPKM (`FPKM`), TPM (`TPM`), gene id (`ref_gene_id`), etc. as `attributes`. The file is the output (-o) of `StringTie` quantifying reads.
+        - `samp1_full_coverage.gtf`: A `GTF` file that contains all transcripts that are fully covered by reads. See (`-C`) option of `StringTie` for details.
+        - `samp1_gene_abundance.tab`: A tab delimited file with information on gene coverage, FPKM, and TPM. See (-A) opetion of `StringTie` for details.
 
-- 2. `trimming_results`
-            This folder contains results of quality trimming or filtering. This folder was generated using the same script that filteres reads in [EDGE](https://bioedge.lanl.gov/edge_ui/) pipeline.
 
+- `eukarya.fa`: A copy of input eukarya `fna` files.
 
-`sum_gene_count`: directory with results of reads count per sample. Calculated using `htseq-count  -t gene -q -i locus_tag`. Also see `readcounts.experiment.txt`.
+- `eukarya.fa.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
 
-`eukarya.fai`: Indexed reference sequence from `eukarya.fa` using `samtools faidx`. A four column table with NAME, LENGTH, OFFSET, LINEBASES, and LINEWIDTH 
+- `eukarya.gtf`: A `GTF` file from input `GFF` files.
 
-`process_current.log`: Created at the end of the pipeline indicating, successful run.
+- `eukarya.genedesc.txt`: A tab delimited file with gene id and function.
+
+- `eukarya.gff`: A `GFF` file from input GFF files.
 
 ## Removing PiReT
 
@@ -187,17 +210,13 @@ For removal, since all dependencies that are not in your system are installed in
 
 
 ##Contributions
-- Shihai Feng
 - Migun Shakya
+- Shihai Feng
 
 ## Citations:
 If you use PiReT please cite following papers:
 
 - **samtools**: Li H., Handsaker B., Wysoker A., Fennell T., Ruan J., Homer N., Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009) The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
-- **bowtie2**: Langmead, B., & Salzberg, S. L. (2012). Fast gapped-read alignment with Bowtie 2. Nature methods, 9(4), 357-359. [PMID: 22388286]
-- **bwa**: Li H. and Durbin R. (2009) Fast and accurate short read alignment with Burrows-Wheeler Transform. Bioinformatics, 25:1754-60. [PMID: 19451168]
-- **DESeq2**: Love MI, Huber W and Anders S (2014). “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome Biology, 15, pp. 550. [PMID: 25516281]
-- **EdgeR**: McCarthy, J. D, Chen, Yunshun, Smyth and K. G (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research, 40(10), pp. -9. [PMID: 22287627]
-- **HTSeq**: Anders, S., Pyl, P. T., & Huber, W. (2014). HTSeq–a Python framework to work with high-throughput sequencing data. Bioinformatics. [PMID: 25260700]
 - **HISAT2**: Kim, D., Langmead, B., & Salzberg, S. L. (2015). HISAT: a fast spliced aligner with low memory requirements. Nature methods, 12(4), 357-360. [PMID: 25751142]
 - **BEDTools**: Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842. [PMID: 20110278]
+- *StringTie*: Pertea M, Pertea GM, Antonescu CM, Chang TC, Mendell JT  & Salzberg SL. StringTie enables improved reconstruction of a transcriptome from RNA-seq reads Nature Biotechnology 2015, doi:10.1038/nbt.3122 [PMID: 25690850]
