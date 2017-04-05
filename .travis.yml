@@ -10,12 +10,6 @@ cache:
     - $HOME/miniconda
 
 before_install:
-  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b -p $HOME/miniconda -f
-  - export PATH=$HOME/miniconda/bin:$PATH
-  - conda update --yes conda
-  - conda info -a
   - pip install --user codecov
 
 install:
