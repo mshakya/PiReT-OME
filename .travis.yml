@@ -19,7 +19,7 @@ before_install:
   - pip install --user codecov
 
 install:
-  - INSTALL-PiReTOME.sh
+  - ./INSTALL-PiReTOME.sh
 
 before_script:
   - cpanm --quiet --notest --skip-satisfied Devel::Cover Devel::Cover::Report::Codecov
