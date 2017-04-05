@@ -5,12 +5,9 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use lib "$Bin/../ext/lib/perl5";
-use lib "$Bin/../ext/lib/perl5/darwin-thread-multi-2level";
 use Test::More;
 use Test::Script;
 use PiReT::Map;
-use String::Approx;
-use Parallel::Forkmanager;
 
 $ENV{PERL5LIB} = "$Bin/../ext/lib/perl5:$ENV{PERL5LIB}";
 
