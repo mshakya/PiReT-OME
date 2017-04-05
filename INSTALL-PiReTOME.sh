@@ -4,7 +4,6 @@ set -e # Exit as soon as any line in the bash script fails
 
 ROOTDIR=$( cd $(dirname $0) ; pwd -P ) # path to main PiReT directory
 
-
 echo
 exec &> >(tee -a  install.log)
 exec 2>&1 # copies stderr onto stdout
@@ -14,11 +13,10 @@ cd $ROOTDIR
 mkdir -p thirdParty
 cd thirdParty
 
-
 # create a directory to add short cuts to dependencies
 mkdir -p $ROOTDIR/bin
 export "PATH=$PATH:$ROOTDIR/bin/"
-printenv
+
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
@@ -30,7 +28,6 @@ else
 export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2level/:$PERL5LIB"
 }
 fi
-printenv
 
 # Add pythonpath
 # export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
@@ -39,8 +36,6 @@ printenv
 export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
 
 # Minimum Required versions of dependencies
-bowtie2_VER=2.2.8
-bwa_VER=0.7.15
 cpanm_VER=1.7039
 miniconda_VER=4.3.16
 samtools_VER=1.3.1
@@ -49,11 +44,10 @@ bedtools_VER=2.26.0
 R_VER=3.3.1
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
-jbrowse_VER=1.12.1
 stringtie_VER=1.3.3
 
 # minimum required version of Scripting languages
-perl5_VER=5.8.0
+perl5_VER=5.22.0
 python2_VER=2.7.12
 
 #minimum required version of Perl modules
@@ -61,20 +55,12 @@ perl_String_Approx_VER=3.27
 perl_Parllel_ForkManager_VER=1.17
 perl_test_script_VER=1.16
 
-#minimum required version of Python modules
-python_numpy_VER=1.11.3
-python_matplotlib_VER=1.5.3
-
-#minimum required version of Python modules
-R_edgeR_VER=3.14.0
-R_DESeq2_VER=1.12.4
-
 # Tools categorized based on function
 utility_tools=(samtools bedtools)
 other_tools=( jellyfish )
-alignments_tools=(bowtie2 bwa hisat2)
-count_tools=( htseq )
-# perl_modules=( perl_parallel_forkmanager string_approx)
+alignments_tools=( hisat2 )
+count_tools=( stringtie )
+perl_modules=( perl_parallel_forkmanager string_approx)
 all_tools=("${utility_tools[@]}" "${alignments_tools[@]}" "${count_tools[@]}" "${other_tools[@]}")
 
 ################################################################################
@@ -669,8 +655,10 @@ fi
 
 
 ################################################################################
-#                        Python Modules
+
 ################################################################################
+# exit to the home
+cd $ROOTDIR
 
 echo "
 All done!
