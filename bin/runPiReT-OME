@@ -704,12 +704,8 @@ sub checkDependedPrograms
     #TODO: Also check for appropriate version
 
 {
-    system("which bwa 1>/dev/null") == 0
-        || die "\nbwa is not in your PATH\n $ENV{PATH}\n";
     system("which samtools 1>/dev/null") == 0
         || die "\nsamtools is not in your PATH\n $ENV{PATH}\n";
-    system("which R 1>/dev/null") == 0
-        || die "\nR is not in your PATH\n $ENV{PATH}\n";
     system("which hisat2-build 1>/dev/null") == 0
         || die "\nhisat2-build is not in your PATH\n $ENV{PATH}\n";
     system("which hisat2 1>/dev/null") == 0
@@ -718,8 +714,6 @@ sub checkDependedPrograms
         || die "\nperl is not in your PATH\n $ENV{PATH}\n";
     system("which gffread 1>/dev/null") == 0
         || die "\ngffread is not in your PATH\n $ENV{PATH}\n";
-    system("which genomeCoverageBed 1>/dev/null") == 0
-        || die "\nperl is not in your PATH\n $ENV{PATH}\n";
     system("which stringtie 1>/dev/null") == 0
         || die "\nstringtie is not in your PATH\n $ENV{PATH}\n";
 }
