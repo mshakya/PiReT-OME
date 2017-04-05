@@ -25,9 +25,9 @@ before_script:
   - cpanm --quiet --notest --skip-satisfied Devel::Cover Devel::Cover::Report::Codecov
 
 script:
-# - cd test_data && sh test_pipeline_linux.sh
   - perl Build.PL
   - ./Build test
+  - cd test_data && sh test_pipeline_linux.sh
   - cover -test
 
 after_success:
