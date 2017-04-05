@@ -3,19 +3,20 @@
 use warnings;
 use strict;
 
-use diagnostics;
+# use diagnostics;
 use Getopt::Long;
 use File::Basename;
 use Term::ANSIColor;
 use Cwd;
 use FindBin qw($Bin);
-use lib '$Bin/../ext/lib/perl5';
+use lib "$Bin/../lib";
 use POSIX qw(strftime);
+use PiReT::Map;
 
 $| = 1;
 $ENV{PATH} = "$Bin:$ENV{PATH}";
 $ENV{PERL5LIB}
-    = "$Bin/../ext/lib/perl5:$Bin/../ext/lib/perl5/auto:$ENV{PERL5LIB}";
+    = "$Bin/../lib:$Bin/../ext/lib/perl5:$Bin/../ext/lib/perl5/auto:$ENV{PERL5LIB}";
 
 # $ENV{PYTHONPATH}
 #     = "$Bin/../thirdParty/miniconda/lib/python2.7/site-packages/:"
@@ -34,7 +35,7 @@ my $time      = time();
 my $scriptDir = "$Bin/../scripts";
 my ($descriptfile, $splice_file_out, $pairfile, $diffdir,
     $workdir,      $numCPU,          $eukarya_fasta,,
-    $index_bt2,    $gff_eukarya,     $coverage_fasta
+    $index_ht2,    $gff_eukarya,     $coverage_fasta
 );
 
 #my $mapread='no';
@@ -42,7 +43,7 @@ $numCPU = 1;
 my $test_method      = 'both';
 my $mptool           = 'bowtie2';
 my $htseq            = 'gene';
-my $memlim           = '10G';
+my $memlim           = '20G';
 my $rna_trimming_opt = 'yes';
 my $rna_mapping_opt  = 'yes';
 $coverage_fasta = 'NONE';
@@ -57,22 +58,22 @@ GetOptions(
     'd=s'                   => \$workdir,
     'cpu=i'                 => \$numCPU,
     'eukarya_fasta=s'       => \$eukarya_fasta,
-    'index_ref_bt2=s'       => \$index_bt2,
+    'index_ref_ht2=s'       => \$index_ht2,
     'h_vmem=s'              => \$memlim,
     'gff_eukarya=s'         => \$gff_eukarya,
     'gene_coverage_fasta=s' => \$coverage_fasta,
     'geneopt=s'             => \$htseq
     , #count reads based on 'gene' or 'CDS' or 'tRNA' or 'mRNA' in annotation file, default ='gene';
       #  'BAM_ready=s' =>\$mapread,      #if mapping file are provided for samples by users
-    'help|?'         => sub { &Usage() }
+    'help|?' => sub { &Usage() }
 );
 
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-if ( $eukarya_fasta eq 'NONE' )    { $eukarya_fasta    = ""; }
-if ( $gff_eukarya eq 'NONE' )      { $gff_eukarya      = ""; }
-if ( $coverage_fasta eq 'NONE' )   { $coverage_fasta   = ""; }
+if ( $eukarya_fasta eq 'NONE' )  { $eukarya_fasta  = ""; }
+if ( $gff_eukarya eq 'NONE' )    { $gff_eukarya    = ""; }
+if ( $coverage_fasta eq 'NONE' ) { $coverage_fasta = ""; }
 
 #------------------------------------------------------------------------------#
 
@@ -90,7 +91,7 @@ unless ( $descriptfile
     && $workdir
     && $gff_eukarya
     && $eukarya_fasta
-    && $index_bt2 )
+    && $index_ht2 )
 {
     &Usage;
 }
@@ -144,6 +145,8 @@ my @allsample;
 my %pairs;
 my %allrawreads1;
 my %allrawreads2;
+my @out_gtfs;
+my $mapDir;
 
 #------------------------------------------------------------------------------#
 
@@ -335,7 +338,6 @@ foreach ( keys %allcontigs ) {
     "[Making sure if sequences in references are not named the same]\n Finished\n\n"
 );
 
-
 #------------------------------------------------------------------------------#
 &lprint(
     "[Creating additional directories based on type of analysis]\n Running\n\n"
@@ -345,712 +347,286 @@ foreach ( keys %allcontigs ) {
 
 unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya" ) {
     mkdir "$workdir/sum_gene_count/tmp_count/eukarya", 0777
-    or die
+        or die
         "failed: failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya $!";
 }
 unless ( -d "$workdir/sum_gene_count/read_count/eukarya" ) {
-        mkdir "$workdir/sum_gene_count/read_count/eukarya", 0777
-            or die
-            "failed: failed: can not make dir  $workdir/sum_gene_count/read_count/eukarya $!";
-    }
+    mkdir "$workdir/sum_gene_count/read_count/eukarya", 0777
+        or die
+        "failed: failed: can not make dir  $workdir/sum_gene_count/read_count/eukarya $!";
+}
 unless ( -d "$workdir/differential_gene/eukarya" ) {
-        mkdir "$workdir/differential_gene/eukarya", 0777
-            or die
-            "failed: failed: can not make dir  $workdir/differential_gene/eukarya $!";
-    }
+    mkdir "$workdir/differential_gene/eukarya", 0777
+        or die
+        "failed: failed: can not make dir  $workdir/differential_gene/eukarya $!";
+}
 
 &lprint(
-        "[Creating additional directories based on type of analysis]\n Finished\n\n"
-    );
-
-#------------------------------------------------------------------------------#
-    &lprint("[parsing gff files]\n Running\n\n");
-
-#------------------------------------------------------------------------------#
-
-    my @tmpgff = split /,/, $gff_eukarya;
-
-    foreach (@tmpgff) {
-        my $tmpgff = $_;
-        my @tmpeukarya = split '/', $tmpgff;
-        $tmpeukarya[-1] =~ s/\.//g;
-        $tmpeukarya[-1] =~ s/gff//g;
-        if ( &file_check($tmpgff) < 0 ) {
-            next &lprint(
-                "The gff_eukarya file $tmpgff doesn't exist or empty.\n");
-        }
-        push @{ $allgff{eukarya} }, $tmpeukarya[-1];
-
-        unless (
-            -d "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]" )
-        {
-            mkdir "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]",
-                0777
-                or die
-                "failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
-        }
-        unless (
-            -d "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]" )
-        {
-            mkdir
-                "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]",
-                0777
-                or die
-                "failed: cannot make dir  $workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1] $!";
-        }
-        unless ( -d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]" ) {
-            mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777
-                or die
-                "failed: cannot make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
-        }
-
-        # if ( &file_check("$workdir/eukarya.fa.fai") > 0 ) {
-        # &lprint("\n $workdir/eukarya.fa.fai is found\n");}
-
-        if (&file_check(
-                "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf"
-            ) > 0
-            )
-        {
-            &lprint(
-                "\n found $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf\n"
-            );
-        }
-
-        else {
-            system(
-                "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai"
-                ) == 0
-                || die
-                "\nparse_eukarya_gfffile.pl is not in your PATH\n $ENV{PATH}\n";
-            &lprint(
-                "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/differential_gene/eukarya/$tmpeukarya[-1]/ $workdir/eukarya.fa.fai \n"
-            );
-        }
-
-        if (&file_check(
-                "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
-            ) > 0
-            )
-        {
-            &lprint(
-                "\n $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt is found\n"
-            );
-        }
-        else {
-            system(
-                "python $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
-                ) == 0
-                || die
-                "\nhisat2_extract_splice_sites.py is not in your PATH\n $ENV{PATH}\n";
-            &lprint(
-                "\npython $scriptDir/hisat2_extract_splice_sites.py $workdir/differential_gene/eukarya/$tmpeukarya[-1]/eukarya.gtf > $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt \n"
-            );
-        }
-
-        #NOTE: I do not understand this loop, why are they concatenated?
-        if (&file_check(
-                "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
-            ) > 0
-            )
-        {
-            &lprint(
-                "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n"
-            );
-
-            # for printing in screen
-            print
-                "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n";
-            `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
-        }
-    }
-
-
+    "[Creating additional directories based on type of analysis]\n Finished\n\n"
+);
 
 #------------------------------------------------------------------------------#
 &lprint("[parsing gff files]\n Running\n\n");
 
 #------------------------------------------------------------------------------#
 
+my @tmpgff = split /,/, $gff_eukarya;
+
+foreach (@tmpgff) {
+    my $tmpgff = $_;
+    my @tmpeukarya = split '/', $tmpgff;
+    $tmpeukarya[-1] =~ s/\.//g;
+    $tmpeukarya[-1] =~ s/gff//g;
+    if ( &file_check($tmpgff) < 0 ) {
+        next &lprint(
+            "The gff_eukarya file $tmpgff doesn't exist or empty.\n");
+    }
+    push @{ $allgff{eukarya} }, $tmpeukarya[-1];
+
+    unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]" )
+    {
+        mkdir "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]",
+            0777
+            or die
+            "failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
+    }
+    unless ( -d "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]" )
+    {
+        mkdir
+            "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]",
+            0777
+            or die
+            "failed: cannot make dir  $workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1] $!";
+    }
+    unless ( -d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]" ) {
+        mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777
+            or die
+            "failed: cannot make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
+    }
+
+    # if ( &file_check("$workdir/eukarya.fa.fai") > 0 ) {
+    # &lprint("\n $workdir/eukarya.fa.fai is found\n");}
+
+    if ( &file_check( "$workdir/eukarya.gtf" ) > 0 ) {
+        &lprint( "\n found $workdir/eukarya.gtf\n" );
+    }
+
+    else {
+        system(
+            "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai"
+            ) == 0
+            || die
+            "\nparse_eukarya_gfffile.pl is not in your PATH\n $ENV{PATH}\n";
+        &lprint(
+            "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai \n"
+        );
+    }
+
+    if (&file_check(
+            "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
+        ) > 0
+        )
+    {
+        &lprint(
+            "\n $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt is found\n"
+        );
+    }
+    else {
+        system(
+            "python $scriptDir/hisat2_extract_splice_sites.py $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt"
+            ) == 0
+            || die
+            "\nhisat2_extract_splice_sites.py failed\n";
+        &lprint(
+            "\npython $scriptDir/hisat2_extract_splice_sites.py $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt \n"
+        );
+    }
+
+    #NOTE: I do not understand this loop, why are they concatenated?
+    if (&file_check(
+            "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
+        ) > 0
+        )
+    {
+        &lprint(
+            "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n"
+        );
+
+        # for printing in screen
+        print
+            "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n";
+        `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
+    }
+}
+
+#------------------------------------------------------------------------------#
+&lprint("[parsing gff files]\n Finished\n\n");
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+&lprint("[creating index files]\n Running\n\n");
+
 #TODO: Is .5 enough to check the status?
-my $checkIndexFile = join "", ( $index_bt2, '.5.ht2l' );
+my $checkIndexFile = join "", ( $index_ht2, '.5.ht2l' );
 unless ( -s $checkIndexFile ) {
-    &lprint( "Indexing the reference sequences", 'yellow', "\n" );
+    &lprint( "\nIndexing reference", 'yellow', "\n" );
     if ($eukarya_fasta) {
-        &lprint("hisat2-build --large-index $eukarya_fasta $index_bt2\n");
-        print "hisat2-build --large-index $eukarya_fasta $index_bt2\n";
-        `hisat2-build --large-index $eukarya_fasta  $index_bt2`;
+        &lprint("hisat2-build --large-index $eukarya_fasta $index_ht2\n");
+        print "hisat2-build --large-index $eukarya_fasta $index_ht2\n";
+        `hisat2-build --large-index $eukarya_fasta  $index_ht2`;
     }
     else { &lprint("failed: no INDEX files\n"); exit; }
 }
 
+if   ( -s $checkIndexFile ) { &lprint("INDEX file $index_ht2 created\n"); }
+else                        { &lprint("failed: INDEX $index_ht2\n"); exit; }
+
 #------------------------------------------------------------------------------#
-if   ( -s $checkIndexFile ) { &lprint("done INDEX $index_bt2\n"); }
-else 
-{ &lprint("failed: INDEX $index_bt2\n"); exit; }
-
 &printRunTime($time);
-&lprint("  Done Checking Files \n");
 
+#------------------------------------------------------------------------------#
 my $time1 = time();
 &lprint("[Trimming Reads]\n\tRunning \n\n");
-print "[Trimming Reads]\n\tRunning \n\n";
 
 foreach ( sort keys %description ) {
     my $sample   = $_;
     my $rawreads = $description{$sample}{Rawreads_file};
-    my $jobname  = join '.', ( $sample, 'RNA_analyis' );
-    my $indexref = $index_bt2;
+    $rawreads =~ s/---ppp---/ /g;
+    $rawreads =~ s/:/ /g;
+    my $jobname   = join '.', ( $sample, 'RNA_analyis' );
+    my $indexFile = $index_ht2;
+    my $sampleDir = join '/', ( $workdir, "$sample" );
+    mkdir $sampleDir if ( !-e $sampleDir );
+    if ( !-e $sampleDir ) { print "cannot make dir $sampleDir\n"; }
+    my $troutDir = join '/', ( $sampleDir, 'trimming_results' );
+    mkdir $troutDir if ( !-e $troutDir );
+    if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
 
-    if ( $rna_mapping_opt eq 'yes' ) {
-
-        if ( $rna_trimming_opt eq 'yes' ) {
-            $rawreads =~ s/---ppp---/ /g;
-            $rawreads =~ s/:/ /g;
-            my $outDir1 = join '/', ( $workdir, "$sample" );
-            mkdir $outDir1 if ( !-e $outDir1 );
-            if ( !-e $outDir1 ) { print "cannot make dir $outDir1\n"; }
-            my $troutDir = join '/', ( $outDir1, 'trimming_results' );
-            mkdir $troutDir if ( !-e $troutDir );
-            if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
-
-            if (&file_check(
-                    "$workdir/$sample/trimming_results/$sample.stats.txt")
-                > 0
-                )
-            {
-                &lprint(
-                    "\n $workdir/$sample/trimming_results/$sample.stats.txt is found\n, QC was already done\n"
-                );
-            }
-
-            else {
-                print
-                    "perl $scriptDir/illumina_fastq_QC.pl -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -prefix $sample -d $workdir/$sample/trimming_results/ -p  $rawreads";
-                system(
-                    "perl $scriptDir/illumina_fastq_QC.pl -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -prefix $sample -d $workdir/$sample/trimming_results/ -p  $rawreads"
-                    ) == 0
-                    || die
-                    "\nAn error occured while processing $sample, illumina_fastq_QC.pl\n";
-                &lprint(
-                    "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n"
-                );
-            }
-
-#TODO: Find details about this rRNA_reads_mapping.pl, whats the last file that is produced, and what does it do
-            &lprint("[Mapping Reads]\n\tRunning \n\n");
-            print "[Mapping Reads]\n\tRunning \n\n";
-            &lprint(
-                "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n"
-            );
-            
-            `perl $scriptDir/rRNA_reads_mapping.pl -test $test -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref -o $workdir`;
-        }
-        else {
-            my $outDir1 = join '/', ( $workdir, "$sample" );
-            mkdir $outDir1 if ( !-e $outDir1 );
-            if ( !-e $outDir1 ) { print "can not make dir $outDir1\n"; }
-            my $troutDir = join '/', ( $outDir1, 'trimming_results' );
-            mkdir $troutDir if ( !-e $troutDir );
-
-            if ( !-e $troutDir ) { print "can not make dir $troutDir\n"; }
-            &lprint("no need to trim rawreads\n");
-            my $tmptrname1 = join '.', ( $sample, '1.trimmed.fastq' );
-            my $tmptrname2 = join '.', ( $sample, '2.trimmed.fastq' );
-            if ( $#{ $allrawreads1{$sample} } == 0 ) {
-                `ln -sf $allrawreads1{$sample}[0] $troutDir/$tmptrname1`;
-                `ln -sf $allrawreads2{$sample}[0] $troutDir/$tmptrname2`;
-            }
-            else {
-                my $tmpreads1 = join ' ', @{ $allrawreads1{$sample} };
-                my $tmpreads2 = join ' ', @{ $allrawreads2{$sample} };
-                `cat $tmpreads1 > $troutDir/$tmptrname1`;
-                `cat $tmpreads2 > $troutDir/$tmptrname2`;
-            }
-
-            &lprint(
-                "perl $scriptDir/rRNA_reads_mapping.pl -cpu $numCPU -p1 $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref    -o $workdir \n"
-            );
-            `perl $scriptDir/rRNA_reads_mapping.pl -test $test -cpu $numCPU  -p1  $workdir/$sample/trimming_results/$sample.1.trimmed.fastq -p2 $workdir/$sample/trimming_results/$sample.2.trimmed.fastq -prefix $sample -index $indexref -o $workdir`;
-
-        }
-
+    if ( &file_check("$workdir/$sample/trimming_results/$sample.stats.txt")
+        > 0 )
+    {
+        &lprint(
+            "\n $workdir/$sample/trimming_results/$sample.stats.txt is found\n, QC was already done\n"
+        );
     }
     else {
+        print
+            "perl $scriptDir/illumina_fastq_QC.pl -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -prefix $sample -d $workdir/$sample/trimming_results/ -p  $rawreads";
+        system(
+            "perl $scriptDir/illumina_fastq_QC.pl -min_L 60 -n 5 -q 15 -lc 0.7 -t $numCPU -prefix $sample -d $workdir/$sample/trimming_results/ -p  $rawreads"
+            ) == 0
+            || die
+            "\nAn error occured while processing $sample, illumina_fastq_QC.pl\n";
         &lprint(
-            "perl $scriptDir/parse_BAMfile.pl -bamfile $rawreads -sample $sample -o $workdir\n"
+            "perl $scriptDir/illumina_fastq_QC.pl  -min_L 60 -n 5 -q 15  -lc 0.7  -t $numCPU  -prefix $sample  -d  $workdir/$sample/trimming_results/ -p  $rawreads\n"
         );
-        `perl $scriptDir/parse_BAMfile.pl -bamfile $rawreads -sample $sample    -o $workdir`;
     }
 
+    &lprint("[Mapping Reads]\n\tRunning \n\n");
+
+    my $mapDir = join '/', ( $sampleDir, 'mapping_results' );
+    mkdir $mapDir if ( !-e $mapDir );
+    if ( !-e $mapDir ) { print "cannot make dir $mapDir\n"; }
+
+    my $pairedRead1fastq = join '/', ( $troutDir, "$sample.1.trimmed.fastq" );
+    my $pairedRead2fastq = join '/', ( $troutDir, "$sample.2.trimmed.fastq" );
+    my $splice_file      = join '/',
+        ( $workdir, "differential_gene", "eukarya", "splice_sites_gff.txt" );
+    my $gff_file = join '/', ( $workdir, "eukarya.gff" );
+    Map::runMapping(
+        r1             => $pairedRead1fastq,
+        r2             => $pairedRead2fastq,
+        hisat2options  => "--fast",
+        IndexFile      => $indexFile,
+        numCPU         => $numCPU,
+        splicesite     => $splice_file,
+        outsam         => "$mapDir/mapped.sam",
+        mappingLogFile => "$mapDir/mapped.log"
+    );
+
+    &lprint("[Mapping Reads]\n\tFininshed \n\n");
+    &printRunTime($time1);
+
+    &lprint("[Quantifying transcripts]\n\tRunning \n\n");
+
+    system(
+        "samtools view -Su $mapDir/mapped.sam | samtools sort > $mapDir/$sample.alns.sorted.bam"
+        ) == 0
+        || die "\nAn error occured while $sample was being sorted\n";
+    &lprint(
+        "samtools view -Su $mapDir/mapped.sam | samtools sort > $mapDir/$sample.alns.sorted.bam \n"
+    );
+
+    system(   "stringtie -o $mapDir/$sample.summary.gtf "
+            . "-G $gff_file "
+            . "-C $mapDir/$sample"
+            . "_full_coverage.gtf "
+            . "-A $mapDir/$sample"
+            . "_gene_abundance.tab "
+            ."-l $sample "
+            . "$mapDir/$sample.alns.sorted.bam " ) == 0
+        || die "\nAn error occured while $sample was being quantified using StringTie\n";
+    &lprint(
+        "stringtie $mapDir/alns.sorted.bam -o $mapDir/$sample.summary.gtf "
+            . "-G $gff_file "
+            . "-C $mapDir/$sample "
+            . "_full_coverage.gtf "
+            . "-A $mapDir/$sample "
+            . "_gene_abundance.tab "
+            ."-l $sample "
+            . "$mapDir/$sample.alns.sorted.bam" )
+        & lprint("[Quantifying transcripts]\n\tFinished \n\n");
+    
 }
 
+
 #------------------------------------------------------------------------------#
-my $alldone = keys(%allsample);
-while ($alldone) {
-    foreach ( sort keys %description ) {
-        my $sample  = $_;
-        my $tmpfile = "$workdir/$sample/mapping_results/$sample.stats.text";
-        if ( &file_check($tmpfile) > 0 ) {
-            $alldone--;
-            &lprint("done samples : $alldone\n");
+my $gff_file = join '/', ( $workdir, "eukarya.gff" );
+my $all_gtf = join(" ", @out_gtfs);
+system("stringtie --merge -e -B -G $gff_file $all_gtf -o $workdir/merged.gtf");
+&lprint("\nstringtie --merge -e -B -G $gff_file $all_gtf -o $workdir/merged.gtf\n");
 
-            # print LOG"done samples : $alldone\n";
-            # For printing in screen
-            print "done samples : $alldone\n";
-
-        }
-        else {
-            print "$tmpfile not done\n";
-            print &lprint("$tmpfile not done\n");
-        }
-    }
-    if ( $alldone > 0 ) {
-        &lprint("sample unfinished : $alldone\n");
-
-        # print LOG"sample unfinished : $alldone\n";
-
-        # For printing in screen
-        print "sample unfinished : $alldone\n";
-        sleep(60);
-        $alldone = keys(%allsample);
-    }
-    else {
-        last;
-    }
+#------------------------------------------------------------------------------#
+my $merged_gtfs = "$workdir/merged_gtfs";
+mkdir $merged_gtfs if ( !-e $merged_gtfs );
+if ( !-e $merged_gtfs ) { print "cannot make dir $merged_gtfs\n"; }
+foreach ( sort keys %description ) {
+    my $samp = $_;
+    system("mkdir -p $merged_gtfs/$samp");
+    system("stringtie $workdir/$samp/mapping_results/$samp.alns.sorted.bam -l $samp -G $workdir/merged.gtf -o $merged_gtfs/$samp/$samp.merged.gtf")
+    &lprint("stringtie $workdir/$samp/mapping_results/$samp.alns.sorted.bam -l $samp -G $workdir/merged.gtf -o $merged_gtfs/$samp/$samp.merged.gtf")
 }
 
 &printRunTime($time1);
-&lprint("  Done Trimming and Mapping Reads \n");
+&lprint("\n Done Trimming and Quantifying Reads \n");
 
+#------------------------------------------------------------------------------#
 
-$alldone = keys(%allsample);
-&lprint("total $alldone samples\n");
-
-# for printing in screen
-print "total $alldone samples\n";
-while ($alldone) {
-    foreach ( sort keys %description ) {
-        my $sample   = $_;
-        my $tmpfile1 = "$workdir/$sample/mapping_results/done.eukarya.txt";
-        if ($gff_eukarya) {
-
-            # }  elsif  ($eukarya_fasta) {
-
-            if ( &file_check($tmpfile1) > 0 ) {
-                $alldone--;
-                &lprint("done samples : $alldone\n");
-            }
-            else { &lprint("eukarya rRNACoverageFold $sample not done\n"); }
-        }
-    }
-    if ( $alldone > 0 ) {
-        &lprint("sample unfinished : $alldone\n");
-        sleep(60);
-        $alldone = keys(%allsample);
-    }
-    else {
-        last;
-    }
-
-}
-
-my $allsample = join ',', @allsample;
-my $makegffdone = 1;
-if ($prokaryote_fasta) {
-
-$makegffdone = 1;
-
-
-my $time3 = time();
-&lprint("[Differential Gene Analysis]\n\tRunning\n\n");
-print "[Differential Gene Analysis]\n\tRunning\n\n";
-
-foreach ( sort keys %description ) {
-    my $sample = $_;
-    &lprint("$scriptDir/htseq-count.pl $workdir $sample $test\n");
-    print "$scriptDir/htseq-count.pl $workdir $sample $test\n";
-    `$scriptDir/htseq-count.pl $workdir $sample $test`;
-
-}
-
-$alldone = keys(%allsample);
-&lprint("total $alldone samples\n");
-while ($alldone) {
-    foreach ( sort keys %description ) {
-        my $sample = $_;
-        my $tmpfile1
-            = "$workdir/$sample/mapping_results/finish_htseq-count.txt";
-        if ( &file_check($tmpfile1) > 0 ) {
-            $alldone--;
-            &lprint("done htseq-count samples : $alldone\n");
-        }
-        else { print LOG "htseq-count $sample not done\n"; }
-    }
-    if ( $alldone > 0 ) {
-        &lprint("htseq-count sample unfinished : $alldone\n");
-        sleep(60);
-        $alldone = keys(%allsample);
-    }
-    else {
-        last;
-    }
-}
-
-foreach ( sort keys %description ) {
-    my $sample = $_;
-
-    my $jobname = join '.', ( $sample, 'RNA_analyis' );
-
-    my $tmpname
-        = $sample . $description{$sample}{group} . 'prokaryote_forward';
-
-    $tmpname = $sample . $description{$sample}{group} . 'prokaryote_backward';
-
-    $tmpname = $sample . $description{$sample}{group} . 'eukarya_forward';
-
-    $tmpname = $sample . $description{$sample}{group} . 'eukarya_backward';
-
-}
-
-my %diffdir;
-
-opendir( DIR, "$workdir/sum_gene_count/tmp_count/" ) or die $!;
-while ( my $tmpdir = readdir(DIR) ) {
-    next unless -d "$workdir/sum_gene_count/tmp_count/$tmpdir";
-    next if ( $tmpdir =~ /^\./ );
-    opendir( DIR1, "$workdir/sum_gene_count/tmp_count/$tmpdir" ) or die $!;
-    while ( my $tmpdir1 = readdir(DIR1) ) {
-        next unless -d "$workdir/sum_gene_count/tmp_count/$tmpdir/$tmpdir1";
-        next if ( $tmpdir1 =~ /^\./ );
-        &lprint("$tmpdir\t$tmpdir1\n");
-        $diffdir{$tmpdir}{$tmpdir1} = 1;
-    }
-}
-
-sleep(5);
-
-my $allgoodsample = 0;
-
-foreach ( sort keys %diffdir ) {
-    my $kingdom = $_;
-
-    unless ( $kingdom eq $test || $test eq 'both' ) { next; }
-    foreach ( sort keys %{ $diffdir{$kingdom} } ) {
-        my $strain = $_;
-        &lprint("$kingdom\t$strain\n");
-        sleep(5);
-        my $rRNAdes
-            = "$workdir/differential_gene/$kingdom/$strain/$kingdom.genedesc.rRNA.txt";
-        my %rRNApos;
-
-        if ( &file_check($rRNAdes) > 0 ) {
-
-            open( GENOIN, "$rRNAdes" ) or die "failed: $rRNAdes $!";
-            while (<GENOIN>) {
-
-                chomp;
-
-                my @line = split /\s+/, $_;
-                for ( my $i = 0; $i <= $#line; $i++ ) {
-                    $rRNApos{ $line[0] } = $line[-1];
-                }
-            }
-            close GENOIN;
-        }
-
-        foreach ( sort keys %description ) {
-            my $sample = $_;
-            open( READIN,
-                ">$workdir/sum_gene_count/read_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt"
-                )
-                or die
-                "failed: $! $workdir/sum_gene_count/read_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt\n";
-            open( IN,
-                "$workdir/sum_gene_count/tmp_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt"
-                )
-                or die
-                "failed:  can not open description file $workdir/sum_gene_count/tmp_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt $!";
-            while (<IN>) {
-                chomp;
-                my $line = $_;
-                if ( $line =~ m/^no_feature/ ) { last; }
-                my @line = split /\s+/, $line;
-                if ( $rRNApos{ $line[0] } )
-
-                {
-                }
-                else {
-                    print READIN "$line\n";
-                }
-            }
-
-            close READIN;
-            close IN;
-        }
-
-        my $Deseqdir = "$workdir/differential_gene/$kingdom/$strain/";
-
-        unless ( -e "$workdir/differential_gene/$kingdom/$strain/" ) { next; }
-
-        unless ( -d "$Deseqdir/Deseq/" ) {
-            mkdir "$Deseqdir/Deseq/", 0777
-                or die
-                "failed: can not make dir  $workdir/differential_gene/$kingdom/$strain/Deseq/ $!";
-        }
-        unless ( -d "$Deseqdir/EdgeR/" ) {
-            mkdir "$Deseqdir/EdgeR/", 0777
-                or die
-                "failed: can not make dir  $workdir/differential_gene/$kingdom/$strain//EdgeR/ $!";
-        }
-        unless ( -d "$Deseqdir/figures/" ) {
-            mkdir "$Deseqdir/figures/", 0777
-                or die
-                "failed: can not make dir  $workdir/differential_gene/$kingdom/$strain//figures/ $!";
-        }
-        unless ( -d "$Deseqdir/significant_gene/" ) {
-            mkdir "$Deseqdir/significant_gene/", 0777
-                or die
-                "failed: can not make dir  $workdir/differential_gene/$kingdom/$strain//significant_gene/ $!";
-        }
-
-        my %tablecounts;
-        open( DESC, ">$Deseqdir/reads.table.txt" )
-            or die "failed: $! $Deseqdir/reads.table.txt\n";
-        print DESC "Sample";
-        my %reads_sample;
-        my %reads_desc;
-        my $totalreadsmapped = 0;
-
-        foreach ( sort keys %description ) {
-            my $sample = $_;
-            open( IN,
-                "$workdir/sum_gene_count/read_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt"
-                )
-                or die
-                "failed:  can not open description file $workdir/sum_gene_count/read_count/$kingdom/$strain/$sample.$kingdom.name.htseq.locus_tag.txt $!";
-            while (<IN>) {
-                chomp;
-                my $line = $_;
-                my @line = split /\s+/, $line;
-                $tablecounts{ $line[0] }{$sample} = $line[1];
-                $reads_sample{$sample}  += $line[1];
-                $reads_desc{ $line[0] } += $line[1];
-                $totalreadsmapped       += $line[1];
-            }
-            close IN;
-        }
-
-        my @goodsample;
-        my $numsample = keys(%reads_sample);
-        foreach ( sort keys %reads_sample ) {
-            my $sample = $_;
-            if ($reads_sample{$sample}
-                >= 0.001 * $totalreadsmapped / $numsample
-                && (   $totalreadsmapped / $numsample > 2
-                    || $totalreadsmapped > 2000 )
-                && $usedexp{$sample}
-                )
-            {
-                push @goodsample, $sample;
-                print DESC "\t$sample";
-            }
-        }
-        print DESC "\n";
-        if ( $#goodsample < 1 ) {
-            &lprint("no good sample for $kingdom, $strain\n");
-            next;
-        }
-        $allgoodsample++;
-        foreach ( sort keys %tablecounts ) {
-            my $tmpgene = $_;
-            if ( $reads_desc{$tmpgene} <= 1 ) { next; }
-
-            print DESC "$tmpgene";
-            foreach (@goodsample) {
-                print DESC "\t$tablecounts{$tmpgene}{$_}";
-            }
-            print DESC "\n";
-
-        }
-        close DESC;
-
-        open( DESC, ">$Deseqdir/readcounts.expriment.txt" )
-            or die "failed: $! $Deseqdir/readcounts.expriment.txt\n";
-
-        print DESC "ID\tfiles\tgroup\n";
-
-        my %goodgroup;
-
-        foreach (@goodsample) {
-            my $sample   = $_;
-            my $tmpgroup = $sample;
-            my @tmpgroup = split /_/, $tmpgroup;
-            my $htseqfile
-                = "$workdir/sum_gene_count/read_count/$kingdom/$strain/$sample.$kingdom"
-                . '.name'
-                . '.htseq'
-                . '.locus_tag' . '.txt';
-            print DESC "$sample\t$htseqfile\t$description{$sample}{group}";
-            print DESC "\n";
-            $goodgroup{ $description{$sample}{group} }++;
-        }
-        close DESC;
-
-        &lprint("start differential gene finding using $test_method\n");
-
-        chdir("$Deseqdir") or die "failed: $!";
-
-        open( DESC, ">$Deseqdir/Deseq_EdgeRpairs.txt" )
-            or die "failed: $! $Deseqdir/Deseq_EdgeRpairs.txt\n";
-
-        print DESC "group1\tgroup2\n";
-
-        foreach ( sort keys %pair1 ) {
-            my $group1 = $_;
-            next unless $goodgroup{$group1};
-            foreach ( @{ $pair1{$group1} } ) {
-                next unless $goodgroup{$_};
-                print DESC "$group1\t$_\n";
-            }
-        }
-        close DESC;
-
-        if ( $test_method eq 'both' ) {
-
-            &lprint("EdgeR and Deseq2 \t $Deseqdir\n");
-
-            &lprint("Rscript $scriptDir/EdgeR.R  $p_cutoff\n");
-            `Rscript $scriptDir/EdgeR.R  $p_cutoff`;
-
-            &lprint("Rscript $scriptDir/Deseq.R  $p_cutoff\n");
-            `Rscript $scriptDir/Deseq.R  $p_cutoff`;
-
-            &lprint("Rscript $scriptDir/vennDiagram_Deseq_EdgeR.R\n");
-            `Rscript $scriptDir/vennDiagram_Deseq_EdgeR.R`;
-
-        }
-        elsif ( $test_method eq 'EdgeR' ) {
-            &lprint("EdgeR \t $Deseqdir \n");
-
-            &lprint("Rscript $scriptDir/EdgeR.R  $p_cutoff\n");
-            `Rscript $scriptDir/EdgeR.R  $p_cutoff`;
-        }
-        elsif ( $test_method eq 'Deseq' ) {
-
-            &lprint("Deseq2 \t $Deseqdir \n");
-
-            &lprint("Rscript $scriptDir/Deseq.R  $p_cutoff\n");
-            `Rscript $scriptDir/Deseq.R  $p_cutoff`;
-        }
-        else {
-            &lprint("failed: method $test_method is invalid\n");
-            exit;
-        }
-
-        if ( $kingdom eq 'prokaryote' ) {
-            &lprint(
-                "perl $scriptDir/Differential_stats_prokaryote.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene/$kingdom/$strain/prokaryote.NonrRNA.genedesc.txt  $p_cutoff @goodsample\n"
-            );
-
-            `perl $scriptDir/Differential_stats_prokaryote.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene//$kingdom/$strain/prokaryote.NonrRNA.genedesc.txt $p_cutoff @goodsample`;
-
-# `$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $workdir/sum_direction_prokaryote_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
-
-        }
-
-        if ( $kingdom eq 'eukarya' ) {
-            &lprint(
-                "perl $scriptDir/Differential_stats_eukarya.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene/$kingdom/$strain/eukarya.genedesc.txt  $p_cutoff @goodsample\n"
-            );
-
-            `perl $scriptDir/Differential_stats_eukarya.pl $workdir $Deseqdir $descriptfile $workdir/differential_gene/$kingdom/$strain/eukarya.genedesc.txt $p_cutoff @goodsample`;
-
-#`$Bin/../../edge_ui/JBrowse/bin/flatfile-to-json.pl --gff $workdir/sum_direction_eukarya_ref.gff --type expressed_intergenic_region  --tracklabel expressed_intergenic_region  --out $workdir/Jbrowse`;
-
-        }
-        &lprint("done $kingdom\t$strain\n");
-
-        &lprint("Rscript $scriptDir/scatt_plot.R  $p_cutoff\n");
-        `Rscript $scriptDir/scatt_plot.R  $p_cutoff`;
-
-        my @workdir = split '/', $workdir;
-        my $jbrowsed;
-        if ( $workdir[-1] ) {
-            $jbrowsed = $workdir[-1];
-        }
-        elsif ( $workdir[-2] ) {
-            $jbrowsed = $workdir[-2];
-        }
-        else {
-            $jbrowsed = $workdir[-3];
-        }
-
-  #`$Bin/../../edge_ui/JBrowse/bin/generate-names.pl --out  $workdir/Jbrowse`;
-
-#if (-e "$Bin/../../edge_ui/JBrowse/data/$jbrowsed") {`unlink $Bin/../../edge_ui/JBrowse/data/$jbrowsed`;}
-#`ln -s  $workdir/Jbrowse/ $Bin/../../edge_ui/JBrowse/data/$jbrowsed`;
-#&lprint ("Jbrowse link is at http://ergatis2.lanl.gov/jbrowse/?data=data/$jbrowsed\n");
-
-        sleep(5);
-    }
-}    #foreach (sort keys %diffdir)
-if ( $allgoodsample > 0 ) {
-    &printRunTime($time3);
-    &lprint("  Done Differential Gene Analysis \n");
-}
-else {
-
-    &lprint(
-        "  Differential Gene Analysis failed because of no good samples \n");
-    &printRunTime($time3);
-    &lprint(
-        "  failed to do Differential Gene Analysis failed because of no good samples \n"
-    );
-}
-
-&lprint("Total");
-
-&printRunTime($^T);
-
-&lprint("All Done \n\n");
-
-open( CURRENTLOGFILE, "> $workdir/process_current.log" )
-    or die "   $workdir/process_current.log $!";
-print CURRENTLOGFILE "All Done\n";
+&lprint("\n\n [All Done] \n\n");
 
 # print in screen
 print "All Done\n";
 
 close LOG;
-close CURRENTLOGFILE;
 
 sub Usage {
 
     print <<"END";
- Usage: perl $0 [options] -exp exp_descriptfile.txt -d workdir -prokaryote_fasta indexprokaryote.fa -eukarya_fasta indexeukarya.fa -index_ref_bt2 indexfile -gff_prokaryote prokaryote.gff -gene_coverage_ref gene_coverage_reference.fa
+ Usage: runPiReT-OME [options] -exp <exp_descriptfile.txt> -d <workdir> -eukarya_fasta <eukarya.fa> -index_ref_ht2 <indexfile>
 
   example: 
                        
-perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -significant_pvalue 0.001  -cpu 10 -exp /users/203270/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/BTT_Experimetal_descriptions.txt -d ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/  -prokaryote_fasta /users/203270//scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -eukarya_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/cavPor3.fa -index_ref_bt2 /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083_CAVPor3i_hisat -gff_prokaryote /users/203270/scratch/momo_Rnaseq/db/Bacillus_anthracis__Ames_Ancestor_uid58083.gff -test_method EdgeR  -gene_coverage_fasta /users/203270/scratch/momo_Rnaseq/db/bowtie2/Bacillus_anthracis__Ames_Ancestor_uid58083.fa -pair_comparison ~/scratch/momo_Rnaseq/Analysis_BTT_2015AUG/pair_comparision.txt 
+    runPiReT-OME -exp test_experimental_design.txt -d pipeline_test_euk -eukarya_fasta data/eukarya_test.fa -index_ref_ht2 test_index -gff_eukarya data/eukarya_test.gff3
 
  
-        -d            string, working directory where the whole project will be under,absolute path,  must have permission to be created. 
-        -gff_prokaryote string, absolute path, prokaryote annotation files in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)   (optional)                  
-        -gff_eukarya string, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
-        -eukarya_fasta: comma-separated list of files with ref sequences,  absolute path, eukarya nucleotide sequence in fasta format (for making bowtie2 mapping index file)  (optional) 
-        -prokaryote_fasta: comma-separated list of files with ref sequences, absolute path, prokaryote nucleotide sequence in fasta format, single file  (for making bowtie2 mapping index file)  (optional) 
-        -index_ref_bt2:     string, absolute path, bowtie2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
+        -d <string>, working directory where the whole project will be under, must have permission to write. 
+        -gff_eukarya <string>, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
+        -eukarya_fasta  eukarya nucleotide sequence in fasta format (for making hisat2 mapping index file)
+        -index_ref_ht2:     string, absolute path, hisat2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
         -h_vmem: memory limit per node, string, default 20G
         -gene_coverage_fasta: string, absolute path,  fasta format, single file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence)  (optional) 
-
-        -test_kingdom         desired differential gene expression kingdom (both (for both eukarya and prokaryote), prokaryote, or eukarya (default prokaryote));
-        -test_method          dessired differential gene expression method (both (for both EdgeR and Deseq2 method), EdgeR, or Deseq (default both)); must have have at least 3 duplicates if using Deseq2.
         -cpu          number of cpu to be used (default 1)
-        -BAM_ready      #if mapping file are provided for samples by users (yes or no) default no
-        -significant_pvalue: floating number cutoff to define significant differentially express genes, (default =0.001)
-
-        master design text file:
         -exp         tab delimited txt file descripting experiments that each row represents one sample.
                       Each colomum is as:
                     (
@@ -1069,19 +645,6 @@ perl ~/code/bin/rRNA_mapping_qsub.pl -geneopt gene -test_kingdom prokaryote  -si
                       exp21     read21p1:read21p2;read21p1a:read21p2a   timef
                       exp22     read22p1:read22p2;read22p1a:read22p2a   timef                              
                     )
-        differential gene analysis  design text file: 
-         -pair_comparison       tab delimited txt file descripting pairwise comparison. If this file does NOT exist, all groups defined in the master design text file will be compared to each other in differential gene analysis, 
-                               Each colomum is as:
-                              (
-                                group1:    first group name in pairwised comparison for this project (must be defined in the master design text file)
-                                group2:    second group name in pairwised comparison for this project (must be defined in the master design text file)
-                               Example: 
-                                 group1         group2 
-                                 time0          time1
-                                 time0          time2
-                                 time0          timef
-                                 time2          timef 
-                               )
                                  
 END
     exit;
@@ -1158,6 +721,6 @@ sub checkDependedPrograms
         || die "\ngffread is not in your PATH\n $ENV{PATH}\n";
     system("which genomeCoverageBed 1>/dev/null") == 0
         || die "\nperl is not in your PATH\n $ENV{PATH}\n";
-    system("which bedtools 1>/dev/null") == 0
-        || die "\nbedtools is not in your PATH\n $ENV{PATH}\n";
+    system("which stringtie 1>/dev/null") == 0
+        || die "\nstringtie is not in your PATH\n $ENV{PATH}\n";
 }
