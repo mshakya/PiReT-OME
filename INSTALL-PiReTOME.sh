@@ -310,23 +310,7 @@ echo "
 --------------------------------------------------------------------------------
 "
 }
-################################################################################
-#                        Python Modules
-################################################################################
-if ( checkPythonModule pandas)
-  then
-  python_pandas_installed_VER=`python -c "import pandas; print pandas.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
-  if (echo $python_pandas_installed_VER $python_pandas_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
-  then
-    echo " - found Python module pandas $python_pandas_installed_VER"
-  else
-    echo "Required version of pandas $python_pandas_VER was not found" 
-    install_python_pandas
-  fi
-else
-    echo "pandas was not found"
-    install_python_pandas
-fi
+
 
 
 checkSystemInstallation()
@@ -361,7 +345,6 @@ checkRpackages()
   echo "if(\"$1\" %in% rownames(installed.packages()) == FALSE) {0} else {1}"| Rscript - 
 
 }
-
 
 checkPythonModule()
 {
@@ -654,7 +637,23 @@ else
   echo "Perl Test::Script was not found"
   install_perl_test_script
 fi
-
+################################################################################
+#                        Python Modules
+################################################################################
+if ( checkPythonModule pandas)
+  then
+  python_pandas_installed_VER=`python -c "import pandas; print pandas.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
+  if (echo $python_pandas_installed_VER $python_pandas_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
+  then
+    echo " - found Python module pandas $python_pandas_installed_VER"
+  else
+    echo "Required version of pandas $python_pandas_VER was not found" 
+    install_python_pandas
+  fi
+else
+    echo "pandas was not found"
+    install_python_pandas
+fi
 
 ################################################################################
 if [ -f $HOME/.bashrc ]
