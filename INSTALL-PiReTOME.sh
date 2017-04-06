@@ -329,8 +329,6 @@ else
 fi
 
 
-
-
 checkSystemInstallation()
 {
     IFS=:
