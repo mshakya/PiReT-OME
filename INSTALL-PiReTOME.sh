@@ -54,6 +54,9 @@ perl_String_Approx_VER=3.27
 perl_Parllel_ForkManager_VER=1.17
 perl_test_script_VER=1.16
 
+#minimum required version of Python modules
+python_pandas_VER=0.19.2
+
 # Tools categorized based on function
 utility_tools=(samtools bedtools)
 other_tools=( jellyfish )
@@ -208,6 +211,21 @@ echo "
 "
 }
 
+install_pandas()
+{
+echo "--------------------------------------------------------------------------
+                           Installing pandas v$python_pandas_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c anaconda pandas=$python_pandas_VER
+
+echo "
+--------------------------------------------------------------------------------
+                           pandas v $python_pandas_VER installed
+--------------------------------------------------------------------------------
+"
+}
+
 
 install_miniconda()
 {
@@ -292,6 +310,24 @@ echo "
 --------------------------------------------------------------------------------
 "
 }
+################################################################################
+#                        Python Modules
+################################################################################
+if ( checkPythonModule pandas)
+  then
+  python_pandas_installed_VER=`python -c "import pandas; print pandas.__version__" | perl -nle 'print $& if m{\d+\.\d+\.\d+}'`
+  if (echo $python_pandas_installed_VER $python_pandas_VER | awk '{if($1>=$2) exit 0; else exit 1}' )
+  then
+    echo " - found Python module pandas $python_pandas_installed_VER"
+  else
+    echo "Required version of pandas $python_pandas_VER was not found" 
+    install_python_pandas
+  fi
+else
+    echo "pandas was not found"
+    install_python_pandas
+fi
+
 
 
 
@@ -627,16 +663,12 @@ if [ -f $HOME/.bashrc ]
 then
 {
   echo "#Added by PiReT-OME installation" >> $HOME/.bashrc
-  echo "export PiReT-OME_HOME=$ROOTDIR" >> $HOME/.bashrc
   echo "export PATH=$ROOTDIR/bin/" >> $HOME/.bashrc
-  source $HOME/.bashrc
 }
 else
 {
   echo "#Added by PiReT-OME pipeline installation" >> $HOME/.bash_profile
-  echo "export PiReT-OME_HOME=$ROOTDIR" >> $HOME/.bash_profile
   echo "export PATH=$ROOTDIR/bin/:$PATH:$ROOTDIR/scripts" >> $HOME/.bash_profile
-  source $HOME/.bash_profile
 }
 fi
 
