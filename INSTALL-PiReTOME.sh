@@ -211,7 +211,7 @@ echo "
 "
 }
 
-install_pandas()
+install_python_pandas()
 {
 echo "--------------------------------------------------------------------------
                            Installing pandas v$python_pandas_VER
