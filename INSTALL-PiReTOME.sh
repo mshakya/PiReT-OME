@@ -660,7 +660,7 @@ if [ -f $HOME/.bashrc ]
 then
 {
   echo "#Added by PiReT-OME installation" >> $HOME/.bashrc
-  echo "export PATH=$ROOTDIR/bin/" >> $HOME/.bashrc
+  echo "export PATH=$PATH:$ROOTDIR/bin/" >> $HOME/.bashrc
 }
 else
 {
