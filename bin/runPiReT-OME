@@ -602,8 +602,8 @@ foreach ( sort keys %description ) {
 
 #------------------------------------------------------------------------------#
 
-my $merge_command="$scriptDir/merge_abund_file.py -W $workdir"
-Map::executeCommand($merge_command)
+my $merge_command="$scriptDir/merge_abund_file.py -W $workdir";
+Map::executeCommand($merge_command);
 
 &lprint("\n\n [All Done] \n\n");
 print "All Done\n";
