@@ -35,63 +35,6 @@ use Exporter;
 @EXPORT = ('runMapping');
 
 ################################################################################
-sub open_samfiles {
-
-    # function to create and open necesary files
-    my $kingdom = shift;
-    my $mapDir  = shift;
-    if ( $kingdom eq 'both' ) {
-        &open_files();
-        &open_files( PR_EUK,  "$mapDir/paired.eukarya_ref.sam" );
-        &open_files( PR_PROK, "$mapDir/paired.prokaryote_ref.sam" );
-        &open_files( NP_EUK,  "$mapDir/Notproperpaired.eukarya_ref.sam" );
-        &open_files( NP_PROK, "$mapDir/Notproperpaired.prokaryote_ref.sam" );
-        &open_files( FW_EUK,  "$mapDir/forward.eukarya_ref.sam" );
-        &open_files( FW_PROK, "$mapDir/forward.prokaryote_ref.sam" );
-        &open_files( BW_PROK, "$mapDir/backward.prokaryote_ref.sam" );
-        &open_files( BW_EUK,  "$mapDir/backward.eukarya_ref.sam" );
-    }
-    elsif ( $kingdom eq 'eukayra' ) {
-        &open_files( PR_EUK, "$mapDir/paired.eukarya_ref.sam" );
-        &open_files( NP_EUK, "$mapDir/Notproperpaired.eukarya_ref.sam" );
-        &open_files( BW_EUK, "$mapDir/backward.eukarya_ref.sam" )
-            & open_files( FW_EUK, "$mapDir/forward.eukarya_ref.sam" );
-    }
-    elsif ( $kingdom eq 'prokaryotes' ) {
-        &open_files( PR_PROK, "$mapDir/paired.prokaryote_ref.sam" );
-        &open_files( NP_PROK, "$mapDir/Notproperpaired.prokaryote_ref.sam" );
-        &open_files( FW_PROK, "$mapDir/forward.prokaryote_ref.sam" );
-        &open_files( BW_PROK, "$mapDir/backward.prokaryote_ref.sam" );
-    }
-}
-################################################################################
-sub close_samfiles {
-
-    # close all opened samfiles
-    if ( $kingdom eq 'both' ) {
-        close PR_PROK;
-        close PR_EUK;
-        close NP_EUK;
-        close NP_PROK;
-        close FW_EUK;
-        close FW_PROK;
-        close BW_PROK;
-        close BW_EUK;
-    }
-    elsif ( $kingdom eq 'eukayra' ) {
-        close PR_EUK;
-        close NP_EUK;
-        close FW_EUK;
-        close BW_EUK;
-    }
-    elsif ( $kingdom eq 'prokaryotes' ) {
-        close PR_PROK;
-        close NP_PROK;
-        close FW_PROK;
-        close BW_PROK;
-    }
-}
-################################################################################
 sub open_files {
 
     # sub routine to open files
