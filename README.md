@@ -4,7 +4,7 @@
 Pipeline for Reference based Transcriptomics - OME.
 
 [![Build Status](https://travis-ci.org/mshakya/PiReT-OME.svg?branch=master)](https://travis-ci.org/mshakya/PiReT-OME)
-[![codecov](https://codecov.io/gh/mshakya/PiReT/branch/master/graph/badge.svg?token=B0PzdxRcdj)](https://codecov.io/gh/mshakya/PiReT)
+[![codecov](https://codecov.io/gh/mshakya/PiReT-OME/branch/master/graph/badge.svg)](https://codecov.io/gh/mshakya/PiReT-OME)/gh/mshakya/PiReT)
 
 #Overview
 
