@@ -24,7 +24,7 @@ script:
   - perl Build.PL
   - ./Build test
   - ./Build testcover
-  - cd test_data && sh test_pipeline_linux.sh
+  - cd test_data && sh test_pipeline_linux.sh && cd ..
   # - cover -test
 
 after_success:
