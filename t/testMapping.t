@@ -44,8 +44,8 @@ is( $map_cnt, 71, "runMapping() IS test" );
 # Verify if reads that did not map are being parsed correctly
 open( my $unmap1, ">", "t/results/unmap_1.fastq" ) or die "Damn. $!";
 open( my $unmap2, ">", "t/results/unmap_2.fastq" ) or die "Damn. $!";
-open( FH, "t/results/mapped.sam" ) or die "Damn. $!";
-while (<FH>) {
+open( my $FH, '<:encoding(UTF-8)', "t/results/mapped.sam" ) or die "Damn. $!";
+while (<$FH>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
@@ -53,7 +53,7 @@ while (<FH>) {
 }
 close $unmap1;
 close $unmap2;
-close FH;
+close $FH;
 
 my $un_cnt1 = count_lines("t/results/unmap_1.fastq");
 my $un_cnt2 = count_lines("t/results/unmap_2.fastq");
@@ -64,8 +64,8 @@ is( $un_cnt2, 56, "parsePairedUnmapped() read 2 test" );
 # Verify if reads are properly mapped ---> <----
 open( my $Pmap, ">", "t/results/paired.mapped.sam" )    or die "Damn. $!";
 open( my $Nmap, ">", "t/results/Nonproper.mapped.sam" ) or die "Damn. $!";
-open( FH1, "t/results/mapped.sam" ) or die "Damn. $!";
-while (<FH1>) {
+open( my $FH1, '<:encoding(UTF-8)', "t/results/mapped.sam" ) or die "Damn. $!";
+while (<$FH1>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
@@ -77,7 +77,7 @@ while (<FH1>) {
 }
 close $Pmap;
 close $Nmap;
-close FH1;
+close $FH1;
 
 my $pd_cnt = count_lines("t/results/paired.mapped.sam");
 is( $pd_cnt, 14, "parsePairedmapped() test" );
@@ -87,8 +87,8 @@ open( my $FR, ">", "t/results/forward.unmapped.fastq" ) or die "Damn. $!";
 open( my $RR, ">", "t/results/reverse.unmapped.fastq" ) or die "Damn. $!";
 open( my $FM, ">", "t/results/forward.mapped.sam" )     or die "Damn. $!";
 open( my $RM, ">", "t/results/reverse.mapped.sam" )     or die "Damn. $!";
-open( FH1, "t/results/mapped.sam" ) or die "Damn. $!";
-while (<FH1>) {
+open( my $FH2, '<:encoding(UTF-8)', "t/results/mapped.sam" ) or die "Damn. $!";
+while (<$FH2>) {
     chomp;
     next if (/^\@/);
     my $samline = $_;
@@ -104,7 +104,7 @@ close $FR;
 close $RR;
 close $FM;
 close $RM;
-close FH1;
+close $FH2;
 
 my $fwdU_cnt = &count_lines("t/results/forward.unmapped.fastq");
 my $revU_cnt = &count_lines("t/results/reverse.unmapped.fastq");
@@ -129,7 +129,7 @@ my $stat_cnt = &count_lines("t/results/stats_table.tab");
 is( $stat_cnt, 8, "sumMaps() IS test" );
 
 # Verify if the parseFAI function is working as it should
-my %fai_dic = Map::parseFAI("t/data/prokaryote.fa.fai");
+my %fai_dic = Map::parseFAI("t/data/prok_test.fna.fai");
 my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
 is( $ind, '5227419', "parseFAI() IS test" );
 
@@ -177,9 +177,9 @@ sub count_lines {
     my $fn = shift;
 
     my $cnt;
-    open( FH, $fn ) or die "Damn. $!";
-    $cnt++ while <FH>;
-    close FH;
+    open( my $FH,'<:encoding(UTF-8)', $fn ) or die "Damn. $!";
+    $cnt++ while <$FH>;
+    close $FH;
     return $cnt;
 }
 

@@ -40,7 +40,7 @@ sub open_files {
     # sub routine to open files
     my $fh = shift;    # file handle
     my $fn = shift;    # full path to filename
-    open( $fh, ">$fn" )
+    open( $fh, q{>}, $fn )
         or die "$! cannot open $fn\n";
 }
 
