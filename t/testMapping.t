@@ -51,8 +51,6 @@ my %fai_dic = Map::parseFAI("t/data/euk_test.fna.fai");
 my $ind     = $fai_dic{"gi|347623741|ref|NT_175993.1|"};
 is( $ind, '217846', "parseFAI() IS test" );
 
-
-
 # Function to count lines
 sub count_lines {
     my $fn = shift;
