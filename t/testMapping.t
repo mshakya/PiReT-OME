@@ -47,23 +47,10 @@ my $fai_euk  = &count_lines("t/data/euk_test.fna.fai");
 is( $fai_euk,  8, "createFAI() IS test with euk\n" );
 
 # Verify if the parseFAI function is working as it should
-is( $ind, '5227419', "parseFAI() IS test" );
+my %fai_dic = Map::parseFAI("t/data/euk_test.fna.fai");
+my $ind     = $fai_dic{"gi|347623741|ref|NT_175993.1|"};
+is( $ind, '217846', "parseFAI() IS test" );
 
-
-# Verify if parseMapEuk is working
-Map::executeCommand("mkdir -p t/results/euk_map_test\n");
-Map::parseMapEuk(
-    mapDir  => "t/results/euk_map_test",
-    samFile => "t/results/mapped.sam"
-);
-my $pp_euk = &count_lines("t/results/euk_map_test/paired_euk.sam");
-is( $pp_euk, 14, "parseMapEuk() IS test" );
-
-# Verify if parseMapBoth is working
-Map::executeCommand("mkdir -p t/results/both_map_test\n");
-
-my $pp_euk_both = &count_lines("t/results/both_map_test/paired_euk.sam");
-is( $pp_euk_both, 14, "parseMapBoth() IS test" );
 
 
 # Function to count lines
