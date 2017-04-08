@@ -177,7 +177,7 @@ sub count_lines {
     my $fn = shift;
 
     my $cnt;
-    open( my $FH,'<:encoding(UTF-8)', $fn ) or die "Damn. $!";
+    open( my $FH,'<', $fn ) or die "Damn. $!";
     $cnt++ while <$FH>;
     close $FH;
     return $cnt;
