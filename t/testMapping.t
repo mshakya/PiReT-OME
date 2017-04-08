@@ -128,11 +128,6 @@ Map::sumMaps(
 my $stat_cnt = &count_lines("t/results/stats_table.tab");
 is( $stat_cnt, 8, "sumMaps() IS test" );
 
-# Verify if the parseFAI function is working as it should
-my %fai_dic = Map::parseFAI("t/data/prok_test.fna.fai");
-my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
-is( $ind, '5227419', "parseFAI() IS test" );
-
 #Verify if thr createFAI is working
 Map::createFAI("t/data/euk_test.fna\n");
 Map::createFAI("t/data/prok_test.fna\n");
@@ -140,6 +135,12 @@ my $fai_euk  = &count_lines("t/data/euk_test.fna.fai");
 my $fai_prok = &count_lines("t/data/prok_test.fna.fai");
 is( $fai_euk,  8, "createFAI() IS test with euk\n" );
 is( $fai_prok, 2, "createFAI() IS test with prok" );
+
+# Verify if the parseFAI function is working as it should
+my %fai_dic = Map::parseFAI("t/data/prok_test.fna.fai");
+my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
+is( $ind, '5227419', "parseFAI() IS test" );
+
 
 # Verify if parseMapProk is working
 Map::executeCommand("mkdir -p t/results/prok_map_test\n");
