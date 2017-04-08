@@ -139,6 +139,7 @@ is( $fai_prok, 2, "createFAI() IS test with prok" );
 # Verify if the parseFAI function is working as it should
 my %fai_dic = Map::parseFAI("t/data/prok_test.fna.fai");
 my $ind     = $fai_dic{"gi|50196905|ref|NC_007530.2|"};
+print $ind
 is( $ind, '5227419', "parseFAI() IS test" );
 
 
