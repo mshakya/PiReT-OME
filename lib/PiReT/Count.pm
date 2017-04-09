@@ -1,8 +1,14 @@
-package PireT::Count;
+#!/usr/bin/perl
 
-use 5.006;
+our $VERSION = '0.01';
 use strict;
 use warnings;
+use FindBin qw($Bin);
+use lib "$Bin/../";
+use PiReT::Map;
+
+package Count;
+use Exporter;
 
 =head1 NAME
 
@@ -15,6 +21,23 @@ Version 0.01
 =cut
 
 our $VERSION = '0.01';
+
+=head1 SYNOPSIS
+
+Quick summary of what the module does.
+
+Perhaps a little code snippet.
+
+    use PiReT::Map;
+
+    my $foo = PiReT::Map->new();
+    ...
+
+=head1 SUBROUTINES/METHODS
+
+=head2 function1
+
+=cut
 
 
 =head1 SYNOPSIS
@@ -39,7 +62,22 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =cut
 
-sub function1 {
+sub stringtie {
+    my %args             = @_;
+    my $out_summary_gtf  = $args{out_summary_gtf};
+    my $gff              = $args{gff};
+    my $out_coverage_gtf = $args{out_coverage_gtf};
+    my $out_abun_tab     = $args{out_abun_tab};
+    my $sample           = $args{sample};
+    my $in_bam           = $args{in_bam};
+
+    my $count_command
+        = "stringtie -o $out_summary_gtf -G $gff "
+        . "-C $out_coverage_gtf "
+        . "-A $out_abun_tab "
+        . "-l $sample "
+        . "$in_bam";
+    Map::executeCommand($count_command);
 }
 
 =head2 function2
@@ -138,4 +176,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of PireT::Count
+1;    # End of PireT::Count
