@@ -18,20 +18,19 @@ require_ok('PiReT::Map');
 # Verify if indexes are created correctly
 Map::createHisatIndex(
     f1        => "t/data/euk_test.fna",
-    f2        => "t/data/prok_test.fna",
     numCPU    => 1,
-    out_index => "t/results/euk_prok_index"
+    out_index => "t/results/euk_index"
 );
 
-my $in_cnt = count_lines("t/results/euk_prok_index.6.ht2l");
-is( $in_cnt, 2195, "createHisatIndex() IS test" );
+my $in_cnt = count_lines("t/results/euk_index.6.ht2l");
+is( $in_cnt, 1852, "createHisatIndex() IS test" );
 
 # Verify if mapping produces an expected sam file
 Map::runMapping(
     r1             => "t/data/1.trimmed.fastq",
     r2             => "t/data/2.trimmed.fastq",
     hisat2options  => "--fast",
-    IndexFile      => "t/results/euk_prok_index",
+    IndexFile      => "t/results/euk_index",
     numCPU         => 1,
     splicesite     => "t/data/splice_sites_gff.txt",
     outsam         => "t/results/mapped.sam",
@@ -39,7 +38,7 @@ Map::runMapping(
 );
 
 my $map_cnt = count_lines("t/results/mapped.sam");
-is( $map_cnt, 71, "runMapping() IS test" );
+is( $map_cnt, 64, "runMapping() IS test" );
 
 #Verify if thr createFAI is working
 Map::createFAI("t/data/euk_test.fna\n");
@@ -57,7 +56,9 @@ Map::orderSAM(
     bam_file => "t/results/ordered_mapped.bam"
 );
 my $bam_cnt = count_lines("t/results/ordered_mapped.bam");
-is( $bam_cnt, '28', "orderSAM() IS test" );
+is( $bam_cnt, '24', "orderSAM() IS test" );
+
+
 
 # Function to count lines
 sub count_lines {
