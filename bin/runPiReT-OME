@@ -551,25 +551,16 @@ foreach ( sort keys %description ) {
         sam_file => "$mapDir/mapped.sam",
         bam_file => "$mapDir/$sample.alns.sorted.bam");
 
-    system(   "stringtie -o $mapDir/$sample.summary.gtf "
-            . "-G $gff_file "
-            . "-C $mapDir/$sample"
-            . "_full_coverage.gtf "
-            . "-A $mapDir/$sample"
-            . "_gene_abundance.tab "
-            ."-l $sample "
-            . "$mapDir/$sample.alns.sorted.bam " ) == 0
-        || die "\nAn error occured while $sample was being quantified using StringTie\n";
-    &lprint(
-        "stringtie $mapDir/alns.sorted.bam -o $mapDir/$sample.summary.gtf "
-            . "-G $gff_file "
-            . "-C $mapDir/$sample "
-            . "_full_coverage.gtf "
-            . "-A $mapDir/$sample "
-            . "_gene_abundance.tab "
-            ."-l $sample "
-            . "$mapDir/$sample.alns.sorted.bam" )
-        & lprint("[Quantifying transcripts]\n\tFinished \n\n");
+    Count::stringtie(
+        out_summary_gtf  => "$mapDir/$sample.summary.gtf",
+        gff              => "$gff_file",
+        out_coverage_gtf => "$mapDir/$sample"."_full_coverage.gtf",
+        out_abun_tab     => "$mapDir/$sample"."_gene_abundance.tab",
+        sample           => "$sample",
+        in_bam           => "$mapDir/$sample.alns.sorted.bam"
+    );
+
+    &lprint("[Quantifying transcripts]\n\tFinished \n\n");
     
 }
 
