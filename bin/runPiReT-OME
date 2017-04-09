@@ -61,9 +61,6 @@ GetOptions(
     'h_vmem=s'              => \$memlim,
     'gff_eukarya=s'         => \$gff_eukarya,
     'gene_coverage_fasta=s' => \$coverage_fasta,
-    'geneopt=s'             => \$htseq
-    , #count reads based on 'gene' or 'CDS' or 'tRNA' or 'mRNA' in annotation file, default ='gene';
-      #  'BAM_ready=s' =>\$mapread,      #if mapping file are provided for samples by users
     'help|?' => sub { &Usage() }
 );
 
