@@ -120,7 +120,6 @@ sub executeCommand {
     `$command`;
 }
 
-
 ################################################################################
 # Function to reverse complement DNA
 sub rev_comp {
@@ -133,13 +132,12 @@ sub rev_comp {
 
 ################################################################################
 sub orderSAM {
-    my %args               = @_;
-    my $mappedSAM = $args{sam_file};
+    my %args        = @_;
+    my $mappedSAM   = $args{sam_file};
     my $orderedBAMs = $args{bam_file};
 
-    my $order_samtools = "samtools view -Su "
-                         ."$sam_file | samtools sort > "
-                         ."$mapDir/$sample.alns.sorted.bam"
+    my $order_samtools
+        = "samtools view -Su $mappedSAM | samtools sort > $orderedBAMs";
     &executeCommand($order_samtools);
 }
 
@@ -162,7 +160,6 @@ sub parseFAI {
     close GENOIN;
     return %seqln;
 }
-
 
 ################################################################################
 # Function to count lines

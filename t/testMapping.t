@@ -43,20 +43,27 @@ is( $map_cnt, 71, "runMapping() IS test" );
 
 #Verify if thr createFAI is working
 Map::createFAI("t/data/euk_test.fna\n");
-my $fai_euk  = &count_lines("t/data/euk_test.fna.fai");
-is( $fai_euk,  8, "createFAI() IS test with euk\n" );
+my $fai_euk = &count_lines("t/data/euk_test.fna.fai");
+is( $fai_euk, 8, "createFAI() IS test with euk\n" );
 
 # Verify if the parseFAI function is working as it should
 my %fai_dic = Map::parseFAI("t/data/euk_test.fna.fai");
 my $ind     = $fai_dic{"gi|347623741|ref|NT_175993.1|"};
 is( $ind, '217846', "parseFAI() IS test" );
 
+# Verify if order sam is working correctly
+Map::orderSAM(
+    sam_file   => "t/results/mapped.sam",
+    bam_file => "t/results/ordered_mapped.bam"
+);
+my $bam_cnt = count_lines("t/results/ordered_mapped.bam");
+is( $bam_cnt, '28', "orderSAM() IS test" );
+
 # Function to count lines
 sub count_lines {
     my $fn = shift;
-
     my $cnt;
-    open( my $FH,'<', $fn ) or die "Damn. $!";
+    open( my $FH, '<', $fn ) or die "Damn. $!";
     $cnt++ while <$FH>;
     close $FH;
     return $cnt;
