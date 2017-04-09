@@ -290,7 +290,7 @@ my %allcontigs;
 if ($eukarya_fasta) {
     if ( &file_check($eukarya_fasta) < 0 ) {
         die
-            "failed: failed: The eukarya_fast file $eukarya_fasta doesn't exist or empty.\n";
+            "failed: The eukarya_fast file $eukarya_fasta doesn't exist or empty.\n";
     }
     else {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
@@ -546,13 +546,9 @@ foreach ( sort keys %description ) {
 
     &lprint("[Quantifying transcripts]\n\tRunning \n\n");
 
-    system(
-        "samtools view -Su $mapDir/mapped.sam | samtools sort > $mapDir/$sample.alns.sorted.bam"
-        ) == 0
-        || die "\nAn error occured while $sample was being sorted\n";
-    &lprint(
-        "samtools view -Su $mapDir/mapped.sam | samtools sort > $mapDir/$sample.alns.sorted.bam \n"
-    );
+    Map::orderSAM(
+        sam_file => "$mapDir/mapped.sam",
+        bam_file => "$mapDir/$sample.alns.sorted.bam");
 
     system(   "stringtie -o $mapDir/$sample.summary.gtf "
             . "-G $gff_file "
