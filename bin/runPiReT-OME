@@ -468,9 +468,10 @@ my $checkIndexFile = join "", ( $index_ht2, '.5.ht2l' );
 unless ( -s $checkIndexFile ) {
     &lprint( "\nIndexing reference", 'yellow', "\n" );
     if ($eukarya_fasta) {
-        &lprint("hisat2-build --large-index $eukarya_fasta $index_ht2\n");
-        print "hisat2-build --large-index $eukarya_fasta $index_ht2\n";
-        `hisat2-build --large-index $eukarya_fasta  $index_ht2`;
+        Map::createHisatIndex(
+            f1 => $eukarya_fasta,
+            numCPU => $numCPU,
+            out_index => $index_ht2);
     }
     else { &lprint("failed: no INDEX files\n"); exit; }
 }
