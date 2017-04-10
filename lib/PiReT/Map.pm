@@ -67,6 +67,38 @@ sub createHisatIndex {
     }
     &executeCommand($command);
 }
+################################################################################
+sub createBWAIndex {
+    my %args = @_;
+    my $ref = $args{ref};
+    $command = "bwa index $ref";
+    &executeCommand($command);
+}
+
+################################################################################
+sub runBWAmem{
+    my %args = @_;
+    my $ref = $args{ref};
+    my $queryPairedFile_r1 = $args{r1};
+    my $queryPairedFile_r2 = $args{r2};
+    my $outsam = $args{outsam};
+
+    my $fai_index = "$ref"."fai";
+    my $bwa_index = "$ref"."ann";
+
+    if ( (-e $fai_index) && (-e $bwa_inex) ){
+        $command = "bwa mem $ref $queryPairedFile_r1 $queryPairedFile_r2 "
+                   ."> $outsam ";
+    }
+    else{
+        &createFAI($ref);
+        &createBWAIndex(ref => $ref);
+        $command = "bwa mem $ref $queryPairedFile_r1 $queryPairedFile_r2 "
+                   ."> $outsam ";
+    }
+    &executeCommand($command);
+
+}
 
 ################################################################################
 sub runMapping {
