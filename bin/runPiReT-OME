@@ -11,6 +11,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use POSIX qw(strftime);
 use PiReT::Map;
+use PiReT::Count;
 
 $| = 1;
 $ENV{PATH} = "$Bin:$ENV{PATH}";
@@ -21,11 +22,6 @@ $ENV{PERL5LIB}
 #     = "$Bin/../thirdParty/miniconda/lib/python2.7/site-packages/:"
 #     ."$ENV{PYTHONPATH}";
 
-#TODO: remove this later, once the this thing works
-# foreach ( sort keys %ENV ) {
-#     print "$_  =  $ENV{$_}\n";
-# }
-
 &checkDependedPrograms();
 
 my $main_pid  = $$;
@@ -34,18 +30,14 @@ my $time      = time();
 my $scriptDir = "$Bin/../scripts";
 my ($descriptfile, $splice_file_out, $pairfile, $diffdir,
     $workdir,      $numCPU,          $eukarya_fasta,,
-    $index_ht2,    $gff_eukarya,     $coverage_fasta
+    $index_ht2,    $gff_eukarya
 );
 
 #my $mapread='no';
 $numCPU = 1;
-my $test_method      = 'both';
-my $mptool           = 'bowtie2';
-my $htseq            = 'gene';
 my $memlim           = '20G';
 my $rna_trimming_opt = 'yes';
 my $rna_mapping_opt  = 'yes';
-$coverage_fasta = 'NONE';
 $gff_eukarya    = 'NONE';
 
 #------------------------------------------------------------------------------#
@@ -60,7 +52,6 @@ GetOptions(
     'index_ref_ht2=s'       => \$index_ht2,
     'h_vmem=s'              => \$memlim,
     'gff_eukarya=s'         => \$gff_eukarya,
-    'gene_coverage_fasta=s' => \$coverage_fasta,
     'help|?' => sub { &Usage() }
 );
 
@@ -69,7 +60,6 @@ GetOptions(
 #------------------------------------------------------------------------------#
 if ( $eukarya_fasta eq 'NONE' )  { $eukarya_fasta  = ""; }
 if ( $gff_eukarya eq 'NONE' )    { $gff_eukarya    = ""; }
-if ( $coverage_fasta eq 'NONE' ) { $coverage_fasta = ""; }
 
 #------------------------------------------------------------------------------#
 
@@ -104,32 +94,14 @@ unless ( -d "$workdir" ) {
 
 # process log file
 my $process_log_file = "$workdir/process.log";
-
 # error log file
 my $error_log_file = "$workdir/error.log";
-
 open( my $LOG, ">", $process_log_file )
     or die "failed: failed to write $process_log_file\n$!";
 open( STDERR, '>&', STDOUT )
     or die "failed: failed: Can't redirect stderr: $!";
 open( STDERR, '>', $error_log_file )
-    or die "failed: failed: Can't redirect stderr: $!";
-
-#------------------------------------------------------------------------------#
-
-# creates directory, throw error, if can't
-unless ( -d "$workdir/sum_gene_count/" ) {
-    mkdir "$workdir/sum_gene_count/", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/sum_gene_count/ $!";
-}
-
-#------------------------------------------------------------------------------#
-
-unless ( -d "$workdir/logdir/" ) {
-    mkdir "$workdir/logdir/", 0777
-        or die "failed: failed: can not make dir  $workdir/dir/ $!";
-}
+    or die "FAILED: Can't redirect stderr: $!";
 
 #------------------------------------------------------------------------------#
 
@@ -150,10 +122,10 @@ my $mapDir;
 
 #------------------------------------------------------------------------------#
 # parse experimental design file
-open( IN, "$descriptfile" )
-    or die "failed: cannot open description file $descriptfile $!";
+open( my $IN, '<', "$descriptfile" )
+    or die "FAILED: cannot open $descriptfile $!";
 my $linenum = 0;
-while (<IN>) {
+while (<$IN>) {
     chomp;
     my @line = split /\s+/, $_;
     unless ( $#line >= 2 ) {
@@ -177,17 +149,6 @@ while (<IN>) {
 
         my @line1 = split /;/, $line[1];
 
-#    foreach (@line1)
-#  {
-#    my @rawreadsfile=split /:/, $_;
-#    foreach (@rawreadsfile)
-#    {
-#   if(&file_check($_)<0 ) { die "failed: failed: The reads file $_ doesn't exist or empty.\n";}
-#    }
-#  }
-#
-#
-
         for ( my $ill = 0; $ill <= $#line1; $ill++ ) {
             my @rawreadsfile = split /:/, $line1[$ill];
 
@@ -208,7 +169,7 @@ while (<IN>) {
         push @{ $pairs{ $line[2] } }, $line[0];
         if ( $line[2] =~ /\s+/ ) {
             &lprint(
-                "failed: please check format of experimental descpition \n group name can not have space as : $line[2]\n"
+                "FAILED: please check format of experimental descpition \n group name can not have space as : $line[2]\n"
             );
             exit;
         }
@@ -223,61 +184,12 @@ close IN;
 
 #------------------------------------------------------------------------------#
 
+
 &lprint("[Checking Experimental Design File]\n Finished\n\n");
 
-&lprint("[Checking if enough samples are present]\n Running\n\n");
-
 #------------------------------------------------------------------------------#
 
-# throw error if there are not enough samples
-foreach ( keys %pairs ) {
-    my $tmpgroup = $_;
-    if ( ( ( $test_method eq 'both' ) || ( $test_method eq 'Deseq' ) )
-        && $#{ $pairs{$tmpgroup} } < 2 )
-    {
-        &lprint(
-            "failed: testing method using Deseq2 but the $tmpgroup has only $pairs{$tmpgroup} which is less than 3. please not using Deseq method or increase the number of dunplcates for $tmpgroup\n"
-        );
-        exit;
-    }
-}
-
-#------------------------------------------------------------------------------#
-&lprint("[Checking if enough samples are present]\n Finished\n\n");
-
-#------------------------------------------------------------------------------#
-
-my ( @eukaryagff, @prokaryotegffi, %allgff );
-
-#------------------------------------------------------------------------------#
-&lprint("[Creating additional directories]\n Running\n\n");
-
-#------------------------------------------------------------------------------#
-
-# create additional directories
-unless ( -d "$workdir/differential_gene/" ) {
-    mkdir "$workdir/differential_gene/", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/differential_gene/ $!";
-}
-
-unless ( -d "$workdir/sum_gene_count/tmp_count/" ) {
-    mkdir "$workdir/sum_gene_count/tmp_count/", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/sum_gene_count/tmp_count/ $!";
-}
-unless ( -d "$workdir/sum_gene_count/read_count/" ) {
-    mkdir "$workdir/sum_gene_count/read_count/", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/sum_gene_count/read_count/ $!";
-}
-
-#------------------------------------------------------------------------------#
-
-&lprint("[Creating additional directories]\n Finished\n\n");
-
-#------------------------------------------------------------------------------#
-
+my ( @eukaryagff, %allgff );
 my %allcontigs;
 
 #------------------------------------------------------------------------------#
@@ -290,22 +202,20 @@ my %allcontigs;
 if ($eukarya_fasta) {
     if ( &file_check($eukarya_fasta) < 0 ) {
         die
-            "failed: The eukarya_fast file $eukarya_fasta doesn't exist or empty.\n";
+            "FAILED: $eukarya_fasta doesn't exist or empty.\n";
     }
     else {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `cp $eukarya_fasta $workdir/eukarya.fa`;
-
         #`ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         # check if the index file exists, do not run, if it already exists
         if ( &file_check("$workdir/eukarya.fa.fai") < 0 ) {
             `samtools faidx $workdir/eukarya.fa`;
         }
-
         my @contigs = &readfai("$workdir/eukarya.fa.fai");
         foreach (@contigs) { $allcontigs{$_}++; }
     }
-}    #else {die "failed:  need eukarya sequence file\n";}
+}
 
 #------------------------------------------------------------------------------#
 &lprint(
@@ -323,7 +233,8 @@ if ($eukarya_fasta) {
 foreach ( keys %allcontigs ) {
     if ( $allcontigs{$_} > 1 ) {
         &lprint(
-            "contig name $_ is duplicated, please make sure the name of contigs is unique in reference fasta files (prokaryout and eukarya references)\n"
+            "contig name $_ is duplicated, please make sure the name of contigs"
+            ."is unique in reference fasta files (prokaryout and eukarya references)\n"
         );
         exit;
     }
@@ -335,35 +246,7 @@ foreach ( keys %allcontigs ) {
 );
 
 #------------------------------------------------------------------------------#
-&lprint(
-    "[Creating additional directories based on type of analysis]\n Running\n\n"
-);
-
-#------------------------------------------------------------------------------#
-
-unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya" ) {
-    mkdir "$workdir/sum_gene_count/tmp_count/eukarya", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya $!";
-}
-unless ( -d "$workdir/sum_gene_count/read_count/eukarya" ) {
-    mkdir "$workdir/sum_gene_count/read_count/eukarya", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/sum_gene_count/read_count/eukarya $!";
-}
-unless ( -d "$workdir/differential_gene/eukarya" ) {
-    mkdir "$workdir/differential_gene/eukarya", 0777
-        or die
-        "failed: failed: can not make dir  $workdir/differential_gene/eukarya $!";
-}
-
-&lprint(
-    "[Creating additional directories based on type of analysis]\n Finished\n\n"
-);
-
-#------------------------------------------------------------------------------#
 &lprint("[parsing gff files]\n Running\n\n");
-
 #------------------------------------------------------------------------------#
 
 my @tmpgff = split /,/, $gff_eukarya;
@@ -375,112 +258,65 @@ foreach (@tmpgff) {
     $tmpeukarya[-1] =~ s/gff//g;
     if ( &file_check($tmpgff) < 0 ) {
         next &lprint(
-            "The gff_eukarya file $tmpgff doesn't exist or empty.\n");
+            "FAILED: The $tmpgff doesn't exist or empty.\n");
+        exit;
     }
     push @{ $allgff{eukarya} }, $tmpeukarya[-1];
 
-    unless ( -d "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]" )
-    {
-        mkdir "$workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1]",
-            0777
-            or die
-            "failed: can not make dir  $workdir/sum_gene_count/tmp_count/eukarya/$tmpeukarya[-1] $!";
-    }
-    unless ( -d "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]" )
-    {
-        mkdir
-            "$workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1]",
-            0777
-            or die
-            "failed: cannot make dir  $workdir/sum_gene_count/read_count/eukarya/$tmpeukarya[-1] $!";
-    }
-    unless ( -d "$workdir/differential_gene/eukarya/$tmpeukarya[-1]" ) {
-        mkdir "$workdir/differential_gene/eukarya/$tmpeukarya[-1]", 0777
-            or die
-            "failed: cannot make dir  $workdir/differential_gene/eukarya/$tmpeukarya[-1] $!";
-    }
-
-    # if ( &file_check("$workdir/eukarya.fa.fai") > 0 ) {
-    # &lprint("\n $workdir/eukarya.fa.fai is found\n");}
-
     if ( &file_check( "$workdir/eukarya.gtf" ) > 0 ) {
-        &lprint( "\n found $workdir/eukarya.gtf\n" );
+        &lprint( "\n Found $workdir/eukarya.gtf\n" );
     }
 
     else {
         system(
-            "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai"
+            "perl $scriptDir/parse_eukarya_gfffile.pl "
+            ."$tmpgff $workdir/ $workdir/eukarya.fa.fai"
             ) == 0
             || die
-            "\nparse_eukarya_gfffile.pl is not in your PATH\n $ENV{PATH}\n";
+            "\nFAILED: while running parse_eukarya_gfffile.pl\n";
         &lprint(
             "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai \n"
         );
     }
 
-    if (&file_check(
-            "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
-        ) > 0
-        )
-    {
-        &lprint(
-            "\n $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt is found\n"
-        );
+    if (&file_check("$workdir/splice_sites_gff.txt") > 0){
+        &lprint("\n $workdir/splice_sites_gff.txt is found\n");
     }
     else {
         system(
-            "python $scriptDir/hisat2_extract_splice_sites.py $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt"
-            ) == 0
+            "python $scriptDir/hisat2_extract_splice_sites.py"
+            ." $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt") == 0
             || die
-            "\nhisat2_extract_splice_sites.py failed\n";
-        &lprint(
-            "\npython $scriptDir/hisat2_extract_splice_sites.py $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt \n"
-        );
-    }
-
-    #NOTE: I do not understand this loop, why are they concatenated?
-    if (&file_check(
-            "$workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt"
-        ) > 0
-        )
-    {
-        &lprint(
-            "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n"
-        );
-
-        # for printing in screen
-        print
-            "cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt\n";
-        `cat $workdir/differential_gene/eukarya/$tmpeukarya[-1]/splice_sites_gff.txt >> $workdir/differential_gene/eukarya/splice_sites_gff.txt`;
-    }
+            "\nFAILED: while running hisat2_extract_splice_sites.py\n";
+        &lprint("\npython $scriptDir/hisat2_extract_splice_sites.py"
+                ."$workdir/eukarya.gtf > $workdir/splice_sites_gff.txt \n");}
 }
 
 #------------------------------------------------------------------------------#
-&lprint("[parsing gff files]\n Finished\n\n");
+&lprint("[Parsing gff files]\n Finished\n\n");
 
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-&lprint("[creating index files]\n Running\n\n");
+&lprint("[Creating Hisat2 Index files]\n Running\n\n");
 
 #TODO: Is .5 enough to check the status?
 my $checkIndexFile = join "", ( $index_ht2, '.5.ht2l' );
 unless ( -s $checkIndexFile ) {
-    &lprint( "\nIndexing reference", 'yellow', "\n" );
     if ($eukarya_fasta) {
         Map::createHisatIndex(
             f1 => $eukarya_fasta,
             numCPU => $numCPU,
             out_index => $index_ht2);
     }
-    else { &lprint("failed: no INDEX files\n"); exit; }
+    else { &lprint("FAILED: no INDEX files\n"); exit; }
 }
 
 if   ( -s $checkIndexFile ) { &lprint("INDEX file $index_ht2 created\n"); }
 else                        { &lprint("failed: INDEX $index_ht2\n"); exit; }
 
 #------------------------------------------------------------------------------#
-&printRunTime($time);
+&lprint("[Creating Hisat2 index files]\n Finished\n\n");
 
 #------------------------------------------------------------------------------#
 my $time1 = time();
@@ -491,7 +327,7 @@ foreach ( sort keys %description ) {
     my $rawreads = $description{$sample}{Rawreads_file};
     $rawreads =~ s/---ppp---/ /g;
     $rawreads =~ s/:/ /g;
-    my $jobname   = join '.', ( $sample, 'RNA_analyis' );
+    # my $jobname   = join '.', ( $sample, 'RNA_analyis' );
     my $indexFile = $index_ht2;
     my $sampleDir = join '/', ( $workdir, "$sample" );
     mkdir $sampleDir if ( !-e $sampleDir );
@@ -531,19 +367,25 @@ foreach ( sort keys %description ) {
     my $splice_file      = join '/',
         ( $workdir, "differential_gene", "eukarya", "splice_sites_gff.txt" );
     my $gff_file = join '/', ( $workdir, "eukarya.gff" );
-    Map::runMapping(
-        r1             => $pairedRead1fastq,
-        r2             => $pairedRead2fastq,
-        hisat2options  => "--fast",
-        IndexFile      => $indexFile,
-        numCPU         => $numCPU,
-        splicesite     => $splice_file,
-        outsam         => "$mapDir/mapped.sam",
-        mappingLogFile => "$mapDir/mapped.log"
-    );
+    
+    if ( &file_check("$workdir/$sample/mapping_results/mapped.log")
+        > 0 ){
+        &lprint("\n[Mapping was already done for $sample]\n");
+    }
+    else {
+        Map::runMapping(
+            r1             => $pairedRead1fastq,
+            r2             => $pairedRead2fastq,
+            hisat2options  => "--fast",
+            IndexFile      => $indexFile,
+            numCPU         => $numCPU,
+            splicesite     => $splice_file,
+            outsam         => "$mapDir/mapped.sam",
+            mappingLogFile => "$mapDir/mapped.log"
+        );
+    }
 
     &lprint("[Mapping Reads]\n\tFininshed \n\n");
-    &printRunTime($time1);
 
     &lprint("[Quantifying transcripts]\n\tRunning \n\n");
 
@@ -560,16 +402,17 @@ foreach ( sort keys %description ) {
         in_bam           => "$mapDir/$sample.alns.sorted.bam"
     );
 
+    push @out_gtfs, "$mapDir/$sample.summary.gtf";
+
     &lprint("[Quantifying transcripts]\n\tFinished \n\n");
     
 }
 
-
 #------------------------------------------------------------------------------#
 my $gff_file = join '/', ( $workdir, "eukarya.gff" );
 my $all_gtf = join(" ", @out_gtfs);
-system("stringtie --merge -e -B -G $gff_file $all_gtf -o $workdir/merged.gtf");
-&lprint("\nstringtie --merge -e -B -G $gff_file $all_gtf -o $workdir/merged.gtf\n");
+system("stringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf");
+&lprint("\nstringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf\n");
 
 #------------------------------------------------------------------------------#
 my $merged_gtfs = "$workdir/merged_gtfs";
@@ -578,41 +421,45 @@ if ( !-e $merged_gtfs ) { print "cannot make dir $merged_gtfs\n"; }
 foreach ( sort keys %description ) {
     my $samp = $_;
     system("mkdir -p $merged_gtfs/$samp");
-    system("stringtie $workdir/$samp/mapping_results/$samp.alns.sorted.bam -l $samp -G $workdir/merged.gtf -o $merged_gtfs/$samp/$samp.merged.gtf")
-    &lprint("stringtie $workdir/$samp/mapping_results/$samp.alns.sorted.bam -l $samp -G $workdir/merged.gtf -o $merged_gtfs/$samp/$samp.merged.gtf")
+    my $stringtieEB = "stringtie -e -B "
+                     ."$workdir/$samp/mapping_results/$samp.alns.sorted.bam "
+                    ."-l $samp -G $workdir/merged.gtf "
+                    ."-o $merged_gtfs/$samp/$samp.merged.gtf";
+
+    Map::executeCommand("$stringtieEB");
 }
 
 &printRunTime($time1);
 &lprint("\n Done Trimming and Quantifying Reads \n");
-
+#------------------------------------------------------------------------------#
+my $merge_command="python $scriptDir/merge_abund_file.py -W $workdir";
+Map::executeCommand("$merge_command");
 #------------------------------------------------------------------------------#
 
-my $merge_command="$scriptDir/merge_abund_file.py -W $workdir";
-Map::executeCommand($merge_command);
-
 &lprint("\n\n [All Done] \n\n");
-print "All Done\n";
-
-close LOG;
 
 sub Usage {
 
     print <<"END";
- Usage: runPiReT-OME [options] -exp <exp_descriptfile.txt> -d <workdir> -eukarya_fasta <eukarya.fa> -index_ref_ht2 <indexfile>
+ 
+ Usage: runPiReT-OME [options] [-exp <exp_descriptfile.txt>] [-d <workdir>] 
+        [-eukarya_fasta <eukarya.fa>] [-index_ref_ht2 <indexfile>]
+        [-h_vmem <memory>] [-cpu <numCPU>]
 
   example: 
                        
-    runPiReT-OME -exp test_experimental_design.txt -d pipeline_test_euk -eukarya_fasta data/eukarya_test.fa -index_ref_ht2 test_index -gff_eukarya data/eukarya_test.gff3
+    runPiReT-OME -exp test_experimental_design.txt -d pipeline_test_euk 
+    -eukarya_fasta data/eukarya_test.fa -index_ref_ht2 test_index 
+    -gff_eukarya data/eukarya_test.gff3
 
  
-        -d <string>, working directory where the whole project will be under, must have permission to write. 
-        -gff_eukarya <string>, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
-        -eukarya_fasta  eukarya nucleotide sequence in fasta format (for making hisat2 mapping index file)
-        -index_ref_ht2:     string, absolute path, hisat2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
-        -h_vmem: memory limit per node, string, default 20G
-        -gene_coverage_fasta: string, absolute path,  fasta format, single file  (for directional coverage analysis, sequnce  must be part of prokaryote mapping reference sequence)  (optional) 
-        -cpu          number of cpu to be used (default 1)
-        -exp         tab delimited txt file descripting experiments that each row represents one sample.
+    -d <string>, working directory where the whole project will be under, must have permission to write. 
+    -gff_eukarya <string>, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
+    -eukarya_fasta  eukarya nucleotide sequence in fasta format (for making hisat2 mapping index file)
+    -index_ref_ht2:     string, absolute path, hisat2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
+    -h_vmem: memory limit per node, string, default 20G
+    -cpu          number of cpu to be used (default 1)
+    -exp         tab delimited txt file descripting experiments that each row represents one sample.
                       Each colomum is as:
                     (
                      ID:  uniq sample ID
@@ -674,8 +521,8 @@ sub lprint {
 sub readfai {
     my $faifile = shift;
     my @tmpcontigs;
-    open( IN, $faifile ) or die "failed: can not open $faifile $!";
-    while (<IN>) {
+    open( my $IN, '<' ,$faifile ) or die "failed: can not open $faifile $!";
+    while (<$IN>) {
         chomp;
         my $line = $_;
         my @line = split /\t+/, $line;
