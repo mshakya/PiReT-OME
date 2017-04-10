@@ -16,6 +16,22 @@ BEGIN { use_ok('PiReT::Count') }
 require_ok('PiReT::Count');
 
 # Verify if counting function is working
+Map::createHisatIndex(
+    f1        => "t/data/euk_test.fna",
+    numCPU    => 1,
+    out_index => "t/results/euk_index"
+);
+
+Map::runMapping(
+    r1             => "t/data/1.trimmed.fastq",
+    r2             => "t/data/2.trimmed.fastq",
+    hisat2options  => "--fast",
+    IndexFile      => "t/results/euk_index",
+    numCPU         => 1,
+    splicesite     => "t/data/splice_sites_gff.txt",
+    outsam         => "t/results/mapped.sam",
+    mappingLogFile => "t/results/mapped.log"
+);
 
 Map::orderSAM(
     sam_file   => "t/results/mapped.sam",
