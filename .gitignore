@@ -72,3 +72,5 @@ t/results/euk_index.4.ht2l
 t/results/euk_index.5.ht2l
 t/results/euk_index.6.ht2l
 t/results/euk_index.7.ht2l
+bin/bcftools
+test_data/pipeline_test_euk/
