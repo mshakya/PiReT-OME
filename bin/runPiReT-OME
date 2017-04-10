@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+
 # use diagnostics;
 use Getopt::Long;
 use File::Basename;
@@ -12,6 +13,7 @@ use lib "$Bin/../lib";
 use POSIX qw(strftime);
 use PiReT::Map;
 use PiReT::Count;
+use PiReT::Variant;
 
 $| = 1;
 $ENV{PATH} = "$Bin:$ENV{PATH}";
@@ -27,10 +29,11 @@ $ENV{PERL5LIB}
 my $main_pid  = $$;
 my $version   = "1";
 my $time      = time();
+my $variant   = "0";
 my $scriptDir = "$Bin/../scripts";
-my ($descriptfile, $splice_file_out, $pairfile, $diffdir,
+my ($descriptfile, $splice_file_out, $pairfile,  $diffdir,
     $workdir,      $numCPU,          $eukarya_fasta,,
-    $index_ht2,    $gff_eukarya
+    $index_ht2,    $gff_eukarya,     $index_bwa, $bwa_indexDir
 );
 
 #my $mapread='no';
@@ -38,28 +41,24 @@ $numCPU = 1;
 my $memlim           = '20G';
 my $rna_trimming_opt = 'yes';
 my $rna_mapping_opt  = 'yes';
-$gff_eukarya    = 'NONE';
+$gff_eukarya = 'NONE';
 
 #------------------------------------------------------------------------------#
 GetOptions(
 
-    'rna_mapping_opt=s'     => \$rna_mapping_opt,
-    'rna_trimming_opt=s'    => \$rna_trimming_opt,
-    'exp=s'                 => \$descriptfile,
-    'd=s'                   => \$workdir,
-    'cpu=i'                 => \$numCPU,
-    'eukarya_fasta=s'       => \$eukarya_fasta,
-    'index_ref_ht2=s'       => \$index_ht2,
-    'h_vmem=s'              => \$memlim,
-    'gff_eukarya=s'         => \$gff_eukarya,
-    'help|?' => sub { &Usage() }
+    'rna_mapping_opt=s'  => \$rna_mapping_opt,
+    'rna_trimming_opt=s' => \$rna_trimming_opt,
+    'exp=s'              => \$descriptfile,
+    'd=s'                => \$workdir,
+    'cpu=i'              => \$numCPU,
+    'eukarya_fasta=s'    => \$eukarya_fasta,
+    'index_ref_ht2=s'    => \$index_ht2,
+    'h_vmem=s'           => \$memlim,
+    'gff_eukarya=s'      => \$gff_eukarya,
+    "variant"            => \$variant,
+    'index_bwa'          => \$index_bwa,
+    'help|?'             => sub { &Usage() }
 );
-
-#------------------------------------------------------------------------------#
-
-#------------------------------------------------------------------------------#
-if ( $eukarya_fasta eq 'NONE' )  { $eukarya_fasta  = ""; }
-if ( $gff_eukarya eq 'NONE' )    { $gff_eukarya    = ""; }
 
 #------------------------------------------------------------------------------#
 
@@ -73,13 +72,18 @@ $descriptfile = Cwd::abs_path("$descriptfile");
 
 #------------------------------------------------------------------------------#
 
-unless ( $descriptfile
-    && $workdir
-    && $gff_eukarya
-    && $eukarya_fasta
-    && $index_ht2 )
-{
-    &Usage;
+if ( $variant eq 1 ) {
+    unless ( $descriptfile && $workdir && $eukarya_fasta ) { &Usage; }
+}
+else {
+    unless ( $descriptfile
+        && $workdir
+        && $gff_eukarya
+        && $eukarya_fasta
+        && $index_ht2 )
+    {
+        &Usage;
+    }
 }
 
 #------------------------------------------------------------------------------#
@@ -94,6 +98,7 @@ unless ( -d "$workdir" ) {
 
 # process log file
 my $process_log_file = "$workdir/process.log";
+
 # error log file
 my $error_log_file = "$workdir/error.log";
 open( my $LOG, ">", $process_log_file )
@@ -184,7 +189,6 @@ close IN;
 
 #------------------------------------------------------------------------------#
 
-
 &lprint("[Checking Experimental Design File]\n Finished\n\n");
 
 #------------------------------------------------------------------------------#
@@ -201,12 +205,12 @@ my %allcontigs;
 
 if ($eukarya_fasta) {
     if ( &file_check($eukarya_fasta) < 0 ) {
-        die
-            "FAILED: $eukarya_fasta doesn't exist or empty.\n";
+        die "FAILED: $eukarya_fasta doesn't exist or empty.\n";
     }
     else {
         if ( -e "$workdir/eukarya.fa" ) { `rm $workdir/eukarya.fa`; }
         `cp $eukarya_fasta $workdir/eukarya.fa`;
+
         #`ln -fs $eukarya_fasta $workdir/eukarya.fa`;
         # check if the index file exists, do not run, if it already exists
         if ( &file_check("$workdir/eukarya.fa.fai") < 0 ) {
@@ -234,7 +238,7 @@ foreach ( keys %allcontigs ) {
     if ( $allcontigs{$_} > 1 ) {
         &lprint(
             "contig name $_ is duplicated, please make sure the name of contigs"
-            ."is unique in reference fasta files (prokaryout and eukarya references)\n"
+                . "is unique in reference fasta files (prokaryout and eukarya references)\n"
         );
         exit;
     }
@@ -244,81 +248,124 @@ foreach ( keys %allcontigs ) {
 &lprint(
     "[Making sure if sequences in references are not named the same]\n Finished\n\n"
 );
+################################################################################
+if ( $variant eq 1 ) {
+    &lprint("[parsing gff files]\n Running\n\n");
 
 #------------------------------------------------------------------------------#
-&lprint("[parsing gff files]\n Running\n\n");
+
+    my @tmpgff = split /,/, $gff_eukarya;
+
+    foreach (@tmpgff) {
+        my $tmpgff = $_;
+        my @tmpeukarya = split '/', $tmpgff;
+        $tmpeukarya[-1] =~ s/\.//g;
+        $tmpeukarya[-1] =~ s/gff//g;
+        if ( &file_check($tmpgff) < 0 ) {
+            next &lprint("FAILED: The $tmpgff doesn't exist or empty.\n");
+            exit;
+        }
+        push @{ $allgff{eukarya} }, $tmpeukarya[-1];
+
+        if ( &file_check("$workdir/eukarya.gtf") > 0 ) {
+            &lprint("\n Found $workdir/eukarya.gtf\n");
+        }
+
+        else {
+            system(   "perl $scriptDir/parse_eukarya_gfffile.pl "
+                    . "$tmpgff $workdir/ $workdir/eukarya.fa.fai" ) == 0
+                || die "\nFAILED: while running parse_eukarya_gfffile.pl\n";
+            &lprint(
+                "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai \n"
+            );
+        }
+
+        if ( &file_check("$workdir/splice_sites_gff.txt") > 0 ) {
+            &lprint("\n $workdir/splice_sites_gff.txt is found\n");
+        }
+        else {
+            system(   "python $scriptDir/hisat2_extract_splice_sites.py"
+                    . " $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt"
+                ) == 0
+                || die
+                "\nFAILED: while running hisat2_extract_splice_sites.py\n";
+            &lprint(  "\npython $scriptDir/hisat2_extract_splice_sites.py"
+                    . "$workdir/eukarya.gtf > $workdir/splice_sites_gff.txt \n"
+            );
+        }
+    }
+
+#------------------------------------------------------------------------------#
+    &lprint("[Parsing gff files]\n Finished\n\n");
+
 #------------------------------------------------------------------------------#
 
-my @tmpgff = split /,/, $gff_eukarya;
+#------------------------------------------------------------------------------#
+    &lprint("[Creating Hisat2 Index files]\n Running\n\n");
 
-foreach (@tmpgff) {
-    my $tmpgff = $_;
-    my @tmpeukarya = split '/', $tmpgff;
-    $tmpeukarya[-1] =~ s/\.//g;
-    $tmpeukarya[-1] =~ s/gff//g;
-    if ( &file_check($tmpgff) < 0 ) {
-        next &lprint(
-            "FAILED: The $tmpgff doesn't exist or empty.\n");
-        exit;
-    }
-    push @{ $allgff{eukarya} }, $tmpeukarya[-1];
-
-    if ( &file_check( "$workdir/eukarya.gtf" ) > 0 ) {
-        &lprint( "\n Found $workdir/eukarya.gtf\n" );
+    #TODO: Is .5 enough to check the status?
+    my $checkIndexFile = join "", ( $index_ht2, '.5.ht2l' );
+    unless ( -s $checkIndexFile ) {
+        if ($eukarya_fasta) {
+            Map::createHisatIndex(
+                f1        => $eukarya_fasta,
+                numCPU    => $numCPU,
+                out_index => $index_ht2
+            );
+        }
+        else { &lprint("FAILED: no INDEX files\n"); exit; }
     }
 
-    else {
-        system(
-            "perl $scriptDir/parse_eukarya_gfffile.pl "
-            ."$tmpgff $workdir/ $workdir/eukarya.fa.fai"
-            ) == 0
-            || die
-            "\nFAILED: while running parse_eukarya_gfffile.pl\n";
-        &lprint(
-            "perl $scriptDir/parse_eukarya_gfffile.pl $tmpgff $workdir/ $workdir/eukarya.fa.fai \n"
-        );
-    }
+    if ( -s $checkIndexFile ) { &lprint("INDEX file $index_ht2 created\n"); }
+    else                      { &lprint("failed: INDEX $index_ht2\n"); exit; }
 
-    if (&file_check("$workdir/splice_sites_gff.txt") > 0){
-        &lprint("\n $workdir/splice_sites_gff.txt is found\n");
-    }
-    else {
-        system(
-            "python $scriptDir/hisat2_extract_splice_sites.py"
-            ." $workdir/eukarya.gtf > $workdir/splice_sites_gff.txt") == 0
-            || die
-            "\nFAILED: while running hisat2_extract_splice_sites.py\n";
-        &lprint("\npython $scriptDir/hisat2_extract_splice_sites.py"
-                ."$workdir/eukarya.gtf > $workdir/splice_sites_gff.txt \n");}
+#------------------------------------------------------------------------------#
+    &lprint("[Creating Hisat2 index files]\n Finished\n\n");
+
+#------------------------------------------------------------------------------#
 }
+else {
+  #--------------------------------------------------------------------------#
+    &lprint("[Creating BWA index files]\n Running\n\n");
 
-#------------------------------------------------------------------------------#
-&lprint("[Parsing gff files]\n Finished\n\n");
+  #--------------------------------------------------------------------------#
+    if ($index_bwa) {
+        my $checkIndexFile = join "", ( $index_bwa, '.ann' );
+        unless ( -s $checkIndexFile ) {
+            my $full_bwa_index     = Cwd::abs_path("$index_bwa");
+            my $full_eukarya_fasta = Cwd::abs_path("$eukarya_fasta");
+            my $symlink
+                = "ln -fs $full_eukarya_fasta $full_bwa_index.fasta\n";
+            Map::executeCommand("$symlink");
+            Map::createBWAIndex( ref => "$full_bwa_index.fasta", );
 
-#------------------------------------------------------------------------------#
+          #------------------------------------------------------------------#
+            &lprint("[Creating BWA index files]\n Finished\n\n");
 
-#------------------------------------------------------------------------------#
-&lprint("[Creating Hisat2 Index files]\n Running\n\n");
-
-#TODO: Is .5 enough to check the status?
-my $checkIndexFile = join "", ( $index_ht2, '.5.ht2l' );
-unless ( -s $checkIndexFile ) {
-    if ($eukarya_fasta) {
-        Map::createHisatIndex(
-            f1 => $eukarya_fasta,
-            numCPU => $numCPU,
-            out_index => $index_ht2);
+          #------------------------------------------------------------------#
+        }
     }
-    else { &lprint("FAILED: no INDEX files\n"); exit; }
+    else {
+        my $checkIndexFile = join "", ( "$workdir/bwa_index/eukarya_fasta.fasta", '.ann' );
+        unless ( -s $checkIndexFile ) {
+            my $bwa_indexDir       = Cwd::abs_path("$workdir/bwa_index");
+            my $full_eukarya_fasta = Cwd::abs_path("$eukarya_fasta");
+            mkdir $bwa_indexDir if ( !-e $bwa_indexDir );
+            my $sym_ref = join( '/', $bwa_indexDir, "eukarya_fasta.fasta" );
+
+            my $symlink = "ln -fs $full_eukarya_fasta $sym_ref\n";
+            Map::executeCommand("$symlink");
+            Map::createBWAIndex( ref => "$sym_ref", );
+        }
+        #------------------------------------------------------------------#
+        &lprint("[Creating BWA index files]\n Finished\n\n");
+
+        #------------------------------------------------------------------#
+
+    }
+
 }
-
-if   ( -s $checkIndexFile ) { &lprint("INDEX file $index_ht2 created\n"); }
-else                        { &lprint("failed: INDEX $index_ht2\n"); exit; }
-
-#------------------------------------------------------------------------------#
-&lprint("[Creating Hisat2 index files]\n Finished\n\n");
-
-#------------------------------------------------------------------------------#
+################################################################################
 my $time1 = time();
 &lprint("[Trimming Reads]\n\tRunning \n\n");
 
@@ -335,7 +382,6 @@ foreach ( sort keys %description ) {
     my $troutDir = join '/', ( $sampleDir, 'trimming_results' );
     mkdir $troutDir if ( !-e $troutDir );
     if ( !-e $troutDir ) { print "cannot make dir $troutDir\n"; }
-
     if ( &file_check("$workdir/$sample/trimming_results/$sample.stats.txt")
         > 0 )
     {
@@ -364,76 +410,100 @@ foreach ( sort keys %description ) {
 
     my $pairedRead1fastq = join '/', ( $troutDir, "$sample.1.trimmed.fastq" );
     my $pairedRead2fastq = join '/', ( $troutDir, "$sample.2.trimmed.fastq" );
-    my $splice_file      = join '/',
-        ( $workdir, "differential_gene", "eukarya", "splice_sites_gff.txt" );
-    my $gff_file = join '/', ( $workdir, "eukarya.gff" );
-    
-    if ( &file_check("$workdir/$sample/mapping_results/mapped.log")
-        > 0 ){
-        &lprint("\n[Mapping was already done for $sample]\n");
+
+    if ( $variant eq '0' ) {
+
+        my $splice_file = join '/', ( $workdir, "splice_sites_gff.txt" );
+        my $gff_file    = join '/', ( $workdir, "eukarya.gff" );
+
+        if ( &file_check("$workdir/$sample/mapping_results/mapped.log") > 0 )
+        {
+            &lprint("\n[Mapping was already done for $sample]\n");
+        }
+        else {
+            Map::runMapping(
+                r1             => $pairedRead1fastq,
+                r2             => $pairedRead2fastq,
+                hisat2options  => "--fast",
+                IndexFile      => $indexFile,
+                numCPU         => $numCPU,
+                splicesite     => $splice_file,
+                outsam         => "$mapDir/mapped.sam",
+                mappingLogFile => "$mapDir/mapped.log"
+            );
+        }
+        &lprint("[Mapping Reads]\n\tFininshed \n\n");
+        &lprint("[Quantifying transcripts]\n\tRunning \n\n");
+        Map::orderSAM(
+            sam_file => "$mapDir/mapped.sam",
+            bam_file => "$mapDir/$sample.alns.sorted.bam"
+        );
+
+        Count::stringtie(
+            out_summary_gtf  => "$mapDir/$sample.summary.gtf",
+            gff              => "$gff_file",
+            out_coverage_gtf => "$mapDir/$sample" . "_full_coverage.gtf",
+            out_abun_tab     => "$mapDir/$sample" . "_gene_abundance.tab",
+            sample           => "$sample",
+            in_bam           => "$mapDir/$sample.alns.sorted.bam"
+        );
+
+        push @out_gtfs, "$mapDir/$sample.summary.gtf";
+
+        &lprint("[Quantifying transcripts]\n\tFinished \n\n");
     }
     else {
-        Map::runMapping(
-            r1             => $pairedRead1fastq,
-            r2             => $pairedRead2fastq,
-            hisat2options  => "--fast",
-            IndexFile      => $indexFile,
-            numCPU         => $numCPU,
-            splicesite     => $splice_file,
-            outsam         => "$mapDir/mapped.sam",
-            mappingLogFile => "$mapDir/mapped.log"
-        );
+        $bwa_indexDir       = Cwd::abs_path("$workdir/bwa_index");
+        my $sym_ref;
+        $sym_ref = join '/', ($bwa_indexDir, "eukarya_fasta.fasta");
+        unless ( -s "$mapDir/bwa_mapped.sam" ) {
+            Map::runBWAmem(
+                ref    => $sym_ref,
+                r1     => $pairedRead1fastq,
+                r2     => $pairedRead2fastq,
+                outsam => "$mapDir/bwa_mapped.sam"
+            );
+        }
+        my $var_dir = "$workdir/$sample/variant_results";
+        mkdir $var_dir if ( !-e "$var_dir" );
+        Variant::call_SNPs(
+            ref => $sym_ref,
+            aln_file => "$mapDir/bwa_mapped.sam",
+            bc_file => "$var_dir/snps.bcf",
+            vc_output =>"$var_dir/snps.vcf")
     }
-
-    &lprint("[Mapping Reads]\n\tFininshed \n\n");
-
-    &lprint("[Quantifying transcripts]\n\tRunning \n\n");
-
-    Map::orderSAM(
-        sam_file => "$mapDir/mapped.sam",
-        bam_file => "$mapDir/$sample.alns.sorted.bam");
-
-    Count::stringtie(
-        out_summary_gtf  => "$mapDir/$sample.summary.gtf",
-        gff              => "$gff_file",
-        out_coverage_gtf => "$mapDir/$sample"."_full_coverage.gtf",
-        out_abun_tab     => "$mapDir/$sample"."_gene_abundance.tab",
-        sample           => "$sample",
-        in_bam           => "$mapDir/$sample.alns.sorted.bam"
-    );
-
-    push @out_gtfs, "$mapDir/$sample.summary.gtf";
-
-    &lprint("[Quantifying transcripts]\n\tFinished \n\n");
-    
 }
 
 #------------------------------------------------------------------------------#
-my $gff_file = join '/', ( $workdir, "eukarya.gff" );
-my $all_gtf = join(" ", @out_gtfs);
-system("stringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf");
-&lprint("\nstringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf\n");
+if ($variant eq '1') {
+    my $gff_file = join '/', ( $workdir, "eukarya.gff" );
+    my $all_gtf = join( " ", @out_gtfs );
+    system("stringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf");
+    &lprint("\nstringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf\n");
 
 #------------------------------------------------------------------------------#
-my $merged_gtfs = "$workdir/merged_gtfs";
-mkdir $merged_gtfs if ( !-e $merged_gtfs );
-if ( !-e $merged_gtfs ) { print "cannot make dir $merged_gtfs\n"; }
-foreach ( sort keys %description ) {
-    my $samp = $_;
-    system("mkdir -p $merged_gtfs/$samp");
-    my $stringtieEB = "stringtie -e -B "
-                     ."$workdir/$samp/mapping_results/$samp.alns.sorted.bam "
-                    ."-l $samp -G $workdir/merged.gtf "
-                    ."-o $merged_gtfs/$samp/$samp.merged.gtf";
+    my $merged_gtfs = "$workdir/merged_gtfs";
+    mkdir $merged_gtfs if ( !-e $merged_gtfs );
+    if ( !-e $merged_gtfs ) { print "cannot make dir $merged_gtfs\n"; }
+    foreach ( sort keys %description ) {
+        my $samp = $_;
+        system("mkdir -p $merged_gtfs/$samp");
+        my $stringtieEB
+            = "stringtie -e -B "
+            . "$workdir/$samp/mapping_results/$samp.alns.sorted.bam "
+            . "-l $samp -G $workdir/merged.gtf "
+            . "-o $merged_gtfs/$samp/$samp.merged.gtf";
 
-    Map::executeCommand("$stringtieEB");
+        Map::executeCommand("$stringtieEB");
 }
 
-&printRunTime($time1);
-&lprint("\n Done Trimming and Quantifying Reads \n");
+    &printRunTime($time1);
+    &lprint("\n Done Trimming and Quantifying Reads \n");
+
 #------------------------------------------------------------------------------#
-my $merge_command="python $scriptDir/merge_abund_file.py -W $workdir";
-Map::executeCommand("$merge_command");
+    my $merge_command = "python $scriptDir/merge_abund_file.py -W $workdir";
+    Map::executeCommand("$merge_command");
+}
 #------------------------------------------------------------------------------#
 
 &lprint("\n\n [All Done] \n\n");
@@ -521,7 +591,7 @@ sub lprint {
 sub readfai {
     my $faifile = shift;
     my @tmpcontigs;
-    open( my $IN, '<' ,$faifile ) or die "failed: can not open $faifile $!";
+    open( my $IN, '<', $faifile ) or die "failed: can not open $faifile $!";
     while (<$IN>) {
         chomp;
         my $line = $_;
