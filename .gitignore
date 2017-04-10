@@ -61,3 +61,14 @@ bin/htseq-count
 bin/jellyfish
 bin/pip
 bin/samtools
+t/data/euk_test.fna.fai
+t/data/prok_test.fna.fai
+t/results/ordered_mapped.bam
+t/results/*
+t/results/euk_index.1.ht2l
+t/results/euk_index.2.ht2l
+t/results/euk_index.3.ht2l
+t/results/euk_index.4.ht2l
+t/results/euk_index.5.ht2l
+t/results/euk_index.6.ht2l
+t/results/euk_index.7.ht2l
