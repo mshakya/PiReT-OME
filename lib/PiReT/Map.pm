@@ -88,13 +88,13 @@ sub runBWAmem{
 
     if ( (-e $fai_index) && (-e $bwa_inex) ){
         $command = "bwa mem $ref $queryPairedFile_r1 $queryPairedFile_r2 "
-                   ."> $outsam ";
+                   ."> $outsam \n";
     }
     else{
         &createFAI($ref);
         &createBWAIndex(ref => $ref);
         $command = "bwa mem $ref $queryPairedFile_r1 $queryPairedFile_r2 "
-                   ."> $outsam ";
+                   ."> $outsam \n";
     }
     &executeCommand($command);
 
