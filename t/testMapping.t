@@ -6,6 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use lib "$Bin/../ext/lib/perl5";
 use Test::More;
+use Cwd;
 
 # use Test::File;
 
@@ -58,7 +59,29 @@ Map::orderSAM(
 my $bam_cnt = count_lines("t/results/ordered_mapped.bam");
 is( $bam_cnt, '24'||'26', "orderSAM() IS test" );
 
+# Verify if bwa index is working
+my $full_ref_path = Cwd::abs_path("t/data/Sa_cervi.R64.fa");
+my $full_out_path = Cwd::abs_path("t/results");
+my $symlink = "ln -fs $full_ref_path $full_out_path/ref_bwa.fna";
+Map::executeCommand($symlink);
+Map::createBWAIndex(
+    ref => "t/results/ref_bwa.fna",
+    );
 
+my $bwa_index_ann = count_lines("t/results/ref_bwa.fna.ann");
+is( $bwa_index_ann, '35', "createBWAIndex() IS test (.ann file)" );
+my $bwa_index_amb = count_lines("t/results/ref_bwa.fna.amb");
+is( $bwa_index_amb, '1', "createBWAIndex() IS test (.amb file)" );
+
+#Verify bwa mapping
+Map::runBWAmem(
+    ref => "t/results/ref_bwa.fna",
+    r1 => "t/data/yeast1.fastq",
+    r2 => "t/data/yeast2.fastq",
+    outsam => "t/results/bwa_mapped.sam");
+
+my $bwa_mapped_line = count_lines("t/results/bwa_mapped.sam");
+is( $bwa_mapped_line, '25018', "runBWAmem() IS test" );
 
 # Function to count lines
 sub count_lines {
