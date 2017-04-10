@@ -44,6 +44,8 @@ bedtools_VER=2.26.0
 hisat2_VER=2.0.5
 htseq_VER=0.6.1
 stringtie_VER=1.3.3
+bwa_VER=0.7.15
+bcftools_VER=1.4
 
 # minimum required version of Scripting languages
 perl5_VER=5.22.0
@@ -101,6 +103,20 @@ echo "
 ------------------------------------------------------------------------------
 "
 }
+install_bwa()
+{
+echo "--------------------------------------------------------------------------
+                           Downloading bwa v$bwa_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda bwa=$bwa_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/bwa $ROOTDIR/bin/bwa
+echo "
+--------------------------------------------------------------------------------
+                           bwa v$bwa_VER installed
+--------------------------------------------------------------------------------
+"
+}
 
 install_jellyfish()
 {
@@ -128,6 +144,21 @@ ln -sf $ROOTDIR/thirdParty/miniconda/bin/stringtie $ROOTDIR/bin/stringtie
 echo "
 ------------------------------------------------------------------------------
                       StringTie v$stringtie_VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_bcftools()
+{
+echo "--------------------------------------------------------------------------
+                      installing bcftools v$bcftools_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c bioconda bcftools=$bcftools_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/bcftools $ROOTDIR/bin/bcftools
+echo "
+------------------------------------------------------------------------------
+                      bcftools v$bcftools_VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -500,6 +531,35 @@ then
 else
   echo "hisat2 was not found"
   install_hisat2
+fi
+
+################################################################################
+if ( checkSystemInstallation bcftools )
+then
+bcftools_installed_VER=`bcftools 2>&1| grep 'Version'  | perl -nle 'print $& if m{Version: \d+\.\d+\.\d+}'`;
+  if  ( echo $bcftools_installed_VER $bcftools_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found bcftools $bcftools_installed_VER"
+  else
+    install_bcftools
+  fi
+else
+  echo "bcftools is not found"
+  install_bcftools
+fi
+################################################################################
+if ( checkSystemInstallation bwa )
+then
+bwa_installed_VER=`bwa 2>&1| grep 'Version'  | perl -nle 'print $& if m{Version: \d+\.\d+\.\d+}'`;
+  if  ( echo $bwa_installed_VER $bwa_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+  then
+    echo " - found BWA $bwa_installed_VER"
+  else
+    install_bwa
+  fi
+else
+  echo "bwa is not found"
+  install_bwa
 fi
 ################################################################################
 if ( checkSystemInstallation stringtie )
