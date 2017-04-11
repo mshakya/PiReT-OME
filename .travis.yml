@@ -20,7 +20,6 @@ before_script:
   - export PATH=$PATH:bin/
 
 script:
-  - echo $PATH
   - perl Build.PL
   - ./Build test
   - ./Build testcover
