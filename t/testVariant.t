@@ -41,6 +41,12 @@ Variant::call_SNPs(
     vc_output => "t/results/bwa_vcf.vcf"
 );
 
+my $bc_file = count_lines("t/results/bwa_bcfile.bcfile");
+is($bc_file, 19941, 'call_SNP() bc_file IS test');
+
+my $vc_file = count_lines("t/results/bwa_vcf.vcf");
+is($vc_file, 11, 'call_SNP() vc_file IS test');
+
 # Function to count lines
 sub count_lines {
     my $fn = shift;
