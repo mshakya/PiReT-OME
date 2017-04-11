@@ -16,11 +16,11 @@ PireT::Count - The great new PireT::Count!
 
 =head1 VERSION
 
-Version 0.01
+Version 1
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '1';
 
 =head1 SYNOPSIS
 
@@ -77,7 +77,7 @@ sub stringtie {
         . "-A $out_abun_tab "
         . "-l $sample "
         . "$in_bam";
-    Map::executeCommand($count_command);
+    Map::executeCommand("$count_command");
 }
 
 =head2 function2
