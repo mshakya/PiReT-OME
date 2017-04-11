@@ -48,10 +48,10 @@ Count::stringtie(
 );
 
 my $tab_cnt = count_lines("t/results/out.tab");
-is( $tab_cnt, '488', "\nstringtie() IS test for tab file\n" );
+is( $tab_cnt, '488', "stringtie() IS test for tab file" );
 
 my $gtf_cnt = count_lines("t/results/out.gtf");
-is( $gtf_cnt, '8', "\nstringtie() IS test for gtf file\n" );
+is( $gtf_cnt, '8', "stringtie() IS test for gtf file" );
 
 # Function to count lines
 sub count_lines {
