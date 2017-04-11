@@ -1,15 +1,19 @@
 
-#PiReT
-
-Pipeline for Reference based Transcriptomics - OME.
-
 [![Build Status](https://travis-ci.org/mshakya/PiReT-OME.svg?branch=master)](https://travis-ci.org/mshakya/PiReT-OME)
 [![codecov](https://codecov.io/gh/mshakya/PiReT-OME/branch/master/graph/badge.svg)](https://codecov.io/gh/mshakya/PiReT-OME)
 
-#Overview
+
+# PiReT-OME
+
+Pipeline for Reference based Transcriptomics - OME.
+
+# Overview
+  PiReT-OME is a Transcriptomic pipeline with additional functionality to detect variants.
+
+# Installation
 
 ## Requirements
-Before installing PiReT-OME, user must have following installed. These normally come pre-installed as part of a unix machine. 
+Before installing PiReT-OME, users must have following installed. These normally come pre-installed as part of a unix machine. 
 - curl/wget
 - make
 - git
@@ -18,7 +22,7 @@ Before installing PiReT-OME, user must have following installed. These normally 
 Use `git clone` from command line.
 
 ```
-git clone https://github.com/mshakya/PiReT.git
+git clone https://github.com/mshakya/PiReT-OME.git
 ```
 
 ## Installing PiReT-OME
@@ -27,7 +31,7 @@ PiReT-OME is a wrapper of RNA seq tools, many of which are available in [biocond
 `cd` into the `PiReT` directory
 
 ```
-cd PiReT
+cd PiReT-OME
 ./INSTALL-PiReTOME.sh
 ```
 Please restart the terminal after installation.
@@ -50,7 +54,7 @@ Pipeline run status can be checked in either `process.log` or `error.log`.
 
 
 ## Installed Dependencies
-PiReT-OME requires following dependencies, all of which should be installed and added to PATH. All of the dependencies should be installed by `INSTALL-PiReTOME.sh`. However, some manual work may require depending on your system configuration.
+PiReT-OME requires following dependencies, all of which will be installed and added to PATH by `INSTALL-PiReTOME.sh`. However, some manual work may require depending on your system configuration.
 
 ### Programming/Scripting languages
 - [Python >=v2.7](https://www.python.org/downloads/release/python-2712/)
@@ -87,6 +91,7 @@ This is the core list of dependencies. However, there are secondary dependencies
 
 The pipeline can be run in a multiprocessor server with the ability to submit jobs in a queue system through `qsub` or in a single processor system where all jobs are run sequentially. The former requires a `qsub` system. Also, the current state of pipeline only works for a single processor.
 
+### Transcriptomics
 
 ```
     perl runPiReT-OME -exp experimental_design.txt \
@@ -199,6 +204,16 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 - `eukarya.gff`: A `GFF` file from input GFF files.
 
 - `all_metrics.csv`: Contains FPKM, TPM, and coverage for every gene.
+
+
+### Variant detection
+  PiReT-OME also has a module that can be used to detect SNPs. To run the variant detection module, use the `variant` option. For example, from `test_data` folder, one can try:
+
+  ```
+  runPiReT-OME -exp test_experimental_design.txt -d pipeline_test_var -eukarya_fasta data/eukarya_test.fa -variant
+  ```
+
+
 
 ## Removing PiReT
 
