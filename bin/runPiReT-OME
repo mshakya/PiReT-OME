@@ -20,9 +20,9 @@ $ENV{PATH} = "$Bin:$ENV{PATH}";
 $ENV{PERL5LIB}
     = "$Bin/../lib:$Bin/../ext/lib/perl5:$Bin/../ext/lib/perl5/auto:$ENV{PERL5LIB}";
 
-# $ENV{PYTHONPATH}
-#     = "$Bin/../thirdParty/miniconda/lib/python2.7/site-packages/:"
-#     ."$ENV{PYTHONPATH}";
+$ENV{PYTHONPATH}
+    = "$Bin/../thirdParty/miniconda/lib/python2.7/site-packages/:"
+    ."$ENV{PYTHONPATH}";
 
 &checkDependedPrograms();
 
@@ -249,7 +249,7 @@ foreach ( keys %allcontigs ) {
     "[Making sure if sequences in references are not named the same]\n Finished\n\n"
 );
 ################################################################################
-if ( $variant eq 1 ) {
+if ( $variant eq "0" ) {
     &lprint("[parsing gff files]\n Running\n\n");
 
 #------------------------------------------------------------------------------#
@@ -262,7 +262,7 @@ if ( $variant eq 1 ) {
         $tmpeukarya[-1] =~ s/\.//g;
         $tmpeukarya[-1] =~ s/gff//g;
         if ( &file_check($tmpgff) < 0 ) {
-            next &lprint("FAILED: The $tmpgff doesn't exist or empty.\n");
+            &lprint("FAILED: The $tmpgff doesn't exist or empty.\n");
             exit;
         }
         push @{ $allgff{eukarya} }, $tmpeukarya[-1];
@@ -475,7 +475,7 @@ foreach ( sort keys %description ) {
 }
 
 #------------------------------------------------------------------------------#
-if ($variant eq '1') {
+if ($variant eq 0) {
     my $gff_file = join '/', ( $workdir, "eukarya.gff" );
     my $all_gtf = join( " ", @out_gtfs );
     system("stringtie --merge -G $gff_file $all_gtf -o $workdir/merged.gtf");
