@@ -57,7 +57,7 @@ Map::orderSAM(
     bam_file => "t/results/ordered_mapped.bam"
 );
 my $bam_cnt = count_lines("t/results/ordered_mapped.bam");
-is( $bam_cnt, '24'||'26', "orderSAM() IS test" );
+is( $bam_cnt, '26', "orderSAM() IS test" );
 
 # Verify if bwa index is working
 my $full_ref_path = Cwd::abs_path("t/data/Sa_cervi.R64.fa");
