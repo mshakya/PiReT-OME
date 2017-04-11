@@ -30,7 +30,7 @@ export PERL5LIB="$ROOTDIR/ext/lib/perl5:$ROOTDIR/lib/perl5/darwin-thread-multi-2
 fi
 
 # Add pythonpath
-# export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
+export PYTHONPATH="$ROOTDIR/thirdParty/miniconda/lib/python2.7/site-packages/:$PYTHONPATH"
 
 #Add R path
 # export R_LIBS="$ROOTDIR/ext/lib/R:$R_LIBS:$R_LIBS_USER"
@@ -50,6 +50,7 @@ bcftools_VER=1.4
 # minimum required version of Scripting languages
 perl5_VER=5.22.0
 python2_VER=2.7.12
+R_VER=3.3.1
 
 #minimum required version of Perl modules
 perl_String_Approx_VER=3.27
@@ -160,6 +161,21 @@ echo "
 ------------------------------------------------------------------------------
                       bcftools v$bcftools_VER installed
 ------------------------------------------------------------------------------
+"
+}
+install_R()
+{
+echo "--------------------------------------------------------------------------
+                           Installing R v $R_VER
+--------------------------------------------------------------------------------
+"
+conda install --yes -c r r-base=$R_VER -p $ROOTDIR/thirdParty/miniconda
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/R $ROOTDIR/bin/R
+ln -sf $ROOTDIR/thirdParty/miniconda/bin/Rscript $ROOTDIR/bin/Rscript
+echo "
+--------------------------------------------------------------------------------
+                           R v $R_VER installed
+--------------------------------------------------------------------------------
 "
 }
 
@@ -517,6 +533,21 @@ else
   install_python
 fi
 
+###############################################################################
+if ( checkSystemInstallation R )
+    then
+      R_installed_VER=`R --version 2>&1 | grep "version"| perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+      if ( echo $R_installed_VER $R_VER | awk '{if($2>=$3) exit 0; else exit 1}' )
+      then 
+        echo " - found R $R_installed_VER"
+      else
+        echo "Required version of R version $R_VER was not found"
+        install_R
+      fi
+    else
+      echo "R was not found"
+      install_R
+fi
 ################################################################################
 if ( checkSystemInstallation hisat2 )
 then
