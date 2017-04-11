@@ -10,7 +10,7 @@ Version 0.01
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '1';
 
 =head1 SYNOPSIS
 
@@ -148,6 +148,7 @@ sub runMapping {
 ################################################################################
 sub executeCommand {
     my $command = shift;
+    $command = "$command\n";
     print $command;
     `$command`;
 }
