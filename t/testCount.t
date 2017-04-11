@@ -53,6 +53,12 @@ is( $tab_cnt, '488', "stringtie() IS test for tab file" );
 my $gtf_cnt = count_lines("t/results/out.gtf");
 is( $gtf_cnt, '8', "stringtie() IS test for gtf file" );
 
+# test:4, # clean up!
+Map::executeCommand("rm -rf t/results/*\n");
+my $file_no = &files_in_dir("t/results/");
+is($file_no, 0, 'test for file clearance');
+
+done_testing();
 # Function to count lines
 sub count_lines {
     my $fn = shift;
@@ -62,4 +68,11 @@ sub count_lines {
     close $FH;
     return $cnt;
 }
-done_testing();
+
+sub files_in_dir {
+    my $dir = shift || '.';
+    my $dh;
+    opendir $dh, $dir;
+    grep { -f } readdir $dh;
+}
+

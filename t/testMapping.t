@@ -83,6 +83,13 @@ Map::runBWAmem(
 my $bwa_mapped_line = count_lines("t/results/bwa_mapped.sam");
 is( $bwa_mapped_line, '25018', "runBWAmem() IS test" );
 
+
+# test:4, # clean up!
+Map::executeCommand("rm -rf t/results/*\n");
+my $file_no = &files_in_dir("t/results/");
+is($file_no, 0, 'test for file clearance');
+
+done_testing();
 # Function to count lines
 sub count_lines {
     my $fn = shift;
@@ -93,4 +100,11 @@ sub count_lines {
     return $cnt;
 }
 
-done_testing();
+sub files_in_dir {
+    my $dir = shift || '.';
+    my $dh;
+    opendir $dh, $dir;
+    grep { -f } readdir $dh;
+}
+
+
