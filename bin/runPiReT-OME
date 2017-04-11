@@ -525,11 +525,11 @@ sub Usage {
  
     -d <string>, working directory where the whole project will be under, must have permission to write. 
     -gff_eukarya <string>, absolute path, eukarya annotation file in gff format, multiple files seperated by comma, needed for diffrential gene analysis (contigs must be in  mapping reference with the same names)  (optional) 
-    -eukarya_fasta  eukarya nucleotide sequence in fasta format (for making hisat2 mapping index file)
-    -index_ref_ht2:     string, absolute path, hisat2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
-    -h_vmem: memory limit per node, string, default 20G
-    -cpu          number of cpu to be used (default 1)
-    -exp         tab delimited txt file descripting experiments that each row represents one sample.
+    -eukarya_fasta  <string>, eukarya nucleotide sequence in fasta format (for making hisat2 mapping index file)
+    -index_ref_ht2  <string>, absolute path, hisat2 mapping #ndex file,  single file that already exists or you want generated from ref sequences for both eukarya and prokaryote fasta. (must have written permission).
+    -h_vmem memory limit per node, string, default 20G
+    -cpu    number of cpu to be used (default 1)
+    -exp    tab delimited txt file descripting experiments that each row represents one sample.
                       Each colomum is as:
                     (
                      ID:  uniq sample ID
@@ -547,6 +547,7 @@ sub Usage {
                       exp21     read21p1:read21p2;read21p1a:read21p2a   timef
                       exp22     read22p1:read22p2;read22p1a:read22p2a   timef                              
                     )
+    -variant <flag>, use this for triggering the variant analysis
                                  
 END
     exit;
